@@ -1,0 +1,14 @@
+[
+  {
+    "text": "{1}",
+    "data": "start(help)"
+  },
+  {
+    "text": "{2}",
+    "data": "start(lang)"
+  },
+  {
+    "text": "Add Me To Your Groups!",
+    "data": "https://t.me/{1}?startgroup=new"
+  }
+]
