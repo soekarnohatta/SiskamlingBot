@@ -6,8 +6,10 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 	"github.com/soekarnohatta/Siskamling/bot"
+	"github.com/soekarnohatta/Siskamling/bot/handlers/metrics"
 	"github.com/soekarnohatta/Siskamling/bot/handlers/picture"
 	"github.com/soekarnohatta/Siskamling/bot/handlers/username"
+	"github.com/soekarnohatta/Siskamling/bot/helpers/database"
 	"log"
 	"net/http"
 )
@@ -15,6 +17,9 @@ import (
 func main() {
 	// Init config
 	bot.NewConfig()
+
+	// Connect to DB
+	database.NewMongo()
 
 	// Create bot from environment value.
 	b, err := gotgbot.NewBot(bot.Config.BotAPIKey, &gotgbot.BotOpts{
@@ -30,11 +35,13 @@ func main() {
 	updater := ext.NewUpdater(nil)
 	dispatcher := updater.Dispatcher
 
+	dispatcher.AddHandler(handlers.NewMessage(filters.Text, metrics.ChatMetrics))
+	dispatcher.AddHandler(handlers.NewMessage(filters.Text, metrics.UsernameMetrics))
+
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 0)
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 1)
 	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, username.Username), 2)
 	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, picture.Picture), 3)
-
 
 	// Start receiving updates.
 	err = updater.StartPolling(b, &ext.PollingOpts{DropPendingUpdates: true})
