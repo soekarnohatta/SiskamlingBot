@@ -44,11 +44,30 @@ func main() {
 	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, picture.Picture), 3)
 
 	// Start receiving updates.
-	err = updater.StartPolling(b, &ext.PollingOpts{DropPendingUpdates: true})
-	if err != nil {
-		panic("failed to start polling: " + err.Error())
+	if bot.Config.WebhookURL != "" {
+		webhook := ext.WebhookOpts{
+			Listen: bot.Config.WebhookListen,
+			Port: bot.Config.WebhookPort,
+			URLPath: bot.Config.WebhookPath + b.Token,
+		}
+		err = updater.StartWebhook(b, webhook)
+		if err != nil {
+			panic("failed to start webhook: " + err.Error())
+		}
+		ok, err := b.SetWebhook(bot.Config.WebhookURL + bot.Config.WebhookPath + b.Token, &gotgbot.SetWebhookOpts{MaxConnections: 40})
+		if err != nil {
+			panic("failed to start webhook: " + err.Error())
+		}
+		if !ok {
+			panic("failed to set webhook, ok is false")
+		}
+	} else {
+		err = updater.StartPolling(b, &ext.PollingOpts{DropPendingUpdates: true})
+		if err != nil {
+			panic("failed to start polling: " + err.Error())
+		}
+		log.Printf("%s has been started...\n", b.User.Username)
 	}
-	log.Printf("%s has been started...\n", b.User.Username)
 
 	// Idle, to keep updates coming in, and avoid bot stopping.
 	updater.Idle()

@@ -11,7 +11,7 @@ import (
 type TgConfig struct {
 	WebhookURL    string `env:"WEBHOOK_URL"`
 	WebhookPath   string `env:"WEBHOOK_PATH"`
-	WebhookServe  string `env:"WEBHOOK_SERVE"`
+	WebhookListen string `env:"WEBHOOK_LISTEN"`
 	BotAPIKey     string `env:"BOT_API_KEY,required"`
 	DatabaseURL   string `env:"DATABASE_URL,required"`
 	RedisAddress  string `env:"REDIS_ADDRESS,required"`
@@ -37,7 +37,7 @@ func NewConfig() TgConfig {
 		returnConfig.WebhookURL = os.Getenv("WEBHOOK_URL")
 		returnConfig.WebhookPath = os.Getenv("WEBHOOK_PATH")
 		returnConfig.WebhookPort, _ = strconv.Atoi(os.Getenv("WEBHOOK_PORT"))
-		returnConfig.WebhookServe = os.Getenv("WEBHOOK_SERVE")
+		returnConfig.WebhookListen = os.Getenv("WEBHOOK_LISTEN")
 
 		returnConfig.BotAPIKey = os.Getenv("BOT_API_KEY")
 		_, cleanPolling := os.LookupEnv("CLEAN_POLLING")
