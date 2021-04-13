@@ -9,10 +9,6 @@ import (
 )
 
 func ChatMetrics(b *gotgbot.Bot, ctx *ext.Context) error {
-	if ctx.Update.Message == nil || ctx.Update.CallbackQuery == nil {
-		return ext.EndGroups
-	}
-
 	err := models.SaveChat(context.TODO(), models.Chat{
 		ChatID:    ctx.Update.Message.Chat.Id,
 		ChatType:  ctx.Update.Message.Chat.Type,

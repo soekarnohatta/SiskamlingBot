@@ -9,10 +9,6 @@ import (
 )
 
 func UsernameMetrics(b *gotgbot.Bot, ctx *ext.Context) error {
-	if ctx.Update.Message == nil {
-		return ext.EndGroups
-	}
-
 	err := models.SaveUser(context.TODO(), models.User{
 		UserID:    ctx.Update.Message.From.Id,
 		FirstName: ctx.Update.Message.From.FirstName,
