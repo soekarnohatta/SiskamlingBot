@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func ChatMetrics(b *gotgbot.Bot, ctx *ext.Context) error {
+func ChatMetrics(_ *gotgbot.Bot, ctx *ext.Context) error {
 	err := models.SaveChat(context.TODO(), models.Chat{
 		ChatID:    ctx.Update.Message.Chat.Id,
 		ChatType:  ctx.Update.Message.Chat.Type,

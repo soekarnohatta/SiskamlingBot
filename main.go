@@ -35,13 +35,13 @@ func main() {
 	updater := ext.NewUpdater(nil)
 	dispatcher := updater.Dispatcher
 
-	dispatcher.AddHandler(handlers.NewMessage(filters.Text, metrics.ChatMetrics))
-	dispatcher.AddHandler(handlers.NewMessage(filters.Text, metrics.UsernameMetrics))
+	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.ChatMetrics))
+	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.UsernameMetrics))
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, username.Username), 1)
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, picture.Picture), 2)
 
-	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 0)
-	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 1)
-	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, username.Username), 2)
-	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, picture.Picture), 3)
+	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 3)
+	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 4)
 
 	// Start receiving updates.
 	if bot.Config.WebhookURL != "" {

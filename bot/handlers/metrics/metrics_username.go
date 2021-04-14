@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func UsernameMetrics(b *gotgbot.Bot, ctx *ext.Context) error {
+func UsernameMetrics(_ *gotgbot.Bot, ctx *ext.Context) error {
 	err := models.SaveUser(context.TODO(), models.User{
 		UserID:    ctx.Update.Message.From.Id,
 		FirstName: ctx.Update.Message.From.FirstName,
