@@ -56,7 +56,7 @@ func NewConfig() TgConfig {
 		logBan, _ := strconv.Atoi(os.Getenv("LOG_BAN"))
 		returnConfig.LogBan = int64(logBan)
 		returnConfig.OwnerID, _ = strconv.Atoi(os.Getenv("OWNER_ID"))
-		returnConfig.SudoUsers = strToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ","))
+		returnConfig.SudoUsers = strToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
 
 		returnConfig.DatabaseURL = os.Getenv("DATABASE_URL")
 		returnConfig.RedisAddress = os.Getenv("REDIS_ADDRESS")
