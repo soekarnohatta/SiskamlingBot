@@ -1,10 +1,10 @@
 package metrics
 
 import (
+	"SiskamlingBot/bot/models"
 	"context"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/soekarnohatta/Siskamling/bot/models"
 	"log"
 )
 

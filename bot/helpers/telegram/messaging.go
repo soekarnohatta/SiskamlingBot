@@ -49,4 +49,3 @@ func MentionHtml(userId int, name string) string {
 func CreateLinkHtml(link string, txt string) string {
 	return "<a href=\"" + link + "\">" + html.EscapeString(txt) + "</a>"
 }
-

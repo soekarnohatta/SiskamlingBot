@@ -1,14 +1,14 @@
 package models
 
 import (
+	"SiskamlingBot/bot/helpers/database"
 	"context"
-	"github.com/soekarnohatta/Siskamling/bot/helpers/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Chat struct {
-	ChatID    int64   `json:"chat_id" bson:"chat_id" `
+	ChatID    int64  `json:"chat_id" bson:"chat_id" `
 	ChatType  string `json:"chat_type" bson:"chat_type" `
 	ChatLink  string `json:"chat_link" bson:"chat_link" `
 	ChatTitle string `json:"chat_title" bson:"chat_title" `
@@ -26,7 +26,7 @@ func GetChatByID(ctx context.Context, Id int) (*Chat, error) {
 }
 
 func SaveChat(ctx context.Context, chat Chat) error {
-	_, err:= database.Mongo.Collection("chat").UpdateOne(ctx, bson.M{"chat_id": chat.ChatID}, bson.D{{"$set", chat}}, options.Update().SetUpsert(true))
+	_, err := database.Mongo.Collection("chat").UpdateOne(ctx, bson.M{"chat_id": chat.ChatID}, bson.D{{"$set", chat}}, options.Update().SetUpsert(true))
 	return err
 }
 
@@ -34,4 +34,3 @@ func DeleteChatByID(ctx context.Context, Id int) error {
 	_, err := database.Mongo.Collection("chat").DeleteOne(ctx, bson.M{"chat_id": Id})
 	return err
 }
-

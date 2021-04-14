@@ -1,8 +1,8 @@
 package database
 
 import (
+	"SiskamlingBot/bot"
 	"context"
-	"github.com/soekarnohatta/Siskamling/bot"
 	"log"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 var Mongo *mongo.Database
 
 func NewMongo() {
-	ctx, cancel := context.WithTimeout(context.TODO(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 
 	newMongo, err := mongo.NewClient(options.Client().ApplyURI(bot.Config.DatabaseURL))
@@ -27,5 +27,5 @@ func NewMongo() {
 	}
 
 	Mongo = newMongo.Database("test")
-	log.Println("succesfully Connected to MongoDB Instance!")
+	log.Println("successfully connected to MongoDB instance!")
 }

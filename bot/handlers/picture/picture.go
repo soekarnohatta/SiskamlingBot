@@ -1,11 +1,11 @@
 package picture
 
 import (
+	"SiskamlingBot/bot"
+	"SiskamlingBot/bot/helpers/telegram"
 	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/soekarnohatta/Siskamling/bot"
-	"github.com/soekarnohatta/Siskamling/bot/helpers/telegram"
 	"log"
 	"regexp"
 	"strconv"
@@ -16,15 +16,15 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 		return nil
 	}
 
-	if p, err := ctx.Message.From.GetProfilePhotos(b, nil); err == nil && p!= nil && p.TotalCount > 0 {
+	if p, err := ctx.Message.From.GetProfilePhotos(b, nil); err == nil && p != nil && p.TotalCount > 0 {
 		return nil
 	}
 
 	_, err := b.RestrictChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id, gotgbot.ChatPermissions{
-		CanSendMessages:       false,
-		CanSendMediaMessages:  false,
-		CanSendPolls:          false,
-		CanSendOtherMessages:  false,
+		CanSendMessages:      false,
+		CanSendMediaMessages: false,
+		CanSendPolls:         false,
+		CanSendOtherMessages: false,
 	},
 		&gotgbot.RestrictChatMemberOpts{UntilDate: -1},
 	)
@@ -120,10 +120,10 @@ func PictureCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	_, err = b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
-		CanSendMessages:       true,
-		CanSendMediaMessages:  true,
-		CanSendPolls:          true,
-		CanSendOtherMessages:  true,
+		CanSendMessages:      true,
+		CanSendMediaMessages: true,
+		CanSendPolls:         true,
+		CanSendOtherMessages: true,
 	}, nil)
 	if err != nil {
 		log.Println("failed to restrict chatmember: " + err.Error())
@@ -144,7 +144,7 @@ func logpicture(b *gotgbot.Bot, ctx *ext.Context) error {
 <b>Link:</b> %v`,
 		telegram.MentionHtml(int(user.Id), user.FirstName), user.Id,
 		chat.Title, chat.Id,
-		telegram.CreateLinkHtml("https://t.me/" + chat.Username + "/" + strconv.Itoa(int(ctx.Update.Message.MessageId)), "Here"))
+		telegram.CreateLinkHtml("https://t.me/"+chat.Username+"/"+strconv.Itoa(int(ctx.Update.Message.MessageId)), "Here"))
 
 	_, err := b.SendMessage(bot.Config.LogEvent, textToSend, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	return err

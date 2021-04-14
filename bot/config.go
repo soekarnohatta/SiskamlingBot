@@ -36,9 +36,15 @@ func NewConfig() TgConfig {
 	if err != nil {
 		returnConfig.WebhookURL = os.Getenv("WEBHOOK_URL")
 		returnConfig.WebhookPath = os.Getenv("WEBHOOK_PATH")
-		returnConfig.WebhookPort, _ = strconv.Atoi(os.Getenv("WEBHOOK_PORT"))
-		returnConfig.WebhookListen = os.Getenv("WEBHOOK_LISTEN")
 
+		port, _ := strconv.Atoi(os.Getenv("PORT"))
+		if port != 0 {
+			returnConfig.WebhookPort = port
+		} else {
+			returnConfig.WebhookPort, _ = strconv.Atoi(os.Getenv("WEBHOOK_PORT"))
+		}
+
+		returnConfig.WebhookListen = os.Getenv("WEBHOOK_LISTEN")
 		returnConfig.BotAPIKey = os.Getenv("BOT_API_KEY")
 		_, cleanPolling := os.LookupEnv("CLEAN_POLLING")
 		returnConfig.CleanPolling = cleanPolling

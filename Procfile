@@ -1,1 +1,1 @@
-web: ./bin/Siskamling
+web: ./bin/SiskamlingBot

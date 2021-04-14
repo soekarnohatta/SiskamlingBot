@@ -1,8 +1,8 @@
 package models
 
 import (
+	"SiskamlingBot/bot/helpers/database"
 	"context"
-	"github.com/soekarnohatta/Siskamling/bot/helpers/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,7 +26,7 @@ func GetUserByID(ctx context.Context, Id int) (*User, error) {
 }
 
 func SaveUser(ctx context.Context, user User) error {
-	_, err:= database.Mongo.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{"$set", user}}, options.Update().SetUpsert(true))
+	_, err := database.Mongo.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{"$set", user}}, options.Update().SetUpsert(true))
 	return err
 }
 
@@ -34,4 +34,3 @@ func DeleteUserByID(ctx context.Context, Id int) error {
 	_, err := database.Mongo.Collection("user").DeleteOne(ctx, bson.M{"user_id": Id})
 	return err
 }
-
