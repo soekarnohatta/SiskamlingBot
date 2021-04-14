@@ -37,8 +37,8 @@ func main() {
 
 	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.ChatMetrics))
 	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.UsernameMetrics))
-	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, username.Username), 1)
-	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, picture.Picture), 2)
+	dispatcher.AddHandler(handlers.NewMessage(filters.All, username.Username))
+	dispatcher.AddHandler(handlers.NewMessage(filters.All, picture.Picture))
 
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 3)
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 4)

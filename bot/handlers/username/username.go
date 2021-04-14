@@ -3,6 +3,8 @@ package username
 import (
 	"SiskamlingBot/bot"
 	"SiskamlingBot/bot/helpers/telegram"
+	"SiskamlingBot/bot/models"
+	"context"
 	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
@@ -17,10 +19,35 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	if ctx.Message.From.Username != "" || ctx.Message.From.Id == 777000 {
-		return nil
+		return ext.ContinueGroups
 	}
 
-	_, err := b.RestrictChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id, gotgbot.ChatPermissions{
+	// To avoid sending repeated message
+	member, err := b.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
+	if err != nil {
+		log.Println("failed to GetChatMember: " + err.Error())
+		return ext.ContinueGroups
+	}
+
+	if getStatus, _ := models.GetUsernameByID(context.TODO(), ctx.Message.From.Id); (getStatus != nil &&
+		getStatus.UserID == ctx.Message.From.Id &&
+		getStatus.ChatID == ctx.Message.Chat.Id &&
+		getStatus.IsMuted) || member.CanSendMessages == false {
+		return ext.EndGroups
+	}
+
+	// Save user status to DB for later check
+	err = models.SaveUsername(context.TODO(), models.Username{
+		UserID:  ctx.Message.From.Id,
+		ChatID:  ctx.Message.Chat.Id,
+		IsMuted: true,
+	})
+	if err != nil {
+		log.Println("failed to save status to DB: " + err.Error())
+		return ext.ContinueGroups
+	}
+
+	_, err = b.RestrictChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id, gotgbot.ChatPermissions{
 		CanSendMessages:      false,
 		CanSendMediaMessages: false,
 		CanSendPolls:         false,
@@ -30,13 +57,13 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 	)
 	if err != nil {
 		log.Println("failed to restrict member: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	_, err = b.DeleteMessage(ctx.Message.Chat.Id, ctx.Message.MessageId)
 	if err != nil {
 		log.Println("failed to delete message: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username!</b>",
@@ -53,7 +80,7 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 		}})
 	if err != nil {
 		log.Println("failed to send message: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	err = logusername(b, ctx)
@@ -62,7 +89,7 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	return nil
+	return ext.ContinueGroups
 }
 
 func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -99,7 +126,25 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 		return nil
 	}
 
-	_, err := cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
+	_, err := b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
+		CanSendMessages:      true,
+		CanSendMediaMessages: true,
+		CanSendPolls:         true,
+		CanSendOtherMessages: true,
+	}, nil)
+	if err != nil {
+		log.Println("failed to unrestrict chatmember: " + err.Error())
+		return nil
+	}
+
+	// Delete user status if user has set username
+	err = models.DeleteUsernameByID(context.TODO(), cb.From.Id)
+	if err != nil {
+		log.Println("failed to save status to DB: " + err.Error())
+		return nil
+	}
+
+	_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
 		Text:      "✅ Terimakasih telah memasang username",
 		ShowAlert: true,
 		CacheTime: 0,
@@ -112,17 +157,6 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	_, err = cb.Message.Delete(b)
 	if err != nil {
 		log.Println("failed to delete message: " + err.Error())
-		return nil
-	}
-
-	_, err = b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
-		CanSendMessages:      true,
-		CanSendMediaMessages: true,
-		CanSendPolls:         true,
-		CanSendOtherMessages: true,
-	}, nil)
-	if err != nil {
-		log.Println("failed to restrict chatmember: " + err.Error())
 		return nil
 	}
 
