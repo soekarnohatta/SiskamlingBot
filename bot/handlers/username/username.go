@@ -15,7 +15,7 @@ import (
 
 func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 	if !telegram.IsGroup(ctx.Message.Chat.Type) {
-		return nil
+		return ext.ContinueGroups
 	}
 
 	if ctx.Message.From.Username != "" || ctx.Message.From.Id == 777000 {
@@ -29,17 +29,20 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	if getStatus, _ := models.GetUsernameByID(context.TODO(), ctx.Message.From.Id); (getStatus != nil &&
-		getStatus.UserID == ctx.Message.From.Id &&
-		getStatus.ChatID == ctx.Message.Chat.Id &&
-		getStatus.IsMuted) || member.CanSendMessages == false {
+	// Checking user status
+	if getStatus, _ := models.GetUsernameByID(context.TODO(), ctx.Update.Message.From.Id); member.CanSendMessages == false ||
+		(getStatus != nil &&
+			getStatus.ChatID == ctx.Update.Message.Chat.Id &&
+			getStatus.IsMuted == true) {
+		// There is no point to continue groups as user is already muted
 		return ext.EndGroups
 	}
 
+	// Else, continue to proceed user
 	// Save user status to DB for later check
 	err = models.SaveUsername(context.TODO(), models.Username{
-		UserID:  ctx.Message.From.Id,
-		ChatID:  ctx.Message.Chat.Id,
+		UserID:  ctx.Update.Message.From.Id,
+		ChatID:  ctx.Update.Message.Chat.Id,
 		IsMuted: true,
 	})
 	if err != nil {
@@ -97,7 +100,7 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 
 	if !pattern.MatchString(cb.Data) {
-		return nil
+		return ext.ContinueGroups
 	}
 
 	if !(pattern.FindStringSubmatch(cb.Data)[1] == strconv.Itoa(int(cb.From.Id))) {
@@ -108,9 +111,9 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 		})
 		if err != nil {
 			log.Println("failed to answer callbackquery: " + err.Error())
-			return nil
+			return ext.ContinueGroups
 		}
-		return nil
+		return ext.ContinueGroups
 	}
 
 	if cb.From.Username == "" {
@@ -121,9 +124,9 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 		})
 		if err != nil {
 			log.Println("failed to answer callbackquery: " + err.Error())
-			return nil
+			return ext.ContinueGroups
 		}
-		return nil
+		return ext.ContinueGroups
 	}
 
 	_, err := b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
@@ -134,14 +137,14 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	}, nil)
 	if err != nil {
 		log.Println("failed to unrestrict chatmember: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	// Delete user status if user has set username
 	err = models.DeleteUsernameByID(context.TODO(), cb.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
@@ -151,16 +154,16 @@ func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	})
 	if err != nil {
 		log.Println("failed to answer callbackquery: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
 	_, err = cb.Message.Delete(b)
 	if err != nil {
 		log.Println("failed to delete message: " + err.Error())
-		return nil
+		return ext.ContinueGroups
 	}
 
-	return nil
+	return ext.ContinueGroups
 }
 
 func logusername(b *gotgbot.Bot, ctx *ext.Context) error {
