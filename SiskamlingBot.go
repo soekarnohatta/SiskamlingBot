@@ -6,6 +6,7 @@ import (
 	"SiskamlingBot/bot/handlers/picture"
 	"SiskamlingBot/bot/handlers/username"
 	"SiskamlingBot/bot/helpers/database"
+	"SiskamlingBot/bot/helpers/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
@@ -23,11 +24,11 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
-func addHandler(dispatcher *ext.Dispatcher) {
+func addHandler(b *gotgbot.Bot, dispatcher *ext.Dispatcher) {
 	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.ChatMetrics))
 	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.UsernameMetrics))
-	dispatcher.AddHandler(handlers.NewMessage(filters.All, username.Username))
-	dispatcher.AddHandler(handlers.NewMessage(filters.All, picture.Picture))
+	dispatcher.AddHandler(handlers.NewMessage(telegram.UsernameAndGroupFilter, username.Username))
+	dispatcher.AddHandler(handlers.NewMessage(telegram.ProfileAndGroupFilter(b), picture.Picture))
 
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 3)
 	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 4)
@@ -97,7 +98,7 @@ func main() {
 	dispatcher := updater.Dispatcher
 
 	// Add handlers to dispatcher.
-	addHandler(dispatcher)
+	addHandler(b, dispatcher)
 
 	// Start receiving updates.
 	receiveUpdates(b, updater)

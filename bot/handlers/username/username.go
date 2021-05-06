@@ -14,14 +14,6 @@ import (
 )
 
 func Username(b *gotgbot.Bot, ctx *ext.Context) error {
-	if !telegram.IsGroup(ctx.Message.Chat.Type) {
-		return ext.ContinueGroups
-	}
-
-	if ctx.Message.From.Username != "" || ctx.Message.From.Id == 777000 {
-		return ext.ContinueGroups
-	}
-
 	// To avoid sending repeated message
 	member, err := b.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
 	if err != nil {
@@ -82,7 +74,7 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 			),
 		}})
 	if err != nil {
-		log.Println("failed to send message: " + err.Error())
+		log.Printf("failed to send message: %s", err.Error())
 		return ext.ContinueGroups
 	}
 

@@ -14,10 +14,6 @@ import (
 )
 
 func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
-	if !telegram.IsGroup(ctx.Message.Chat.Type) {
-		return ext.ContinueGroups
-	}
-
 	// To avoid sending repeated message
 	member, err := b.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
 	if err != nil {
@@ -32,11 +28,6 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 			getStatus.IsMuted) {
 		// There is no point in continuing groups as user is already muted
 		return ext.EndGroups
-	}
-
-	// Else, continue to proceed user
-	if p, err := ctx.Message.From.GetProfilePhotos(b, nil); err == nil && p != nil && p.TotalCount > 0 {
-		return ext.ContinueGroups
 	}
 
 	// Save user status to DB for later check
