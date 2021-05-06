@@ -12,7 +12,7 @@ func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
 
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 	p, err := msg.From.GetProfilePhotos(bot, nil)
-	return err == nil && p != nil && p.TotalCount > 0
+	return err == nil && p != nil && p.TotalCount == 0
 }
 
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
