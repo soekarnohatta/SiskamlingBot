@@ -14,18 +14,27 @@ type User struct {
 	UserName  string `json:"user_username" bson:"user_username" `
 }
 
+func NewUser(userID int64, firstName string, lastName string, userName string) *User {
+	return &User{
+		UserID:    userID,
+		FirstName: firstName,
+		LastName:  lastName,
+		UserName:  userName,
+	}
+}
+
 func GetUserByID(ctx context.Context, Id int) (*User, error) {
-	var user User
+	var user *User
 	dat, err := database.Mongo.Collection("user").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
 
 	err = bson.Unmarshal(dat, user)
-	return &user, err
+	return user, err
 }
 
-func SaveUser(ctx context.Context, user User) error {
+func SaveUser(ctx context.Context, user *User) error {
 	_, err := database.Mongo.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{"$set", user}}, options.Update().SetUpsert(true))
 	return err
 }

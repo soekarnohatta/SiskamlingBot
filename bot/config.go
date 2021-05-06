@@ -28,10 +28,10 @@ type TgConfig struct {
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
 }
 
-var Config TgConfig
+var Config *TgConfig
 
-func NewConfig() TgConfig {
-	returnConfig := TgConfig{}
+func NewConfig() *TgConfig {
+	returnConfig := new(TgConfig)
 
 	err := godotenv.Load("data/.env")
 	if err != nil {
@@ -69,7 +69,7 @@ func NewConfig() TgConfig {
 		return returnConfig
 	}
 
-	err = env.Parse(&returnConfig)
+	err = env.Parse(returnConfig)
 	if err != nil {
 		panic(err.Error())
 	}

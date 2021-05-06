@@ -31,11 +31,11 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	// Save user status to DB for later check
-	err = models.SavePicture(context.TODO(), models.Picture{
-		UserID:  ctx.Message.From.Id,
-		ChatID:  ctx.Message.Chat.Id,
-		IsMuted: true,
-	})
+	err = models.SavePicture(context.TODO(), models.NewPicture(
+		ctx.Message.From.Id,
+		ctx.Message.Chat.Id,
+		true,
+	))
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return ext.ContinueGroups

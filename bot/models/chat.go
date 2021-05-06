@@ -14,18 +14,27 @@ type Chat struct {
 	ChatTitle string `json:"chat_title" bson:"chat_title" `
 }
 
+func NewChat(ID int64, chatType string, chatLink string, chatTitle string) *Chat {
+	return &Chat{
+		ChatID:    ID,
+		ChatType:  chatType,
+		ChatLink:  chatLink,
+		ChatTitle: chatTitle,
+	}
+}
+
 func GetChatByID(ctx context.Context, Id int) (*Chat, error) {
-	var chat Chat
+	var chat *Chat
 	dat, err := database.Mongo.Collection("chat").FindOne(ctx, bson.M{"chat_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
 
 	err = bson.Unmarshal(dat, chat)
-	return &chat, err
+	return chat, err
 }
 
-func SaveChat(ctx context.Context, chat Chat) error {
+func SaveChat(ctx context.Context, chat *Chat) error {
 	_, err := database.Mongo.Collection("chat").UpdateOne(ctx, bson.M{"chat_id": chat.ChatID}, bson.D{{"$set", chat}}, options.Update().SetUpsert(true))
 	return err
 }

@@ -32,11 +32,11 @@ func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	// Else, continue to proceed user
 	// Save user status to DB for later check
-	err = models.SaveUsername(context.TODO(), models.Username{
-		UserID:  ctx.Update.Message.From.Id,
-		ChatID:  ctx.Update.Message.Chat.Id,
-		IsMuted: true,
-	})
+	err = models.SaveUsername(context.TODO(), models.NewUsername(
+		ctx.Update.Message.From.Id,
+		ctx.Update.Message.Chat.Id,
+		true,
+	))
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return ext.ContinueGroups
