@@ -1,7 +1,7 @@
-package models
+package model
 
 import (
-	"SiskamlingBot/bot/helpers/database"
+	"SiskamlingBot/bot/helper/database"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"

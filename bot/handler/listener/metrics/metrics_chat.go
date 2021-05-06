@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/model"
 	"context"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
@@ -9,7 +9,7 @@ import (
 )
 
 func ChatMetrics(_ *gotgbot.Bot, ctx *ext.Context) error {
-	err := models.SaveChat(context.TODO(), models.NewChat(
+	err := model.SaveChat(context.TODO(), model.NewChat(
 		ctx.Update.Message.Chat.Id,
 		ctx.Update.Message.Chat.Type,
 		ctx.Update.Message.Chat.InviteLink,

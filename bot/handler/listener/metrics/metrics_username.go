@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/model"
 	"context"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
@@ -9,7 +9,7 @@ import (
 )
 
 func UsernameMetrics(_ *gotgbot.Bot, ctx *ext.Context) error {
-	err := models.SaveUser(context.TODO(), models.NewUser(
+	err := model.SaveUser(context.TODO(), model.NewUser(
 		ctx.Update.Message.From.Id,
 		ctx.Update.Message.From.FirstName,
 		ctx.Update.Message.From.LastName,

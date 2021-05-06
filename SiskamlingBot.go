@@ -2,11 +2,11 @@ package main
 
 import (
 	"SiskamlingBot/bot"
-	"SiskamlingBot/bot/handlers/metrics"
-	"SiskamlingBot/bot/handlers/picture"
-	"SiskamlingBot/bot/handlers/username"
-	"SiskamlingBot/bot/helpers/database"
-	"SiskamlingBot/bot/helpers/telegram"
+	"SiskamlingBot/bot/handler/listener/metrics"
+	"SiskamlingBot/bot/handler/listener/picture"
+	"SiskamlingBot/bot/handler/listener/username"
+	"SiskamlingBot/bot/helper/database"
+	"SiskamlingBot/bot/helper/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
@@ -97,7 +97,7 @@ func main() {
 	updater := ext.NewUpdater(nil)
 	dispatcher := updater.Dispatcher
 
-	// Add handlers to dispatcher.
+	// Add handler to dispatcher.
 	addHandler(b, dispatcher)
 
 	// Start receiving updates.

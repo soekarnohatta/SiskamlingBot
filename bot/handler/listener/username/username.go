@@ -1,9 +1,9 @@
-package picture
+package username
 
 import (
 	"SiskamlingBot/bot"
-	"SiskamlingBot/bot/helpers/telegram"
-	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/helper/telegram"
+	"SiskamlingBot/bot/model"
 	"context"
 	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
+func Username(b *gotgbot.Bot, ctx *ext.Context) error {
 	// To avoid sending repeated message
 	member, err := b.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
 	if err != nil {
@@ -22,18 +22,19 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	// Checking user status
-	if getStatus, _ := models.GetPictureByID(context.TODO(), ctx.Message.From.Id); member.CanSendMessages == false ||
+	if getStatus, _ := model.GetUsernameByID(context.TODO(), ctx.Update.Message.From.Id); member.CanSendMessages == false ||
 		(getStatus != nil &&
-			getStatus.ChatID == ctx.Message.Chat.Id &&
-			getStatus.IsMuted) {
-		// There is no point in continuing groups as user is already muted
+			getStatus.ChatID == ctx.Update.Message.Chat.Id &&
+			getStatus.IsMuted == true) {
+		// There is no point to continue groups as user is already muted
 		return ext.EndGroups
 	}
 
+	// Else, continue to proceed user
 	// Save user status to DB for later check
-	err = models.SavePicture(context.TODO(), models.NewPicture(
-		ctx.Message.From.Id,
-		ctx.Message.Chat.Id,
+	err = model.SaveUsername(context.TODO(), model.NewUsername(
+		ctx.Update.Message.From.Id,
+		ctx.Update.Message.Chat.Id,
 		true,
 	))
 	if err != nil {
@@ -60,22 +61,24 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>",
+	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username!</b>",
 		telegram.MentionHtml(int(ctx.Message.From.Id), ctx.Message.From.FirstName),
-		ctx.Message.From.Id)
+		ctx.Message.From.Id,
+	)
 
 	_, err = b.SendMessage(ctx.Message.Chat.Id, textToSend, &gotgbot.SendMessageOpts{
 		ParseMode: "HTML",
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
-			InlineKeyboard: telegram.BuildKeyboardf("./data/keyboard/picture.json", 1,
-				map[string]string{"1": strconv.Itoa(int(ctx.Message.From.Id))}),
+			InlineKeyboard: telegram.BuildKeyboardf("data/keyboard/username.json", 1,
+				map[string]string{"1": strconv.Itoa(int(ctx.Message.From.Id))},
+			),
 		}})
 	if err != nil {
-		log.Println("failed to send message: " + err.Error())
+		log.Printf("failed to send message: %s", err.Error())
 		return ext.ContinueGroups
 	}
 
-	err = logpicture(b, ctx)
+	err = logusername(b, ctx)
 	if err != nil {
 		log.Println("failed to send log message: " + err.Error())
 		return ext.ContinueGroups
@@ -84,9 +87,9 @@ func Picture(b *gotgbot.Bot, ctx *ext.Context) error {
 	return ext.ContinueGroups
 }
 
-func PictureCB(b *gotgbot.Bot, ctx *ext.Context) error {
+func UsernameCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	cb := ctx.Update.CallbackQuery
-	pattern, _ := regexp.Compile(`picture\((.+?)\)`)
+	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 
 	if !pattern.MatchString(cb.Data) {
 		return ext.ContinueGroups
@@ -105,14 +108,9 @@ func PictureCB(b *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	if p, err := cb.From.GetProfilePhotos(b, nil); p != nil && p.TotalCount == 0 {
-		if err != nil {
-			log.Println("failed to get pictures: " + err.Error())
-			return ext.ContinueGroups
-		}
-
-		_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
-			Text:      "❌ Anda belum memasang foto profil",
+	if cb.From.Username == "" {
+		_, err := cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
+			Text:      "❌ Anda belum memasang username",
 			ShowAlert: true,
 			CacheTime: 0,
 		})
@@ -123,26 +121,26 @@ func PictureCB(b *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	// Delete user status if user has set username
-	err := models.DeleteUsernameByID(context.TODO(), cb.From.Id)
-	if err != nil {
-		log.Println("failed to save status to DB: " + err.Error())
-		return ext.ContinueGroups
-	}
-
-	_, err = b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
+	_, err := b.RestrictChatMember(cb.Message.Chat.Id, cb.From.Id, gotgbot.ChatPermissions{
 		CanSendMessages:      true,
 		CanSendMediaMessages: true,
 		CanSendPolls:         true,
 		CanSendOtherMessages: true,
 	}, nil)
 	if err != nil {
-		log.Println("failed to restrict chatmember: " + err.Error())
+		log.Println("failed to unrestrict chatmember: " + err.Error())
+		return ext.ContinueGroups
+	}
+
+	// Delete user status if user has set username
+	err = model.DeleteUsernameByID(context.TODO(), cb.From.Id)
+	if err != nil {
+		log.Println("failed to save status to DB: " + err.Error())
 		return ext.ContinueGroups
 	}
 
 	_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
-		Text:      "✅ Terimakasih telah memasang Foto Profil",
+		Text:      "✅ Terimakasih telah memasang username",
 		ShowAlert: true,
 		CacheTime: 0,
 	})
@@ -160,10 +158,10 @@ func PictureCB(b *gotgbot.Bot, ctx *ext.Context) error {
 	return ext.ContinueGroups
 }
 
-func logpicture(b *gotgbot.Bot, ctx *ext.Context) error {
+func logusername(b *gotgbot.Bot, ctx *ext.Context) error {
 	user := ctx.Update.Message.From
 	chat := ctx.Update.Message.Chat
-	textToSend := fmt.Sprintf(`#PICTURE
+	textToSend := fmt.Sprintf(`#USERNAME
 <b>User Name:</b> %v
 <b>User ID:</b> <code>%v</code>
 <b>Chat Name:</b> %v
