@@ -3,6 +3,7 @@ package bot
 import (
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -34,6 +35,8 @@ func NewConfig() TgConfig {
 
 	err := godotenv.Load("data/.env")
 	if err != nil {
+		log.Println("using declared Env vars!")
+
 		returnConfig.WebhookURL = os.Getenv("WEBHOOK_URL")
 		returnConfig.WebhookPath = os.Getenv("WEBHOOK_PATH")
 
@@ -62,6 +65,7 @@ func NewConfig() TgConfig {
 		returnConfig.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		returnConfig.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
+		Config = returnConfig
 		return returnConfig
 	}
 
@@ -69,6 +73,7 @@ func NewConfig() TgConfig {
 	if err != nil {
 		panic(err.Error())
 	}
+	log.Println("configurations have been parsed succesfully!")
 
 	Config = returnConfig
 	return returnConfig
