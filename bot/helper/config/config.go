@@ -1,4 +1,4 @@
-package bot
+package config
 
 import (
 	"github.com/caarlos0/env"

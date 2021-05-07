@@ -6,6 +6,6 @@ import (
 )
 
 func Ping(b *gotgbot.Bot, ctx *ext.Context) error {
-	_, err := ctx.Message.Reply(b, "Ping", nil)
+	_, err := ctx.Message.Reply(b, "<b>Pong</b>", &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	return err
 }

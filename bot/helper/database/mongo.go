@@ -1,7 +1,7 @@
 package database
 
 import (
-	"SiskamlingBot/bot"
+	"SiskamlingBot/bot/helper/config"
 	"context"
 	"log"
 	"time"
@@ -16,7 +16,7 @@ func NewMongo() {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
-	newMongo, err := mongo.NewClient(options.Client().ApplyURI(bot.Config.DatabaseURL))
+	newMongo, err := mongo.NewClient(options.Client().ApplyURI(config.Config.DatabaseURL))
 	if err != nil {
 		panic("cannot create mongo client: " + err.Error())
 	}
@@ -31,8 +31,8 @@ func NewMongo() {
 	// Ping check to minimize error during long run.
 	err = newMongo.Ping(ctx, nil)
 	if err != nil {
-		if bot.Config.IsDebug {
-			log.Printf("mongo url is: %s", bot.Config.DatabaseURL)
+		if config.Config.IsDebug {
+			log.Printf("mongo url is: %s", config.Config.DatabaseURL)
 		}
 		panic("cannot connect to mongo database: " + err.Error())
 	}
