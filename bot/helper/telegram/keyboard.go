@@ -23,7 +23,13 @@ func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton)
 		log.Println("failed to open file: " + err.Error())
 		return
 	}
-	defer openFile.Close()
+	defer func(openFile *os.File) {
+		err := openFile.Close()
+		if err != nil {
+			log.Println("failed to close file: " + err.Error())
+			return
+		}
+	}(openFile)
 
 	readFile, _ := ioutil.ReadAll(openFile)
 	var result []Button
@@ -53,7 +59,13 @@ func BuildKeyboardf(path string, size int, dataMap map[string]string) (res [][]g
 		log.Println("failed to open file: " + err.Error())
 		return
 	}
-	defer openFile.Close()
+	defer func(openFile *os.File) {
+		err := openFile.Close()
+		if err != nil {
+			log.Println("failed to close file: " + err.Error())
+			return
+		}
+	}(openFile)
 
 	readFile, _ := ioutil.ReadAll(openFile)
 	var result []Button

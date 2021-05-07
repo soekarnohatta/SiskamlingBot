@@ -1,12 +1,14 @@
 package telegram
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/pkg/errors"
 	"html"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // DownloadFile downloads file(s) from telegram servers.
@@ -48,4 +50,13 @@ func MentionHtml(userId int, name string) string {
 // CreateLinkHtml creates a link using HTML formatting.
 func CreateLinkHtml(link string, txt string) string {
 	return "<a href=\"" + link + "\">" + html.EscapeString(txt) + "</a>"
+}
+
+// CreateMessageLink creates message link from a chat.
+func CreateMessageLink(chat gotgbot.Chat, msgId int64) string {
+	if chat.Username == "" {
+		return "https://t.me/c" + strings.TrimSuffix(strconv.Itoa(int(chat.Id)), "-100") + "/" + strconv.Itoa(int(msgId))
+	}
+
+	return "https://t.me/" + chat.Username + "/" + strconv.Itoa(int(msgId))
 }

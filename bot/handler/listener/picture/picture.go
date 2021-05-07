@@ -171,7 +171,7 @@ func logpicture(b *gotgbot.Bot, ctx *ext.Context) error {
 <b>Link:</b> %v`,
 		telegram.MentionHtml(int(user.Id), user.FirstName), user.Id,
 		chat.Title, chat.Id,
-		telegram.CreateLinkHtml("https://t.me/"+chat.Username+"/"+strconv.Itoa(int(ctx.Update.Message.MessageId)), "Here"))
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(chat, ctx.Update.Message.MessageId), "Here"))
 
 	_, err := b.SendMessage(bot.Config.LogEvent, textToSend, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	return err
