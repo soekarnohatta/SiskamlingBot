@@ -55,7 +55,7 @@ func CreateLinkHtml(link string, txt string) string {
 // CreateMessageLink creates message link from a chat.
 func CreateMessageLink(chat gotgbot.Chat, msgId int64) string {
 	if chat.Username == "" {
-		return "https://t.me/c" + strings.TrimSuffix(strconv.Itoa(int(chat.Id)), "-100") + "/" + strconv.Itoa(int(msgId))
+		return "https://t.me/c/" + strings.TrimPrefix(strconv.Itoa(int(chat.Id)), "-100") + "/" + strconv.Itoa(int(msgId))
 	}
 
 	return "https://t.me/" + chat.Username + "/" + strconv.Itoa(int(msgId))
