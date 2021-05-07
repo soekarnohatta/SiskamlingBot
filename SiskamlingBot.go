@@ -2,6 +2,7 @@ package main
 
 import (
 	"SiskamlingBot/bot"
+	"SiskamlingBot/bot/handler/command"
 	"SiskamlingBot/bot/handler/listener/metrics"
 	"SiskamlingBot/bot/handler/listener/picture"
 	"SiskamlingBot/bot/handler/listener/username"
@@ -25,13 +26,15 @@ func init() {
 }
 
 func addHandler(b *gotgbot.Bot, dispatcher *ext.Dispatcher) {
-	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.ChatMetrics))
-	dispatcher.AddHandler(handlers.NewMessage(filters.All, metrics.UsernameMetrics))
-	dispatcher.AddHandler(handlers.NewMessage(telegram.UsernameAndGroupFilter, username.Username))
-	dispatcher.AddHandler(handlers.NewMessage(telegram.ProfileAndGroupFilter(b), picture.Picture))
+	dispatcher.AddHandler(handlers.NewCommand("ping", command.Ping))
 
-	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 3)
-	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 4)
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, metrics.ChatMetrics), 0)
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(filters.All, metrics.UsernameMetrics), 0)
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(telegram.UsernameAndGroupFilter, username.Username), 0)
+	dispatcher.AddHandlerToGroup(handlers.NewMessage(telegram.ProfileAndGroupFilter(b), picture.Picture), 0)
+
+	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("username("), username.UsernameCB), 1)
+	dispatcher.AddHandlerToGroup(handlers.NewCallback(filters.Prefix("picture("), picture.PictureCB), 1)
 }
 
 func receiveUpdates(b *gotgbot.Bot, updater ext.Updater) {
@@ -43,7 +46,7 @@ func receiveUpdates(b *gotgbot.Bot, updater ext.Updater) {
 		}
 
 		// Delete webhook before starting the bot.
-		_, err := b.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: true})
+		_, err := b.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: false})
 		if err != nil {
 			panic("failed to delete webhook: " + err.Error())
 		}
@@ -60,6 +63,7 @@ func receiveUpdates(b *gotgbot.Bot, updater ext.Updater) {
 		if !ok {
 			panic("failed to set webhook, ok is false")
 		}
+
 		log.Printf("%s has been started...\n", b.User.Username)
 	} else {
 		// Delete webhook before starting the bot
