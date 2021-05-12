@@ -1,4 +1,4 @@
-package config
+package core
 
 import (
 	"github.com/caarlos0/env"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type TgConfig struct {
+type Config struct {
 	WebhookURL    string `env:"WEBHOOK_URL"`
 	WebhookPath   string `env:"WEBHOOK_PATH"`
 	WebhookListen string `env:"WEBHOOK_LISTEN"`
@@ -28,55 +28,51 @@ type TgConfig struct {
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
 }
 
-var Config *TgConfig
-
-func NewConfig() *TgConfig {
-	returnConfig := new(TgConfig)
+func NewConfig() (error, *Config) {
+	conf := new(Config)
 
 	err := godotenv.Load("data/.env")
 	if err != nil {
-		log.Println("using declared Env vars!")
+		log.Println("Using declared Env vars!")
 
-		returnConfig.WebhookURL = os.Getenv("WEBHOOK_URL")
-		returnConfig.WebhookPath = os.Getenv("WEBHOOK_PATH")
+		conf.WebhookURL = os.Getenv("WEBHOOK_URL")
+		conf.WebhookPath = os.Getenv("WEBHOOK_PATH")
 
 		port, _ := strconv.Atoi(os.Getenv("PORT"))
 		if port != 0 {
-			returnConfig.WebhookPort = port
+			conf.WebhookPort = port
 		} else {
-			returnConfig.WebhookPort, _ = strconv.Atoi(os.Getenv("WEBHOOK_PORT"))
+			conf.WebhookPort, _ = strconv.Atoi(os.Getenv("WEBHOOK_PORT"))
 		}
 
-		returnConfig.WebhookListen = os.Getenv("WEBHOOK_LISTEN")
-		returnConfig.BotAPIKey = os.Getenv("BOT_API_KEY")
+		conf.WebhookListen = os.Getenv("WEBHOOK_LISTEN")
+		conf.BotAPIKey = os.Getenv("BOT_API_KEY")
 		_, cleanPolling := os.LookupEnv("CLEAN_POLLING")
-		returnConfig.CleanPolling = cleanPolling
+		conf.CleanPolling = cleanPolling
 		_, isDebug := os.LookupEnv("IS_DEBUG")
-		returnConfig.IsDebug = isDebug
+		conf.IsDebug = isDebug
 
 		logEvent, _ := strconv.Atoi(os.Getenv("LOG_EVENT"))
-		returnConfig.LogEvent = int64(logEvent)
+		conf.LogEvent = int64(logEvent)
 		logBan, _ := strconv.Atoi(os.Getenv("LOG_BAN"))
-		returnConfig.LogBan = int64(logBan)
-		returnConfig.OwnerID, _ = strconv.Atoi(os.Getenv("OWNER_ID"))
-		returnConfig.SudoUsers = strToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
+		conf.LogBan = int64(logBan)
+		conf.OwnerID, _ = strconv.Atoi(os.Getenv("OWNER_ID"))
+		conf.SudoUsers = strToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
 
-		returnConfig.DatabaseURL = os.Getenv("DATABASE_URL")
-		returnConfig.RedisAddress = os.Getenv("REDIS_ADDRESS")
-		returnConfig.RedisPassword = os.Getenv("REDIS_PASSWORD")
+		conf.DatabaseURL = os.Getenv("DATABASE_URL")
+		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
+		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
-		Config = returnConfig
-		return returnConfig
+		return nil, conf
 	}
 
-	err = env.Parse(returnConfig)
+	err = env.Parse(conf)
 	if err != nil {
-		panic(err.Error())
+		return nil, nil
 	}
-	log.Println("configurations have been parsed succesfully!")
 
-	Config = returnConfig
-	return returnConfig
+	log.Println("Configurations have been parsed succesfully!")
+	return nil, conf
 }
 
 func strToIntSlice(s []string) []int {

@@ -1,10 +1,11 @@
-package telegram
+package util
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/pkg/errors"
 	"html"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -26,7 +27,13 @@ func DownloadFile(telegramPath string, filePath string) (*os.File, error) {
 	}
 
 	if get != nil {
-		defer get.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				log.Println("error in closing body")
+				return
+			}
+		}(get.Body)
 		if get.StatusCode != http.StatusOK {
 			_ = os.Remove(filePath)
 			return nil, errors.Wrapf(nil, "bad request: %v", get.StatusCode)
@@ -53,7 +60,7 @@ func CreateLinkHtml(link string, txt string) string {
 }
 
 // CreateMessageLink creates message link from a chat.
-func CreateMessageLink(chat gotgbot.Chat, msgId int64) string {
+func CreateMessageLink(chat *gotgbot.Chat, msgId int64) string {
 	if chat.Username == "" {
 		return "https://t.me/c/" + strings.TrimPrefix(strconv.Itoa(int(chat.Id)), "-100") + "/" + strconv.Itoa(int(msgId))
 	}

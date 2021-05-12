@@ -1,6 +1,9 @@
-package telegram
+package util
 
-import "github.com/PaulSonOfLars/gotgbot/v2"
+import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"regexp"
+)
 
 func UsernameFilter(msg *gotgbot.Message) bool {
 	return msg.From.Username == "" && msg.From.Id != 777000
@@ -18,5 +21,16 @@ func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
 	return func(msg *gotgbot.Message) bool {
 		return ProfileFilter(bot, msg) && IsGroup(msg.Chat.Type)
+	}
+}
+
+func AllCallbackFilter(_ *gotgbot.CallbackQuery) bool {
+	return true
+}
+
+func CallbackRegexFilter(expr string) func(cq *gotgbot.CallbackQuery) bool {
+	return func(cq *gotgbot.CallbackQuery) bool {
+		pattern, _ := regexp.Compile(expr)
+		return pattern.MatchString(cq.Data)
 	}
 }

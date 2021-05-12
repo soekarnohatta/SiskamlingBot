@@ -1,9 +1,9 @@
 package model
 
 import (
-	"SiskamlingBot/bot/helper/database"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -21,9 +21,9 @@ func NewPicture(userID int64, chatID int64, isMuted bool) *Picture {
 	}
 }
 
-func GetPictureByID(ctx context.Context, Id int64) (*Picture, error) {
+func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture, error) {
 	var picture *Picture
-	dat, err := database.Mongo.Collection("picture").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
+	dat, err := db.Collection("picture").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +32,12 @@ func GetPictureByID(ctx context.Context, Id int64) (*Picture, error) {
 	return picture, err
 }
 
-func SavePicture(ctx context.Context, picture *Picture) error {
-	_, err := database.Mongo.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{"$set", picture}}, options.Update().SetUpsert(true))
+func SavePicture(db *mongo.Database, ctx context.Context, picture *Picture) error {
+	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{"$set", picture}}, options.Update().SetUpsert(true))
 	return err
 }
 
-func DeletePictureByID(ctx context.Context, Id int64) error {
-	_, err := database.Mongo.Collection("picture").DeleteOne(ctx, bson.M{"picture_id": Id})
+func DeletePictureByID(db *mongo.Database, ctx context.Context, Id int64) error {
+	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"picture_id": Id})
 	return err
 }

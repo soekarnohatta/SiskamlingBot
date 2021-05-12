@@ -1,0 +1,5 @@
+{
+  "callback": "help(",
+  "keyboard": "data/keyboard/help.json",
+  "text": "<b>Bantuan</b>\n{1} Adalah bot multiguna, manajemen grup yang di lengkapi dengan alat keamanan. Agar fungsi saya bekerja dengan fitur penuh, jadikan saya admin dengan level standard. Saran, fitur, dan keluhan bisa di konsultasikan di grup kami. Berikut dibawah ini adalah beberapa modul bantuan yang bisa Anda tekan."
+}
