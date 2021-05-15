@@ -6,10 +6,11 @@ import (
 	"SiskamlingBot/bot/util"
 	"context"
 	"fmt"
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"log"
 	"regexp"
 	"strconv"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 const unameLog = `#USERNAME
@@ -19,7 +20,7 @@ const unameLog = `#USERNAME
 <b>Chat ID:</b> <code>%v</code>
 <b>Link:</b> %s`
 
-func (m *Module) usernameScan(ctx *telegram.TgContext) {
+func (m Module) usernameScan(ctx *telegram.TgContext) {
 	if !telegram.UsernameAndGroupFilter(ctx.Message) {
 		return
 	}
@@ -32,10 +33,11 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) {
 	}
 
 	// Checking user status
-	if getStatus, _ := model.GetUsernameByID(m.Bot.DB, context.TODO(), ctx.Message.From.Id); member.CanSendMessages == false ||
+	if getStatus, _ := model.GetUsernameByID(m.Bot.DB, context.TODO(), ctx.Message.From.Id); 
+	!member.CanSendMessages ||
 		(getStatus != nil &&
 			getStatus.ChatID == ctx.Message.Chat.Id &&
-			getStatus.IsMuted == true) {
+			getStatus.IsMuted) {
 		// There is no point to continue groups as user is already muted
 		return
 	}
@@ -84,10 +86,9 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) {
 		util.CreateLinkHtml(util.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 
 	ctx.SendMessage(txtToSend, m.Bot.Config.LogEvent)
-	return
 }
 
-func (m *Module) usernameCallback(ctx *telegram.TgContext) {
+func (m Module) usernameCallback(ctx *telegram.TgContext) {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
 		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)
@@ -130,5 +131,4 @@ func (m *Module) usernameCallback(ctx *telegram.TgContext) {
 
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
 	ctx.DeleteMessage(0)
-	return
 }

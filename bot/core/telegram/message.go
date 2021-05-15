@@ -16,7 +16,7 @@ type Message struct {
 }
 
 // Invoke invokes a Message with the given arguments.
-func (cmd *Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
+func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
 	// Construct context
 	newCmdCtx := newContext(bot, ctx, "")
 	cmd.Func(newCmdCtx)

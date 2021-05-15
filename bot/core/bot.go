@@ -2,11 +2,12 @@ package core
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"log"
+	"net/http"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"net/http"
 )
 
 type TelegramBot struct {
@@ -21,8 +22,8 @@ type TelegramBot struct {
 	Callbacks map[string]telegram.Callback
 
 	*Config
-	DB           *mongo.Database
-	maxCmdSegLen int
+	DB *mongo.Database
+	//maxCmdSegLen int
 }
 
 func NewBot(config *Config) *TelegramBot {

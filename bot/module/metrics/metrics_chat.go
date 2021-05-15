@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func (m *Module) chatMetric(ctx *telegram.TgContext) {
+func (m Module) chatMetric(ctx *telegram.TgContext) {
 	err := model.SaveChat(m.Bot.DB, context.TODO(), model.NewChat(
 		ctx.Chat.Id,
 		ctx.Chat.Type,
@@ -18,6 +18,4 @@ func (m *Module) chatMetric(ctx *telegram.TgContext) {
 		log.Println("failed to update chat due to: " + err.Error())
 		return
 	}
-
-	return
 }

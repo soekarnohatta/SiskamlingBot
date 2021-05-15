@@ -1,10 +1,10 @@
 package telegram
 
 import (
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"strings"
 	"time"
 
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
@@ -37,19 +37,17 @@ func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 		CmdSegment: cmdSeg,
 	}
 
+	// use EffectiveMessage as it already handles all possible updates
+	newTgContext.Message = ctx.EffectiveMessage
+	newTgContext.User = newTgContext.Message.From
+	newTgContext.Chat = &newTgContext.Message.Chat
+	newTgContext.TimeInit = time.Now().UTC().Sub(time.Unix(newTgContext.Message.Date, 0).UTC())
+
 	if ctx.Update.CallbackQuery != nil || ctx.CallbackQuery != nil {
 		newTgContext.Callback = ctx.Update.CallbackQuery
-		newTgContext.Message = ctx.Update.CallbackQuery.Message
-		newTgContext.Chat = &ctx.Update.CallbackQuery.Message.Chat
-		newTgContext.User = &ctx.Update.CallbackQuery.From
-		newTgContext.TimeInit = time.Now().UTC().Sub(time.Unix(ctx.Update.CallbackQuery.Message.Date, 0).UTC())
 		return newTgContext
 	}
 
-	newTgContext.Message = ctx.Update.Message
-	newTgContext.User = ctx.Update.Message.From
-	newTgContext.Chat = &ctx.Update.Message.Chat
-	newTgContext.TimeInit = time.Now().UTC().Sub(time.Unix(ctx.Update.Message.Date, 0).UTC())
 	return newTgContext
 }
 

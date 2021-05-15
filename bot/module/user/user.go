@@ -11,14 +11,14 @@ type Module struct {
 }
 
 // Info returns basic information about this module.
-func (m *Module) Info() core.ModuleInfo {
+func (m Module) Info() core.ModuleInfo {
 	return core.ModuleInfo{
 		Name: "User",
 	}
 }
 
 // Commands returns a list of telegram provided by this module.
-func (m *Module) Commands() []telegram.Command {
+func (m Module) Commands() []telegram.Command {
 	return []telegram.Command{
 		{
 			Name:        "ping",
@@ -28,7 +28,7 @@ func (m *Module) Commands() []telegram.Command {
 	}
 }
 
-func (m *Module) Messages() []telegram.Message {
+func (m Module) Messages() []telegram.Message {
 	return []telegram.Message{
 		{
 			Name:        "UsernameScanner",
@@ -43,7 +43,7 @@ func (m *Module) Messages() []telegram.Message {
 	}
 }
 
-func (m *Module) Callbacks() []telegram.Callback {
+func (m Module) Callbacks() []telegram.Callback {
 	return []telegram.Callback{
 		{
 			Name:        "UsernameCallback",

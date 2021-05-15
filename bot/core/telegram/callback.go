@@ -17,7 +17,7 @@ type Callback struct {
 }
 
 // Invoke invokes a Callback with the given arguments.
-func (cmd *Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
+func (cmd Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
 	// Construct context
 	newCmdCtx := newContext(bot, ctx, "")
 	cmd.Func(newCmdCtx)

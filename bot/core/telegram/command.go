@@ -18,7 +18,7 @@ type Command struct {
 }
 
 // Invoke invokes a Command with the given arguments.
-func (cmd *Command) Invoke(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) {
+func (cmd Command) Invoke(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) {
 	// Construct context
 	newCmdCtx := newContext(bot, ctx, cmdSeg)
 	cmd.Func(newCmdCtx)

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func (m *Module) usernameMetric(ctx *telegram.TgContext) {
+func (m Module) usernameMetric(ctx *telegram.TgContext) {
 	err := model.SaveUser(m.Bot.DB, context.TODO(), model.NewUser(
 		ctx.Message.From.Id,
 		ctx.Message.From.FirstName,
@@ -18,6 +18,4 @@ func (m *Module) usernameMetric(ctx *telegram.TgContext) {
 		log.Println("failed to update user due to: " + err.Error())
 		return
 	}
-
-	return
 }

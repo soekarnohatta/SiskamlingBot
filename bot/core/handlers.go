@@ -2,13 +2,14 @@ package core
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"log"
+	"regexp"
+	"strings"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
-	"log"
-	"regexp"
-	"strings"
 )
 
 /*
@@ -77,9 +78,7 @@ func (b *TelegramBot) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret er
 
 	var cmd string
 	split := strings.Split(strings.ToLower(strings.Fields(text)[0]), "@")
-	if len(split) > 1 && split[1] != strings.ToLower(bot.User.Username) {
-		cmd = ""
-	}
+	//if len(split) > 1 && split[1] != strings.ToLower(bot.User.Username) {}
 
 	cmd = split[0][1:]
 
