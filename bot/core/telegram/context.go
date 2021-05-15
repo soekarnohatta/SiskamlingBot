@@ -46,9 +46,9 @@ func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 		return newTgContext
 	}
 
-	newTgContext.Message = ctx.EffectiveMessage
-	newTgContext.User = ctx.EffectiveUser
-	newTgContext.Chat = ctx.EffectiveChat
+	newTgContext.Message = ctx.Update.Message
+	newTgContext.User = ctx.Update.Message.From
+	newTgContext.Chat = &ctx.Update.Message.Chat
 	newTgContext.TimeInit = time.Now().UTC().Sub(time.Unix(ctx.Update.Message.Date, 0).UTC())
 	return newTgContext
 }

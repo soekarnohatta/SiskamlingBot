@@ -1,7 +1,7 @@
 package core
 
 import (
-	"SiskamlingBot/bot/util"
+	"SiskamlingBot/bot/core/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
@@ -87,8 +87,7 @@ func (b *TelegramBot) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret er
 	// cmdName := strings.ToLower(cmdSeg[0:])
 	if command, ok := b.Commands[cmd]; ok {
 		// Invoke command
-		// Each command handler is a goroutine as there is no need to run command handler one by one.
-		go command.Invoke(bot, ctx, cmd)
+		command.Invoke(bot, ctx, cmd)
 	}
 
 	return ext.ContinueGroups
@@ -99,12 +98,11 @@ func (b *TelegramBot) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret er
  */
 
 func (b *TelegramBot) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	if ctx.Message != nil || ctx.Update != nil {
+	if ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update != nil {
 		//TODO: add message filter
 		for _, messages := range b.Messages {
 			messages.Invoke(bot, ctx)
 		}
-
 		return ext.ContinueGroups
 	}
 	return ext.ContinueGroups
@@ -140,8 +138,9 @@ func (b *TelegramBot) registerHandlers() {
 	dsp.AddHandlerToGroup(handlers.NewMessage(textCmdPredicate, b.textCmdHandler), 0)
 
 	// Message handlers
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.messageHandler), 1)
 	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.messageHandler), 1)
 
 	// Callback handlers
-	dsp.AddHandlerToGroup(handlers.NewCallback(util.AllCallbackFilter, b.callbackHandler), 2)
+	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 2)
 }
