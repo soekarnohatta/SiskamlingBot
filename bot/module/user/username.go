@@ -20,7 +20,7 @@ const unameLog = `#USERNAME
 <b>Link:</b> %s`
 
 func (m *Module) usernameScan(ctx *telegram.TgContext) {
-	if !util.UsernameAndGroupFilter(ctx.Message) {
+	if !telegram.UsernameAndGroupFilter(ctx.Message) {
 		return
 	}
 

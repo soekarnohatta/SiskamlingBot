@@ -1,6 +1,7 @@
-package util
+package telegram
 
 import (
+	"SiskamlingBot/bot/util"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"regexp"
 )
@@ -10,7 +11,7 @@ func UsernameFilter(msg *gotgbot.Message) bool {
 }
 
 func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
-	return UsernameFilter(msg) && IsGroup(msg.Chat.Type)
+	return UsernameFilter(msg) && util.IsGroup(msg.Chat.Type)
 }
 
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
@@ -20,7 +21,7 @@ func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
 	return func(msg *gotgbot.Message) bool {
-		return ProfileFilter(bot, msg) && IsGroup(msg.Chat.Type)
+		return ProfileFilter(bot, msg) && util.IsGroup(msg.Chat.Type)
 	}
 }
 

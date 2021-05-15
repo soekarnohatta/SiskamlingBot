@@ -20,7 +20,7 @@ const picLog = `#PICTURE
 <b>Link:</b> %s`
 
 func (m *Module) pictureScan(ctx *telegram.TgContext) {
-	if f := util.ProfileAndGroupFilter(ctx.Bot); !f(ctx.Message) {
+	if f := telegram.ProfileAndGroupFilter(ctx.Bot); !f(ctx.Message) {
 		return
 	}
 
