@@ -7,7 +7,7 @@ import (
 
 // Module contains the state for an instance of this module.
 type Module struct {
-	Bot *core.TelegramBot
+	App *core.MyApp
 }
 
 // Info returns basic information about this module.
@@ -33,11 +33,13 @@ func (m Module) Messages() []telegram.Message {
 		{
 			Name:        "UsernameScanner",
 			Description: "Detect user without username",
+			Filter:      telegram.UsernameAndGroupFilter,
 			Func:        m.usernameScan,
 		},
 		{
 			Name:        "PictureScanner",
 			Description: "Detect user without profile picture",
+			Filter:      telegram.ProfileAndGroupFilter(m.App.Bot),
 			Func:        m.pictureScan,
 		},
 	}
@@ -61,9 +63,9 @@ func (m Module) Callbacks() []telegram.Callback {
 }
 
 // NewModule returns a new instance of this module.
-func NewModule(bot *core.TelegramBot) (core.Module, error) {
+func NewModule(bot *core.MyApp) (core.Module, error) {
 	return &Module{
-		Bot: bot,
+		App: bot,
 	}, nil
 }
 

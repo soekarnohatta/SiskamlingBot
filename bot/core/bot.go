@@ -10,9 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TelegramBot struct {
+type MyApp struct {
 	Bot        *gotgbot.Bot
-	Dispatcher *ext.Dispatcher
 	Updater    ext.Updater
 	Context    *ext.Context
 
@@ -21,13 +20,12 @@ type TelegramBot struct {
 	Messages  map[string]telegram.Message
 	Callbacks map[string]telegram.Callback
 
-	*Config
+	Config *Config
 	DB *mongo.Database
-	//maxCmdSegLen int
 }
 
-func NewBot(config *Config) *TelegramBot {
-	return &TelegramBot{
+func NewBot(config *Config) *MyApp {
+	return &MyApp {
 		Context: nil,
 		Config:  config,
 		Modules: make(map[string]Module),
@@ -38,14 +36,13 @@ func NewBot(config *Config) *TelegramBot {
 	}
 }
 
-func (b *TelegramBot) startWebhook() error {
+func (b *MyApp) startWebhook() error {
 	webhook := ext.WebhookOpts{
 		Listen:  b.Config.WebhookListen,
 		Port:    b.Config.WebhookPort,
 		URLPath: b.Config.WebhookPath + b.Config.BotAPIKey,
 	}
 
-	// Delete webhook before starting the bot.
 	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: false})
 	if err != nil {
 		return err
@@ -65,8 +62,7 @@ func (b *TelegramBot) startWebhook() error {
 	return nil
 }
 
-func (b *TelegramBot) startPolling() error {
-	// Delete webhook before starting the bot
+func (b *MyApp) startPolling() error {
 	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: false})
 	if err != nil {
 		return err
@@ -81,7 +77,7 @@ func (b *TelegramBot) startPolling() error {
 	return nil
 }
 
-func (b *TelegramBot) startUpdater() error {
+func (b *MyApp) startUpdater() error {
 	if b.Config.WebhookURL != "" {
 		return b.startWebhook()
 	} else {
@@ -89,33 +85,28 @@ func (b *TelegramBot) startUpdater() error {
 	}
 }
 
-func (b *TelegramBot) Run() (err error) {
-	// Connect to DB
+func (b *MyApp) Run() (err error) {
 	b.newMongo()
 
-	// Create bot from config.
-	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, &gotgbot.BotOpts{
+	newBotOpt := gotgbot.BotOpts{
 		Client:      http.Client{},
 		GetTimeout:  gotgbot.DefaultGetTimeout,
 		PostTimeout: gotgbot.DefaultPostTimeout,
-	})
+	}
+
+	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, &newBotOpt)
 	if err != nil {
 		return err
 	}
 
-	// Create updater and dispatcher.
 	b.Updater = ext.NewUpdater(nil)
-	b.Dispatcher = b.Updater.Dispatcher
 
-	// Register handlers.
 	b.registerHandlers()
 
-	// Load Registered Modules.
 	err = b.LoadModules()
 	if err != nil {
 		return err
 	}
 
-	// Start Updating.
 	return b.startUpdater()
 }

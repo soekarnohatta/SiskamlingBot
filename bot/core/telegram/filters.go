@@ -2,8 +2,9 @@ package telegram
 
 import (
 	"SiskamlingBot/bot/util"
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"regexp"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 func UsernameFilter(msg *gotgbot.Message) bool {
@@ -23,6 +24,10 @@ func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
 	return func(msg *gotgbot.Message) bool {
 		return ProfileFilter(bot, msg) && util.IsGroup(msg.Chat.Type)
 	}
+}
+
+func TextCmdPredicate(m *gotgbot.Message) bool {
+	return m.Text != "" && m.Text[0] == '/'
 }
 
 func AllCallbackFilter(_ *gotgbot.CallbackQuery) bool {

@@ -8,7 +8,7 @@ import (
 )
 
 func (m Module) usernameMetric(ctx *telegram.TgContext) {
-	err := model.SaveUser(m.Bot.DB, context.TODO(), model.NewUser(
+	err := model.SaveUser(m.App.DB, context.TODO(), model.NewUser(
 		ctx.Message.From.Id,
 		ctx.Message.From.FirstName,
 		ctx.Message.From.LastName,

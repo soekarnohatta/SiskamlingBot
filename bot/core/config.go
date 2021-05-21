@@ -1,12 +1,13 @@
 package core
 
 import (
-	"github.com/caarlos0/env"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/caarlos0/env"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -28,7 +29,7 @@ type Config struct {
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
 }
 
-func NewConfig() (error, *Config) {
+func NewConfig() *Config {
 	conf := new(Config)
 
 	err := godotenv.Load("data/.env")
@@ -63,16 +64,17 @@ func NewConfig() (error, *Config) {
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
-		return nil, conf
+		return conf
 	}
 
 	err = env.Parse(conf)
 	if err != nil {
-		return nil, nil
+		log.Fatalln(err.Error())
+		return nil
 	}
 
 	log.Println("Configurations have been parsed succesfully!")
-	return nil, conf
+	return conf
 }
 
 func strToIntSlice(s []string) []int {

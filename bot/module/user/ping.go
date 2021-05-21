@@ -7,10 +7,9 @@ import (
 
 func (m Module) ping(ctx *telegram.TgContext) {
 	ctx.ReplyMessage("<b>Pong</b>")
-	for x, _ := range "loremipsumdolorsitamet" {
+	for x := range "loremipsumdolor" {
 		ctx.EditMessage(strconv.Itoa(x))
 	}
 
 	ctx.EditMessage("Done")
-	ctx.ReplyMessage("<b>Pong</b>")
 }

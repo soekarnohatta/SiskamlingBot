@@ -141,11 +141,40 @@ func (c *TgContext) DeleteMessage(msgId int64) {
  */
 
 func (c *TgContext) AnswerCallback(text string, alert bool) {
-	_, err := c.Callback.Answer(c.Bot, &gotgbot.AnswerCallbackQueryOpts{
+	newAnswerCallbackQueryOpts := &gotgbot.AnswerCallbackQueryOpts{
 		Text:      text,
 		ShowAlert: alert,
-		//CacheTime: 0,
-	})
+	}
+
+	_, err := c.Callback.Answer(c.Bot, newAnswerCallbackQueryOpts)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+}
+
+/*
+ * ChatMember
+ */
+
+func (c *TgContext) RestrictMember(userId int64, untilDate int64) {
+	if userId == 0 {
+		userId = c.User.Id
+	}
+
+	if untilDate == 0 {
+		untilDate = -1
+	}
+
+	newOpt := &gotgbot.RestrictChatMemberOpts{UntilDate: untilDate}
+	newChatPermission := gotgbot.ChatPermissions{
+		CanSendMessages:      false,
+		CanSendMediaMessages: false,
+		CanSendPolls:         false,
+		CanSendOtherMessages: false,
+	}
+
+	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
 	if err != nil {
 		log.Println(err.Error())
 		return

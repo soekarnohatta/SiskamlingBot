@@ -21,28 +21,24 @@ const picLog = `#PICTURE
 <b>Link:</b> %s`
 
 func (m Module) pictureScan(ctx *telegram.TgContext) {
-	if f := telegram.ProfileAndGroupFilter(ctx.Bot); !f(ctx.Message) {
+	// WIP 16/05/2020
+	/*
+		member, err := ctx.Bot.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
+		if err != nil {
+			log.Println("failed to GetChatMember: " + err.Error())
+			return
+		}
+	*/
+
+	// WIP 16/05/2020
+	if getStatus, _ := model.GetPictureByID(m.App.DB, context.TODO(), ctx.User.Id); /*member.CanSendMessages == false ||*/
+	getStatus != nil &&
+		getStatus.ChatID == ctx.Chat.Id &&
+		getStatus.IsMuted {
 		return
 	}
 
-	// To avoid sending repeated message
-	member, err := ctx.Bot.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
-	if err != nil {
-		log.Println("failed to GetChatMember: " + err.Error())
-		return
-	}
-
-	// Checking user status
-	if getStatus, _ := model.GetPictureByID(m.Bot.DB, context.TODO(), ctx.Message.From.Id); member.CanSendMessages == false ||
-		(getStatus != nil &&
-			getStatus.ChatID == ctx.Message.Chat.Id &&
-			getStatus.IsMuted) {
-		// There is no point in continuing groups as user is already muted
-		return
-	}
-
-	// Save user status to DB for later check
-	err = model.SavePicture(m.Bot.DB, context.TODO(), model.NewPicture(
+	err := model.SavePicture(m.App.DB, context.TODO(), model.NewPicture(
 		ctx.Message.From.Id,
 		ctx.Message.Chat.Id,
 		true,
@@ -52,19 +48,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		return
 	}
 
-	_, err = ctx.Bot.RestrictChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id, gotgbot.ChatPermissions{
-		CanSendMessages:      false,
-		CanSendMediaMessages: false,
-		CanSendPolls:         false,
-		CanSendOtherMessages: false,
-	},
-		&gotgbot.RestrictChatMemberOpts{UntilDate: -1},
-	)
-	if err != nil {
-		log.Println("failed to restrict member: " + err.Error())
-		return
-	}
-
+	ctx.RestrictMember(0, 0)
 	ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>",
 		util.MentionHtml(int(ctx.Message.From.Id), ctx.Message.From.FirstName),
@@ -83,7 +67,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		ctx.Chat.Id,
 		util.CreateLinkHtml(util.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 
-	ctx.SendMessage(txtToSend, m.Bot.Config.LogEvent)
+	ctx.SendMessage(txtToSend, m.App.Config.LogEvent)
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) {
@@ -104,7 +88,7 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 	}
 
 	// Delete user status if user has set username
-	err := model.DeletePictureByID(m.Bot.DB, context.TODO(), ctx.Callback.From.Id)
+	err := model.DeletePictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return

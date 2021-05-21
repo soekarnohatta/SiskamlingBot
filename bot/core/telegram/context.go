@@ -4,27 +4,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-// TgContext contains the context information used to invoke a command.
 type TgContext struct {
 	Bot     *gotgbot.Bot
 	Context *ext.Context
 
-	// Convenience fields
 	Message  *gotgbot.Message
 	Chat     *gotgbot.Chat
 	User     *gotgbot.User
 	Callback *gotgbot.CallbackQuery
 
-	// Miscellaneous
 	CmdSegment string
 	TimeInit   time.Duration
 	TimeProc   time.Duration
 
-	// Lazy values
 	args        []string
 	haveRawArgs bool
 	rawArgs     string
@@ -45,7 +41,6 @@ func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 
 	if ctx.Update.CallbackQuery != nil || ctx.CallbackQuery != nil {
 		newTgContext.Callback = ctx.Update.CallbackQuery
-		return newTgContext
 	}
 
 	return newTgContext
@@ -57,6 +52,10 @@ func (c *TgContext) Args() []string {
 		c.args = strings.Fields(c.Message.Text)[1:]
 	}
 
+	if c.args == nil {
+		c.args[0] = "Not Specified"
+	}
+	
 	return c.args
 }
 

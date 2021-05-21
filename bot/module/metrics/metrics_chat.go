@@ -8,7 +8,7 @@ import (
 )
 
 func (m Module) chatMetric(ctx *telegram.TgContext) {
-	err := model.SaveChat(m.Bot.DB, context.TODO(), model.NewChat(
+	err := model.SaveChat(m.App.DB, context.TODO(), model.NewChat(
 		ctx.Chat.Id,
 		ctx.Chat.Type,
 		ctx.Chat.InviteLink,
