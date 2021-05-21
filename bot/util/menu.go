@@ -5,6 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 type Menu struct {
@@ -29,20 +32,28 @@ func ParseMenu(path string) *Menu {
 
 	readFile, _ := ioutil.ReadAll(openFile)
 	var result *Menu
-	_ = json.Unmarshal(readFile, result)
+	_ = json.Unmarshal(readFile, &result)
 	return result
 }
 
-func CreateMenu() {
-	files, err := ioutil.ReadDir("./data/menu")
-	if err != nil {
-		log.Println("failed to read dir: " + err.Error())
-		return
+func CreateMenu(path string, length int) (string, [][]gotgbot.InlineKeyboardButton) {
+	newMenu := ParseMenu(path)
+	if newMenu != nil {
+		return newMenu.Text, BuildKeyboard(newMenu.Keyboard, length)
 	}
+	return "", nil
+}
 
-	var menuList []Menu
-	for _, data := range files {
-		newMenu := ParseMenu(data.Name())
-		menuList = append(menuList, *newMenu)
+func CreateMenuf(path string, length int, dataMap map[string]string) (string, [][]gotgbot.InlineKeyboardButton) {
+	newMenu := ParseMenu(path)
+	if newMenu != nil {
+		var replData []string
+		for k, v := range dataMap {
+			replData = append(replData, "{"+k+"}", v)
+		}
+		newReplace := strings.NewReplacer(replData...)
+
+		return newReplace.Replace(newMenu.Text), BuildKeyboardf(newMenu.Keyboard, length, dataMap)
 	}
+	return "", nil
 }

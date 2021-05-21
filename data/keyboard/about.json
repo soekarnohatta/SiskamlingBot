@@ -1,0 +1,14 @@
+[
+    {
+      "text": "Bantuan",
+      "data": "start(help)"
+    },
+    {
+      "text": "Donasi",
+      "data": "start(about)"
+    },
+    {
+      "text": "Source",
+      "data": "https://github.com/soekarnohatta/SiskamlingBot"
+    }
+  ]

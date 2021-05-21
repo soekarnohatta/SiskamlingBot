@@ -21,23 +21,23 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
 	if chatID != 0 {
-		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+		_, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 		if err != nil {
 			log.Println(err.Error())
 			return
 		}
 
-		c.Message = msg
+		//c.Message = msg
 		return
 	}
 
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	_, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	c.Message = msg
+	//c.Message = msg
 }
 
 func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {

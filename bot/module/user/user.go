@@ -25,6 +25,11 @@ func (m Module) Commands() []telegram.Command {
 			Description: "ping the bot.",
 			Func:        m.ping,
 		},
+		{
+			Name:        "about",
+			Description: "about the bot.",
+			Func:        m.about,
+		},
 	}
 }
 
