@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +29,7 @@ func GetUsernameByID(db *mongo.Database, ctx context.Context, Id int64) (*Userna
 		return nil, err
 	}
 
-	err = bson.Unmarshal(dat, username)
+	err = bson.Unmarshal(dat, &username)
 	return username, err
 }
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +29,7 @@ func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture
 		return nil, err
 	}
 
-	err = bson.Unmarshal(dat, picture)
+	err = bson.Unmarshal(dat, &picture)
 	return picture, err
 }
 

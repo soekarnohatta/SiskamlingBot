@@ -31,7 +31,7 @@ func GetUserByID(db *mongo.Database, ctx context.Context, Id int) (*User, error)
 		return nil, err
 	}
 
-	err = bson.Unmarshal(dat, user)
+	err = bson.Unmarshal(dat, &user)
 	return user, err
 }
 
