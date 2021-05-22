@@ -34,7 +34,7 @@ func GetUsernameByID(db *mongo.Database, ctx context.Context, Id int64) (*Userna
 }
 
 func SaveUsername(db *mongo.Database, ctx context.Context, username *Username) error {
-	_, err := db.Collection("username").UpdateOne(ctx, bson.M{"username_id": username.UserID}, bson.D{{"$set", username}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("username").UpdateOne(ctx, bson.M{"username_id": username.UserID}, bson.D{{Key: "$set", Value: username}}, options.Update().SetUpsert(true))
 	return err
 }
 

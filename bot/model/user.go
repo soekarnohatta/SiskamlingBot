@@ -36,7 +36,7 @@ func GetUserByID(db *mongo.Database, ctx context.Context, Id int) (*User, error)
 }
 
 func SaveUser(db *mongo.Database, ctx context.Context, user *User) error {
-	_, err := db.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{"$set", user}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{Key: "$set", Value: user}}, options.Update().SetUpsert(true))
 	return err
 }
 

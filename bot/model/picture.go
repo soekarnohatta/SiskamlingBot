@@ -34,7 +34,7 @@ func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture
 }
 
 func SavePicture(db *mongo.Database, ctx context.Context, picture *Picture) error {
-	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{"$set", picture}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{Key: "$set", Value: picture}}, options.Update().SetUpsert(true))
 	return err
 }
 

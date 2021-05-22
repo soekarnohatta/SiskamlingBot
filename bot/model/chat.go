@@ -36,7 +36,7 @@ func GetChatByID(db *mongo.Database, ctx context.Context, Id int) (*Chat, error)
 }
 
 func SaveChat(db *mongo.Database, ctx context.Context, chat *Chat) error {
-	_, err := db.Collection("chat").UpdateOne(ctx, bson.M{"chat_id": chat.ChatID}, bson.D{{"$set", chat}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("chat").UpdateOne(ctx, bson.M{"chat_id": chat.ChatID}, bson.D{{Key: "$set", Value: chat}}, options.Update().SetUpsert(true))
 	return err
 }
 
