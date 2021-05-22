@@ -1,5 +1,5 @@
 {
   "callback": "about(",
   "keyboard": "data/keyboard/about.json",
-  "text": "\uD83E\uDD16 <b>{1} Bot Versi</b> <code>{2}</code> by <b>{3}</b>.\nAdalah bot multiguna, manajemen grup yang di lengkapi dengan alat keamanan. Agar fungsi saya bekerja dengan fitur penuh, jadikan saya admin dengan level standard. Saran, fitur, dan keluhan bisa di konsultasikan di grup kami."
+  "text": "\uD83E\uDD16 <b>{1} Versi</b> <code>{2}</code> by <b>{3}</b>.\n\nAdalah bot multiguna, manajemen grup yang di lengkapi dengan alat keamanan. Agar fungsi saya bekerja dengan fitur penuh, jadikan saya admin dengan level standard. Saran, fitur, dan keluhan bisa di konsultasikan di grup kami."
 }
