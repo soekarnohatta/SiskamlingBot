@@ -2,6 +2,7 @@ package core
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/util"
 	"regexp"
 	"strings"
 
@@ -73,8 +74,33 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 	return ext.ContinueGroups
 }
 
+/*
+ * Group -10: bot misc
+ */
+
+ func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
+	if ctx.Message.NewChatMembers != nil {
+		for _, user := range ctx.Message.NewChatMembers {
+			if user.Id == b.Bot.User.Id {
+				dataMap := map[string]string{"1": "Siskamling", "2": b.Config.BotVer, "3": "@SoekarnoHatta", "uname": b.Bot.User.Username}
+				text, keyb := util.CreateMenuf("./data/menu/start.json", 2, dataMap)
+				sendOpt := &gotgbot.SendMessageOpts{
+					ParseMode: "HTML", 
+					ReplyMarkup: gotgbot.InlineKeyboardMarkup{ InlineKeyboard: keyb },
+				}
+				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+			}
+		}
+		return ext.ContinueGroups
+	}
+	return ext.ContinueGroups
+}
+
 func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
+
+	// Other handlers
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.welcomeHandler), -10)
 
 	// Command message handlers
 	dsp.AddHandlerToGroup(handlers.NewMessage(filters.Caption, b.captionCmdHandler), 0)
