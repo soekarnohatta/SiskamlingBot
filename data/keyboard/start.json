@@ -1,14 +1,14 @@
 [
   {
-    "text": "{1}",
+    "text": "💡 Bantuan",
     "data": "start(help)"
   },
   {
-    "text": "{2}",
-    "data": "start(lang)"
+    "text": "📡 Tentang",
+    "data": "start(about)"
   },
   {
-    "text": "Add Me To Your Groups!",
-    "data": "https://t.me/{1}?startgroup=new"
+    "text": "👥 Add Me To Your Groups!",
+    "data": "https://t.me/{uname}?startgroup=new"
   }
 ]

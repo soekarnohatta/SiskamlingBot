@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/soekarnohatta/SiskamlingBot/branch/main/graph/badge.svg?token=M4U97ZU3N2)](https://codecov.io/gh/soekarnohatta/SiskamlingBot)
 # SiskamlingBot Go
 
 Official repository of SiskamlingBot, written in Golang

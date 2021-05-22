@@ -1,7 +1,6 @@
-package database
+package core
 
 import (
-	"SiskamlingBot/bot"
 	"context"
 	"log"
 	"time"
@@ -10,15 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var Mongo *mongo.Database
+type DB struct {
+	Mongo *mongo.Database
+}
 
-func NewMongo() {
+func (b *MyApp) newMongo() {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
-	newMongo, err := mongo.NewClient(options.Client().ApplyURI(bot.Config.DatabaseURL))
+	newMongo, err := mongo.NewClient(options.Client().ApplyURI(b.Config.DatabaseURL))
 	if err != nil {
-		panic("cannot create mongo client: " + err.Error())
+		log.Fatalln("cannot create mongo client: " + err.Error())
 	}
 
 	err = newMongo.Connect(ctx)
@@ -26,15 +27,15 @@ func NewMongo() {
 		panic("cannot connect to mongo database: " + err.Error())
 	}
 
-	Mongo = newMongo.Database("test")
+	b.DB = newMongo.Database("test")
 
 	// Ping check to minimize error during long run.
 	err = newMongo.Ping(ctx, nil)
 	if err != nil {
-		if bot.Config.IsDebug {
-			log.Printf("mongo url is: %s", bot.Config.DatabaseURL)
+		if b.Config.IsDebug {
+			log.Printf("mongo url is: %s\n", b.Config.DatabaseURL)
 		}
-		panic("cannot connect to mongo database: " + err.Error())
+		log.Fatalln("cannot connect to mongo database: " + err.Error())
 	}
 
 	log.Println("successfully connected to MongoDB instance!")
