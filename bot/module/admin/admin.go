@@ -3,7 +3,6 @@ package admin
 import (
 	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
-
 )
 
 // Module contains the state for an instance of this module.
@@ -25,6 +24,16 @@ func (m *Module) Commands() []telegram.Command {
 			Name:        "user",
 			Description: "get user info",
 			Func:        m.getUser,
+		},
+		{
+			Name:        "chat",
+			Description: "get chat info",
+			Func:        m.getChat,
+		},
+		{
+			Name:        "dbg",
+			Description: "debug",
+			Func:        m.debug,
 		},
 	}
 }
