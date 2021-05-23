@@ -82,7 +82,7 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 	if ctx.Message.NewChatMembers != nil {
 		for _, user := range ctx.Message.NewChatMembers {
 			if user.Id == b.Bot.User.Id {
-				dataMap := map[string]string{"1": "Siskamling", "2": b.Config.BotVer, "3": "@SoekarnoHatta", "uname": b.Bot.User.Username}
+				dataMap := map[string]string{"1": b.Bot.User.FirstName, "2": b.Config.BotVer, "3": "@SoekarnoHatta", "uname": b.Bot.User.Username}
 				text, keyb := util.CreateMenuf("./data/menu/start.json", 2, dataMap)
 				sendOpt := &gotgbot.SendMessageOpts{
 					ParseMode: "HTML", 

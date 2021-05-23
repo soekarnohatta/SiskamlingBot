@@ -30,7 +30,7 @@ func (m Module) getChat(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
 		cht, err := model.GetChatByID(m.App.DB, context.TODO(), util.StrToInt(ctx.Args()[0]))
 		if cht != nil && err == nil {
-			text := `<b>Info Pengguna</b>
+			text := `<b>Info Obrolan</b>
 <b>Chat ID</b>: <code>%v</code>
 <b>Chat Name</b>: <code>%v</code>
 <b>Chat Invitelink</b>: <code>%v</code>

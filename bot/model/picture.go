@@ -39,6 +39,6 @@ func SavePicture(db *mongo.Database, ctx context.Context, picture *Picture) erro
 }
 
 func DeletePictureByID(db *mongo.Database, ctx context.Context, Id int64) error {
-	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"picture_id": Id})
+	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"user_id": Id})
 	return err
 }

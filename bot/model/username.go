@@ -24,7 +24,7 @@ func NewUsername(userID int64, chatID int64, isMuted bool) *Username {
 
 func GetUsernameByID(db *mongo.Database, ctx context.Context, Id int64) (*Username, error) {
 	var username *Username
-	dat, err := db.Collection("username").FindOne(ctx, bson.M{"username_id": Id}).DecodeBytes()
+	dat, err := db.Collection("username").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +34,11 @@ func GetUsernameByID(db *mongo.Database, ctx context.Context, Id int64) (*Userna
 }
 
 func SaveUsername(db *mongo.Database, ctx context.Context, username *Username) error {
-	_, err := db.Collection("username").UpdateOne(ctx, bson.M{"username_id": username.UserID}, bson.D{{Key: "$set", Value: username}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("username").UpdateOne(ctx, bson.M{"user_id": username.UserID}, bson.D{{Key: "$set", Value: username}}, options.Update().SetUpsert(true))
 	return err
 }
 
 func DeleteUsernameByID(db *mongo.Database, ctx context.Context, Id int64) error {
-	_, err := db.Collection("username").DeleteOne(ctx, bson.M{"username_id": Id})
+	_, err := db.Collection("username").DeleteOne(ctx, bson.M{"user_id": Id})
 	return err
 }
