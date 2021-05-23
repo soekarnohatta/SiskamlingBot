@@ -34,11 +34,11 @@ func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture
 }
 
 func SavePicture(db *mongo.Database, ctx context.Context, picture *Picture) error {
-	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{"$set", picture}}, options.Update().SetUpsert(true))
+	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{Key: "$set", Value: picture}}, options.Update().SetUpsert(true))
 	return err
 }
 
 func DeletePictureByID(db *mongo.Database, ctx context.Context, Id int64) error {
-	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"picture_id": Id})
+	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"user_id": Id})
 	return err
 }

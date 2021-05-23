@@ -41,12 +41,13 @@ func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 
 	if ctx.Update.CallbackQuery != nil || ctx.CallbackQuery != nil {
 		newTgContext.Callback = ctx.Update.CallbackQuery
-	}
+		newTgContext.User = &newTgContext.Callback.From
+		newTgContext.Chat = &newTgContext.Callback.Message.Chat
+	} 
 
 	return newTgContext
 }
 
-// Args returns a slice of whitespace-separated arguments from the command message.
 func (c *TgContext) Args() []string {
 	if c.args == nil {
 		c.args = strings.Fields(c.Message.Text)[1:]
@@ -59,7 +60,6 @@ func (c *TgContext) Args() []string {
 	return c.args
 }
 
-// RawArgs returns a string with everything in the command message except the command invocation segment.
 func (c *TgContext) RawArgs() string {
 	if !c.haveRawArgs {
 		c.rawArgs = strings.TrimSpace(c.Message.Text[len(c.CmdSegment):])
