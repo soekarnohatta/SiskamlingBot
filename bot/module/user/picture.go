@@ -91,7 +91,7 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 	err := model.DeletePictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
-		return
+		//return
 	}
 
 	_, err = ctx.Bot.RestrictChatMember(ctx.Chat.Id, ctx.User.Id, gotgbot.ChatPermissions{

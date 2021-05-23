@@ -49,7 +49,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 			}
 
 			if messages.Filter(ctx.Message) {
-				messages.Invoke(bot, ctx)
+				go messages.Invoke(bot, ctx)
 			}
 		}
 		return ext.ContinueGroups

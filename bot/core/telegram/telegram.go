@@ -110,13 +110,13 @@ func (c *TgContext) EditMessage(text string) {
 	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
-	msg, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
+	_ , err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	c.Message = msg
+	//c.Message = msg
 }
 
 func (c *TgContext) DeleteMessage(msgId int64) {
