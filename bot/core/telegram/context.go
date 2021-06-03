@@ -18,15 +18,15 @@ type TgContext struct {
 	Callback *gotgbot.CallbackQuery
 
 	CmdSegment string
+	Date      int64
 	TimeInit   time.Duration
-	TimeProc   time.Duration
 
 	args        []string
 	haveRawArgs bool
 	rawArgs     string
 }
 
-func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
+func NewContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 	newTgContext := &TgContext{
 		Bot:        bot,
 		Context:    ctx,
@@ -35,15 +35,12 @@ func newContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 
 	// use EffectiveMessage as it already handles all possible updates
 	newTgContext.Message = ctx.EffectiveMessage
-	newTgContext.User = newTgContext.Message.From
-	newTgContext.Chat = &newTgContext.Message.Chat
-	newTgContext.TimeInit = time.Now().UTC().Sub(time.Unix(newTgContext.Message.Date, 0).UTC())
+	newTgContext.User = ctx.EffectiveUser
+	newTgContext.Chat = ctx.EffectiveChat
+	newTgContext.Callback = ctx.Update.CallbackQuery
 
-	if ctx.Update.CallbackQuery != nil || ctx.CallbackQuery != nil {
-		newTgContext.Callback = ctx.Update.CallbackQuery
-		newTgContext.User = &newTgContext.Callback.From
-		newTgContext.Chat = &newTgContext.Callback.Message.Chat
-	} 
+	newTgContext.Date = ctx.EffectiveMessage.Date
+	newTgContext.TimeInit = time.Since(time.Unix(newTgContext.Date, 0))
 
 	return newTgContext
 }
@@ -56,7 +53,7 @@ func (c *TgContext) Args() []string {
 	if c.args == nil {
 		c.args[0] = "Not Specified"
 	}
-	
+
 	return c.args
 }
 

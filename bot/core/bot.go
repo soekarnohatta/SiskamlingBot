@@ -2,18 +2,18 @@ package core
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"log"
 	"net/http"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MyApp struct {
-	Bot        *gotgbot.Bot
-	Updater    ext.Updater
-	Context    *ext.Context
+	Bot     *gotgbot.Bot
+	Updater ext.Updater
+	Context *ext.Context
 
 	Modules   map[string]Module
 	Commands  map[string]telegram.Command
@@ -21,11 +21,11 @@ type MyApp struct {
 	Callbacks map[string]telegram.Callback
 
 	Config *Config
-	DB *mongo.Database
+	DB     *mongo.Database
 }
 
 func NewBot(config *Config) *MyApp {
-	return &MyApp {
+	return &MyApp{
 		Context: nil,
 		Config:  config,
 		Modules: make(map[string]Module),

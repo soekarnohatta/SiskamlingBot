@@ -27,6 +27,10 @@ func (b *MyApp) registerCommand(cmd telegram.Command) error {
 
 func (b *MyApp) registerCommands(mod Module) error {
 	for _, cmd := range mod.Commands() {
+		if cmd.Func == nil {
+			continue
+		}
+
 		err := b.registerCommand(cmd)
 		if err != nil {
 			return err
@@ -50,9 +54,9 @@ func (b *MyApp) registerMessage(msg telegram.Message) error {
 func (b *MyApp) registerMessages(mod Module) error {
 	for _, cmd := range mod.Messages() {
 		if cmd.Func == nil {
-			continue 
+			continue
 		}
-		
+
 		err := b.registerMessage(cmd)
 		if err != nil {
 			return err
@@ -74,6 +78,10 @@ func (b *MyApp) registerCallback(cb telegram.Callback) error {
 
 func (b *MyApp) registerCallbacks(mod Module) error {
 	for _, cmd := range mod.Callbacks() {
+		if cmd.Func == nil {
+			continue
+		}
+
 		err := b.registerCallback(cmd)
 		if err != nil {
 			return err

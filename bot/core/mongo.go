@@ -9,10 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type DB struct {
-	Mongo *mongo.Database
-}
-
 func (b *MyApp) newMongo() {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()

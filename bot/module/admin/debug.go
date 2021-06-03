@@ -10,7 +10,7 @@ func (m Module) debug(ctx *telegram.TgContext) {
 		output, _ := json.MarshalIndent(ctx.Message.ReplyToMessage, "", "  ")
 		ctx.ReplyMessage(string(output))
 		return
-	}  
+	}
 
 	output, _ := json.MarshalIndent(ctx.Message, "", "  ")
 	ctx.ReplyMessage(string(output))

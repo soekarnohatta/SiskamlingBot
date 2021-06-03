@@ -1,0 +1,14 @@
+[
+  {
+    "text": "💡 Commands",
+    "data": "help(commands)"
+  },
+  {
+    "text": "💰 Others",
+    "data": "help(others)"
+  },
+  {
+    "text": "⚒ Source",
+    "data": "https://github.com/soekarnohatta/SiskamlingBot"
+  }
+]

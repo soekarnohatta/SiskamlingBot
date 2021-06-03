@@ -1,6 +1,7 @@
 package core
 
 import (
+	"SiskamlingBot/bot/core/util"
 	"log"
 	"os"
 	"strconv"
@@ -27,6 +28,7 @@ type Config struct {
 	MainGroup     int64  `env:"MAIN_GRP,required"`
 	IsDebug       bool   `env:"IS_DEBUG"`
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
+	SWToken		  string `env:"SW_TOKEN,required"`
 }
 
 func NewConfig() *Config {
@@ -58,11 +60,12 @@ func NewConfig() *Config {
 		logBan, _ := strconv.Atoi(os.Getenv("LOG_BAN"))
 		conf.LogBan = int64(logBan)
 		conf.OwnerID, _ = strconv.Atoi(os.Getenv("OWNER_ID"))
-		conf.SudoUsers = strToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
+		conf.SudoUsers = util.StrToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
 
 		conf.DatabaseURL = os.Getenv("DATABASE_URL")
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
+		conf.SWToken = os.Getenv("SW_TOKEN")
 
 		return conf
 	}
@@ -75,13 +78,4 @@ func NewConfig() *Config {
 
 	log.Println("Configurations have been parsed succesfully!")
 	return conf
-}
-
-func strToIntSlice(s []string) []int {
-	var newIntSlice []int
-	for _, val := range s {
-		newInt, _ := strconv.Atoi(val)
-		newIntSlice = append(newIntSlice, newInt)
-	}
-	return newIntSlice
 }

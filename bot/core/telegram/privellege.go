@@ -1,4 +1,4 @@
-package util
+package telegram
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"

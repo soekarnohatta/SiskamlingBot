@@ -16,6 +16,8 @@ type Command struct {
 }
 
 func (cmd Command) Invoke(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) {
-	newCmdCtx := newContext(bot, ctx, cmdSeg)
-	cmd.Func(newCmdCtx)
+	newCmdCtx := NewContext(bot, ctx, cmdSeg)
+	if newCmdCtx != nil {
+		cmd.Func(newCmdCtx)
+	}
 }

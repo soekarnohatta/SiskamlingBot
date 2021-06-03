@@ -2,7 +2,6 @@ package core
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/util"
 	"regexp"
 	"strings"
 
@@ -49,7 +48,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 			}
 
 			if messages.Filter(ctx.Message) {
-				go messages.Invoke(bot, ctx)
+				messages.Invoke(bot, ctx)
 			}
 		}
 		return ext.ContinueGroups
@@ -78,15 +77,15 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
  * Group -10: bot misc
  */
 
- func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
+func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	if ctx.Message.NewChatMembers != nil {
 		for _, user := range ctx.Message.NewChatMembers {
 			if user.Id == b.Bot.User.Id {
-				dataMap := map[string]string{"1": b.Bot.User.FirstName, "2": b.Config.BotVer, "3": "@SoekarnoHatta", "uname": b.Bot.User.Username}
-				text, keyb := util.CreateMenuf("./data/menu/start.json", 2, dataMap)
+				dataMap := map[string]string{"1": b.Bot.User.FirstName, "2": b.Config.BotVer, "3": "Unknown", "uname": b.Bot.User.Username}
+				text, keyb := telegram.CreateMenuf("./data/menu/start.json", 2, dataMap)
 				sendOpt := &gotgbot.SendMessageOpts{
-					ParseMode: "HTML", 
-					ReplyMarkup: gotgbot.InlineKeyboardMarkup{ InlineKeyboard: keyb },
+					ParseMode:   "HTML",
+					ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
 				}
 				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
 			}

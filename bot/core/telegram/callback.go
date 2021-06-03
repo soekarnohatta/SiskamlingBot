@@ -15,6 +15,8 @@ type Callback struct {
 }
 
 func (cmd Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
-	newCmdCtx := newContext(bot, ctx, "")
-	cmd.Func(newCmdCtx)
+	newCmdCtx := NewContext(bot, ctx, "")
+	if newCmdCtx != nil {
+		cmd.Func(newCmdCtx)
+	}
 }

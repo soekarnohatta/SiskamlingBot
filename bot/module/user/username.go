@@ -2,15 +2,13 @@ package user
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/helper"
 	"SiskamlingBot/bot/model"
-	"SiskamlingBot/bot/util"
 	"context"
 	"fmt"
 	"log"
 	"regexp"
 	"strconv"
-
-	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 const unameLog = `#USERNAME
@@ -21,21 +19,7 @@ const unameLog = `#USERNAME
 <b>Link:</b> %s`
 
 func (m Module) usernameScan(ctx *telegram.TgContext) {
-	// To avoid sending repeated message
-	/*
-		member, err := ctx.Bot.GetChatMember(ctx.Message.Chat.Id, ctx.Message.From.Id)
-		if err != nil {
-			log.Println("failed to GetChatMember: " + err.Error())
-			return
-		}
-	*/
-
-	// WIP 16/05/2020
-	if getStatus, _ := model.GetUsernameByID(m.App.DB, context.TODO(), ctx.Message.From.Id);
-	/*!member.CanSendMessages ||*/
-	getStatus != nil &&
-		getStatus.ChatID == ctx.Message.Chat.Id &&
-		getStatus.IsMuted {
+	if helper.IsUserBotRestricted(ctx, m.App) {
 		return
 	}
 
@@ -52,9 +36,9 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 	ctx.RestrictMember(0, 0)
 	ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username!</b>",
-		util.MentionHtml(int(ctx.Message.From.Id), ctx.Message.From.FirstName),
+		telegram.MentionHtml(int(ctx.Message.From.Id), ctx.Message.From.FirstName),
 		ctx.Message.From.Id)
-	ctx.SendMessageKeyboard(textToSend, 0, util.BuildKeyboardf(
+	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf(
 		"./data/keyboard/username.json",
 		1,
 		map[string]string{
@@ -62,11 +46,11 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		}))
 
 	txtToSend := fmt.Sprintf(unameLog,
-		util.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
+		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
 		ctx.User.Id,
 		ctx.Chat.Title,
 		ctx.Chat.Id,
-		util.CreateLinkHtml(util.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 
 	ctx.SendMessage(txtToSend, m.App.Config.LogEvent)
 }
@@ -83,35 +67,12 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) {
 		return
 	}
 
-	_, err := ctx.Bot.RestrictChatMember(ctx.Callback.Message.Chat.Id, ctx.Callback.From.Id, gotgbot.ChatPermissions{
-		CanSendMessages:      true,
-		CanSendMediaMessages: true,
-		CanSendPolls:         true,
-		CanSendOtherMessages: true,
-	}, nil)
-	if err != nil {
-		log.Println("failed to unrestrict chatmember: " + err.Error())
-		return
-	}
-
-	// Delete user status if user has set username
-	err = model.DeleteUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+	err := model.DeleteUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
-		//return
 	}
 
-	_, err = ctx.Bot.RestrictChatMember(ctx.Chat.Id, ctx.User.Id, gotgbot.ChatPermissions{
-		CanSendMessages:      true,
-		CanSendMediaMessages: true,
-		CanSendPolls:         true,
-		CanSendOtherMessages: true,
-	}, nil)
-	if err != nil {
-		log.Println("failed to restrict chatmember: " + err.Error())
-		return
-	}
-
+	ctx.UnRestrictMember(0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
 	ctx.DeleteMessage(0)
 }

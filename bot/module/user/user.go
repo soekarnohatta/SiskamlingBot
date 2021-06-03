@@ -1,18 +1,18 @@
 package user
 
 import (
-	"SiskamlingBot/bot/core"
+	app "SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 )
 
 // Module contains the state for an instance of this module.
 type Module struct {
-	App *core.MyApp
+	App *app.MyApp
 }
 
 // Info returns basic information about this module.
-func (m Module) Info() core.ModuleInfo {
-	return core.ModuleInfo{
+func (m Module) Info() app.ModuleInfo {
+	return app.ModuleInfo{
 		Name: "User",
 	}
 }
@@ -73,12 +73,12 @@ func (m Module) Callbacks() []telegram.Callback {
 }
 
 // NewModule returns a new instance of this module.
-func NewModule(bot *core.MyApp) (core.Module, error) {
+func NewModule(bot *app.MyApp) (app.Module, error) {
 	return &Module{
 		App: bot,
 	}, nil
 }
 
 func init() {
-	core.RegisterModule("User", NewModule)
+	app.RegisterModule("User", NewModule)
 }

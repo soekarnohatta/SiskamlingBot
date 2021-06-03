@@ -1,18 +1,18 @@
 package metrics
 
 import (
-	"SiskamlingBot/bot/core"
+	app "SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 )
 
 type Module struct {
-	App *core.MyApp
+	App *app.MyApp
 }
 
-func (m *Module) Info() core.ModuleInfo {
-	return core.ModuleInfo{
+func (m *Module) Info() app.ModuleInfo {
+	return app.ModuleInfo{
 		Name: "Metrics",
 	}
 }
@@ -28,13 +28,13 @@ func (m *Module) Messages() []telegram.Message {
 		{
 			Name:        "chatMetric",
 			Description: "Detect user without username",
-			Filter: 	 filters.All,
+			Filter:      filters.All,
 			Func:        m.chatMetric,
 		},
 		{
 			Name:        "userMetric",
 			Description: "Detect user without profile picture",
-			Filter: 	 filters.All,
+			Filter:      filters.All,
 			Func:        m.usernameMetric,
 		},
 	}
@@ -44,12 +44,12 @@ func (m *Module) Callbacks() []telegram.Callback {
 	return []telegram.Callback{}
 }
 
-func NewModule(bot *core.MyApp) (core.Module, error) {
+func NewModule(bot *app.MyApp) (app.Module, error) {
 	return &Module{
 		App: bot,
 	}, nil
 }
 
 func init() {
-	core.RegisterModule("Metrics", NewModule)
+	app.RegisterModule("Metrics", NewModule)
 }

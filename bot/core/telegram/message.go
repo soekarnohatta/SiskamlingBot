@@ -16,7 +16,7 @@ type Message struct {
 }
 
 func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
-	newCmdCtx := newContext(bot, ctx, "")
+	newCmdCtx := NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
 		cmd.Func(newCmdCtx)
 	}
