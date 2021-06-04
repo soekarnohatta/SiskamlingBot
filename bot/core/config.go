@@ -54,6 +54,7 @@ func NewConfig() *Config {
 		conf.CleanPolling = cleanPolling
 		_, isDebug := os.LookupEnv("IS_DEBUG")
 		conf.IsDebug = isDebug
+		conf.BotVer = os.Getenv("BOT_VERSION")
 
 		logEvent, _ := strconv.Atoi(os.Getenv("LOG_EVENT"))
 		conf.LogEvent = int64(logEvent)
