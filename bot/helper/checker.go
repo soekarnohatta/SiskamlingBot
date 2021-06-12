@@ -9,16 +9,16 @@ import (
 
 func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 	if IsUsernameRestricted(ctx, app) {
-		if !IsUserRestricted(ctx) {
+		/* if !IsUserRestricted(ctx) {
 			return false
-		} else if IsProfileRestricted(ctx, app) {
+		} else */ if IsProfileRestricted(ctx, app) {
 			return true
 		}
 		return true
 	} else if IsProfileRestricted(ctx, app) {
-		if !IsUserRestricted(ctx) {
+		/* if !IsUserRestricted(ctx) {
 			return false
-		} else if IsUsernameRestricted(ctx, app) {
+		} else */ if IsUsernameRestricted(ctx, app) {
 			return true
 		}
 		return true
