@@ -46,6 +46,9 @@
 .idea/**/gradle.xml
 .idea/**/libraries
 
+# Remove .idea completely
+.idea/
+
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
@@ -123,7 +126,7 @@ fabric.properties
 .idea/codestream.xml
 
 ### VisualStudioCode ###
-.vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -134,3 +137,6 @@ fabric.properties
 # Ignore all local history of files
 .history
 .ionide
+
+# Ignore .env file
+data/*.env
