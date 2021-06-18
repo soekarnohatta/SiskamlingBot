@@ -31,7 +31,7 @@
 .idea/**/shelf
 
 # Generated files
-.idea/**/contentModel.xml
+.idea/**/contentmodels.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/

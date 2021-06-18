@@ -1,7 +1,7 @@
 package app
 
 import (
-	"SiskamlingBot/bot/util"
+	"SiskamlingBot/bot/utils"
 	"log"
 	"os"
 	"strconv"
@@ -28,8 +28,10 @@ type Config struct {
 	MainGroup     int64  `env:"MAIN_GRP,required"`
 	IsDebug       bool   `env:"IS_DEBUG"`
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
-	SWToken		  string `env:"SWTOKEN,required"`
+	SWToken       string `env:"SWTOKEN,required"`
 }
+
+var configuration = &Config{}
 
 func NewConfig() *Config {
 	conf := new(Config)
@@ -61,13 +63,14 @@ func NewConfig() *Config {
 		logBan, _ := strconv.Atoi(os.Getenv("LOG_BAN"))
 		conf.LogBan = int64(logBan)
 		conf.OwnerID, _ = strconv.Atoi(os.Getenv("OWNER_ID"))
-		conf.SudoUsers = util.StrToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
+		conf.SudoUsers = utils.StrToIntSlice(strings.Split(os.Getenv("SUDO_USERS"), ":"))
 
 		conf.DatabaseURL = os.Getenv("DATABASE_URL")
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 		conf.SWToken = os.Getenv("SWTOKEN")
 
+		configuration = conf
 		return conf
 	}
 
@@ -77,6 +80,8 @@ func NewConfig() *Config {
 		return nil
 	}
 
+	
+	configuration = conf
 	log.Println("Configurations have been parsed succesfully!")
 	return conf
 }

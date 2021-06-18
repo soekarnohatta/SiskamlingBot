@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	"log"
@@ -15,7 +15,7 @@ func StrToInt(text string) int {
 		log.Println(err.Error())
 		return 0
 	}
-	
+
 	return ret
 }
 

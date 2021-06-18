@@ -1,9 +1,9 @@
-package user
+package picture
 
 import (
 	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/model"
+	"SiskamlingBot/bot/models"
 	"context"
 	"fmt"
 	"log"
@@ -27,14 +27,17 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		return
 	}
 
-	newPicture := model.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
-	err := model.SavePicture(m.App.DB, context.TODO(), newPicture)
+	newPicture := models.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
+	err := models.SavePicture(m.App.DB, context.TODO(), newPicture)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return
 	}
 
-	ctx.RestrictMember(0, 0)
+	if !ctx.RestrictMember(0, 0) {
+		return
+	}
+
 	ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
@@ -47,12 +50,35 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
 	)
 
-	go ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) {
 	pattern, _ := regexp.Compile(`picture\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
+		getPicture, _ := models.GetPictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+		if getPicture != nil  && getPicture.ChatID == ctx.Callback.Message.Chat.Id {
+			if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
+				if err != nil {
+					log.Println("failed to get pictures: " + err.Error())
+					return
+				}
+		
+				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
+				return
+			}
+		
+			err := models.DeletePictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+			if err != nil {
+				log.Println("failed to save status to DB: " + err.Error())
+			}
+		
+			ctx.UnRestrictMember(0)
+			ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
+			//ctx.DeleteMessage(0)
+			return
+		}
+
 		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)
 		return
 	}
@@ -67,7 +93,7 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 		return
 	}
 
-	err := model.DeletePictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+	err := models.DeletePictureByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 	}

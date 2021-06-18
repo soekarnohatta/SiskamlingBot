@@ -2,13 +2,11 @@ package main
 
 import (
 	"SiskamlingBot/bot/core/app"
-	_ "SiskamlingBot/bot/module"
-	"log"
+	_ "SiskamlingBot/bot/modules"
 	"runtime"
 )
 
 func init() {
-	log.SetFlags(log.Lshortfile)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 

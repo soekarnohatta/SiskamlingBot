@@ -3,7 +3,7 @@ package core
 import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/model"
+	"SiskamlingBot/bot/models"
 	"context"
 )
 
@@ -20,24 +20,26 @@ func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 			return true
 		} else if !IsUserRestricted(ctx) {
 			return false
-		} 
+		}
 		return true
 	}
 	return IsUserRestricted(ctx)
 }
 
 func IsUsernameRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getUsername, _ := model.GetUsernameByID(app.DB, context.TODO(), ctx.Message.From.Id)
+	getUsername, _ := models.GetUsernameByID(app.DB, context.TODO(), ctx.Message.From.Id)
 	return getUsername != nil && getUsername.ChatID == ctx.Message.Chat.Id && getUsername.IsMuted
 }
 
 func IsProfileRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getPicture, _ := model.GetPictureByID(app.DB, context.TODO(), ctx.User.Id)
+	getPicture, _ := models.GetPictureByID(app.DB, context.TODO(), ctx.User.Id)
 	return getPicture != nil && getPicture.ChatID == ctx.Chat.Id && getPicture.IsMuted
 }
 
 func IsUserRestricted(ctx *telegram.TgContext) bool {
 	getMember, _ := ctx.Bot.GetChatMember(ctx.Chat.Id, ctx.User.Id)
-	if getMember != nil && !getMember.CanSendMessages {return true}
+	if getMember != nil && !getMember.CanSendMessages {
+		return true
+	}
 	return false
 }

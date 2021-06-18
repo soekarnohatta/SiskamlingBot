@@ -1,7 +1,7 @@
 package app
 
 import (
-	"SiskamlingBot/bot/util"
+	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	SWClient, _ = spamwatch.NewClient("", getSWToken())
+	SWClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
 	myClient    = &http.Client{Timeout: 5 * time.Second}
 )
 
@@ -29,13 +29,9 @@ type (
 	}
 )
 
-func getSWToken() string {
-	return os.Getenv("SWTOKEN")
-}
-
 func IsCASBan(userId int64) bool {
 	// Request data to CAS API.
-	cas := "https://api.cas.chat/check?user_id=" + util.IntToStr(int(userId))
+	cas := "https://api.cas.chat/check?user_id=" + utils.IntToStr(int(userId))
 	re, err := myClient.Get(cas)
 	if err != nil {
 		return false
@@ -52,7 +48,10 @@ func IsCASBan(userId int64) bool {
 func IsSwBan(userId int64) bool {
 	ban, err := SWClient.GetBan(int(userId))
 	if err != nil {
-		log.Fatalln(err.Error())
+		if err.Error() == "Token is invalid" {
+			log.Fatalln(err.Error())
+		}
+		log.Println(err.Error())
 	}
 
 	//log.Printf("User %v is SW Banned: %v", userId, ban.Reason != "")

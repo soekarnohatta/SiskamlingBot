@@ -2,12 +2,13 @@ package telegram
 
 import (
 	"encoding/json"
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 type Button struct {

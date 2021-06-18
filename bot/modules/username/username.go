@@ -1,9 +1,9 @@
-package user
+package username
 
 import (
 	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/model"
+	"SiskamlingBot/bot/models"
 	"context"
 	"fmt"
 	"log"
@@ -27,14 +27,17 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		return
 	}
 
-	newUsername := model.NewUsername(ctx.User.Id, ctx.User.Id,true)
-	err := model.SaveUsername(m.App.DB, context.TODO(), newUsername)
+	newUsername := models.NewUsername(ctx.User.Id, ctx.User.Id, true)
+	err := models.SaveUsername(m.App.DB, context.TODO(), newUsername)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return
 	}
 
-	ctx.RestrictMember(0, 0)
+	if !ctx.RestrictMember(0, 0) {
+		return
+	}
+
 	ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
@@ -52,6 +55,24 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 func (m Module) usernameCallback(ctx *telegram.TgContext) {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
+		getUsername, _ := models.GetUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+		if getUsername != nil && getUsername.ChatID == ctx.Callback.Message.Chat.Id {
+			if ctx.User.Username == "" {
+				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
+				return
+			}
+		
+			err := models.DeleteUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+			if err != nil {
+				log.Println("failed to save status to DB: " + err.Error())
+			}
+		
+			ctx.UnRestrictMember(0)
+			ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+			//ctx.DeleteMessage(0)
+			return 
+		}
+
 		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)
 		return
 	}
@@ -61,7 +82,7 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) {
 		return
 	}
 
-	err := model.DeleteUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
+	err := models.DeleteUsernameByID(m.App.DB, context.TODO(), ctx.Callback.From.Id)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 	}

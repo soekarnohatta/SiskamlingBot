@@ -18,9 +18,7 @@ func (m *Module) Info() app.ModuleInfo {
 }
 
 func (m *Module) Commands() []telegram.Command {
-	return []telegram.Command{
-		{},
-	}
+	return nil
 }
 
 func (m *Module) Messages() []telegram.Message {
@@ -41,7 +39,7 @@ func (m *Module) Messages() []telegram.Message {
 }
 
 func (m *Module) Callbacks() []telegram.Callback {
-	return []telegram.Callback{}
+	return nil
 }
 
 func NewModule(bot *app.MyApp) (app.Module, error) {

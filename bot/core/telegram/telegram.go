@@ -73,7 +73,7 @@ func (c *TgContext) ReplyMessage(text string) {
 		text = "Bad Request: No text supplied!"
 	}
 
-		timeproc := time.Since(time.Unix(c.Date, 0))
+	timeproc := time.Since(time.Unix(c.Date, 0))
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeproc.Seconds(), 'f', 3, 64) + " s</code>"
 
 	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
@@ -157,7 +157,7 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  * ChatMember
  */
 
-func (c *TgContext) RestrictMember(userId int64, untilDate int64) {
+func (c *TgContext) RestrictMember(userId int64, untilDate int64) bool {
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -177,11 +177,12 @@ func (c *TgContext) RestrictMember(userId int64, untilDate int64) {
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return false
 	}
+	return true
 }
 
-func (c *TgContext) UnRestrictMember(userId int64) {
+func (c *TgContext) UnRestrictMember(userId int64) bool {
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -197,6 +198,7 @@ func (c *TgContext) UnRestrictMember(userId int64) {
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return false
 	}
+	return true
 }
