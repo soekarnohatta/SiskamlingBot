@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"SiskamlingBot/bot/core/util"
+	util2 "SiskamlingBot/bot/util"
 	"html"
 	"strconv"
 	"strings"
@@ -19,8 +19,8 @@ func CreateLinkHtml(link string, txt string) string {
 
 func CreateMessageLink(chat *gotgbot.Chat, msgId int64) string {
 	if chat.Username == "" {
-		return "https://t.me/c/" + strings.TrimPrefix(util.IntToStr(int(chat.Id)), "-100") + "/" + util.IntToStr(int(msgId))
+		return "https://t.me/c/" + strings.TrimPrefix(util2.IntToStr(int(chat.Id)), "-100") + "/" + util2.IntToStr(int(msgId))
 	}
 
-	return "https://t.me/" + chat.Username + "/" + util.IntToStr(int(msgId))
+	return "https://t.me/" + chat.Username + "/" + util2.IntToStr(int(msgId))
 }

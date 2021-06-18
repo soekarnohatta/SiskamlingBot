@@ -1,7 +1,7 @@
 package main
 
 import (
-	app "SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/app"
 	_ "SiskamlingBot/bot/module"
 	"log"
 	"runtime"
@@ -15,10 +15,6 @@ func init() {
 func main() {
 	config := app.NewConfig()
 	bot := app.NewBot(config)
-	err := bot.Run()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
+	bot.Run()
 	runtime.Goexit()
 }

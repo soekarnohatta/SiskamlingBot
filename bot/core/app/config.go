@@ -1,7 +1,7 @@
-package core
+package app
 
 import (
-	"SiskamlingBot/bot/core/util"
+	"SiskamlingBot/bot/util"
 	"log"
 	"os"
 	"strconv"
@@ -28,7 +28,7 @@ type Config struct {
 	MainGroup     int64  `env:"MAIN_GRP,required"`
 	IsDebug       bool   `env:"IS_DEBUG"`
 	CleanPolling  bool   `env:"CLEAN_POLLING,required"`
-	SWToken		  string `env:"SW_TOKEN,required"`
+	SWToken		  string `env:"SWTOKEN,required"`
 }
 
 func NewConfig() *Config {
@@ -66,7 +66,7 @@ func NewConfig() *Config {
 		conf.DatabaseURL = os.Getenv("DATABASE_URL")
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
-		conf.SWToken = os.Getenv("SW_TOKEN")
+		conf.SWToken = os.Getenv("SWTOKEN")
 
 		return conf
 	}

@@ -1,8 +1,8 @@
 package user
 
 import (
+	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/helper"
 	"SiskamlingBot/bot/model"
 	"context"
 	"fmt"
@@ -11,23 +11,24 @@ import (
 	"strconv"
 )
 
-const picLog = `#PICTURE
+const (
+	picLog = `#PICTURE
 <b>User Name:</b> %s
 <b>User ID:</b> <code>%v</code>
 <b>Chat Name:</b> %s
 <b>Chat ID:</b> <code>%v</code>
 <b>Link:</b> %s`
 
+	picMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>"
+)
+
 func (m Module) pictureScan(ctx *telegram.TgContext) {
-	if helper.IsUserBotRestricted(ctx, m.App) {
+	if core.IsUserBotRestricted(ctx, m.App) {
 		return
 	}
 
-	err := model.SavePicture(m.App.DB, context.TODO(), model.NewPicture(
-		ctx.Message.From.Id,
-		ctx.Message.Chat.Id,
-		true,
-	))
+	newPicture := model.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
+	err := model.SavePicture(m.App.DB, context.TODO(), newPicture)
 	if err != nil {
 		log.Println("failed to save status to DB: " + err.Error())
 		return
@@ -35,24 +36,18 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 
 	ctx.RestrictMember(0, 0)
 	ctx.DeleteMessage(0)
-	textToSend := fmt.Sprintf("⚠ Pengguna <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>",
-		telegram.MentionHtml(int(ctx.Message.From.Id), ctx.Message.From.FirstName),
-		ctx.Message.From.Id)
-	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf(
-		"./data/keyboard/picture.json",
-		1,
-		map[string]string{
-			"1": strconv.Itoa(int(ctx.Message.From.Id)),
-		}))
+	textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
+	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
 
-	txtToSend := fmt.Sprintf(picLog,
+	textToSend = fmt.Sprintf(picLog,
 		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
 		ctx.User.Id,
 		ctx.Chat.Title,
 		ctx.Chat.Id,
-		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+	)
 
-	ctx.SendMessage(txtToSend, m.App.Config.LogEvent)
+	go ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) {

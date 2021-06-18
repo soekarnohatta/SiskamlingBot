@@ -45,7 +45,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		text = "Bad Request: No text supplied!"
 	}
 
-		timeproc := time.Since(time.Unix(c.Date, 0))
+	timeproc := time.Since(time.Unix(c.Date, 0))
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeproc.Seconds(), 'f', 3, 64) + " s</code>"
 
 	if chatID != 0 {

@@ -2,7 +2,6 @@ package user
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-
 	"time"
 )
 

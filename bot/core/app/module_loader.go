@@ -1,4 +1,4 @@
-package core
+package app
 
 import (
 	"SiskamlingBot/bot/core/telegram"
@@ -117,14 +117,13 @@ func (b *MyApp) loadModule(name string, cstr ModuleConstructor) error {
 	return nil
 }
 
-func (b *MyApp) LoadModules() error {
+func (b *MyApp) loadModules() {
 	for name, cstr := range Modules {
 		err := b.loadModule(name, cstr)
 		if err != nil {
-			return fmt.Errorf("load module '%s': %w", name, err)
+			log.Fatalf("load module '%s': %v", name, err.Error())
 		}
 	}
 
-	log.Println("Loaded All Modules")
-	return nil
+	log.Println("Loaded All Modules!")
 }

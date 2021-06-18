@@ -14,8 +14,8 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) {
 		ctx.Message.From.LastName,
 		ctx.Message.From.Username,
 	))
+	
 	if err != nil {
 		log.Println("failed to update user due to: " + err.Error())
-		return
 	}
 }

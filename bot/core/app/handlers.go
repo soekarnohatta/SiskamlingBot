@@ -1,7 +1,9 @@
-package core
+package app
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/util"
+	"log"
 	"regexp"
 	"strings"
 
@@ -95,10 +97,60 @@ func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	return ext.ContinueGroups
 }
 
+func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
+	if ctx.Message.NewChatMembers != nil {
+		for _, user := range ctx.Message.NewChatMembers {
+			if IsBan(user.Id) {
+				log.Printf("User %v is Banned", user.Id)
+
+				dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": util.IntToStr(int(user.Id))}
+				text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
+				sendOpt := &gotgbot.SendMessageOpts{
+					ParseMode:   "HTML",
+					ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+				}
+
+				_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
+				if err != nil {
+					text += " Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!"
+					_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+					return ext.EndGroups
+				}
+
+				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+				return ext.EndGroups
+			}
+		}
+	} else if ctx.Message != nil {
+		user := ctx.EffectiveUser
+		if IsBan(user.Id) {
+			dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": util.IntToStr(int(user.Id))}
+			text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
+			sendOpt := &gotgbot.SendMessageOpts{
+				ParseMode:   "HTML",
+				ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+			}
+
+			_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
+			if err != nil {
+				text += "Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!"
+				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+				return ext.EndGroups
+			}
+
+			_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+			return ext.EndGroups
+		}
+		return ext.ContinueGroups
+	}
+	return ext.ContinueGroups
+}
+
 func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Other handlers
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.antispamHandler), -10)
 	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.welcomeHandler), -10)
 
 	// Command message handlers

@@ -1,11 +1,11 @@
-package core
+package app
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"log"
 	"net/http"
 
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -28,8 +28,8 @@ func NewBot(config *Config) *MyApp {
 	return &MyApp{
 		Context: nil,
 		Config:  config,
-		Modules: make(map[string]Module),
 
+		Modules: make(map[string]Module),
 		Commands:  make(map[string]telegram.Command),
 		Messages:  make(map[string]telegram.Message),
 		Callbacks: make(map[string]telegram.Callback),
@@ -58,7 +58,7 @@ func (b *MyApp) startWebhook() error {
 		return err
 	}
 
-	log.Printf("%s has been started...\n", b.Bot.User.Username)
+	log.Printf("%s is now running!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -73,7 +73,7 @@ func (b *MyApp) startPolling() error {
 		return err
 	}
 
-	log.Printf("%s has been started...\n", b.Bot.User.Username)
+	log.Printf("%s is now running!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -85,28 +85,23 @@ func (b *MyApp) startUpdater() error {
 	}
 }
 
-func (b *MyApp) Run() (err error) {
+func (b *MyApp) Run() {
 	b.newMongo()
 
-	newBotOpt := gotgbot.BotOpts{
+	newBotOpt := &gotgbot.BotOpts{
 		Client:      http.Client{},
 		GetTimeout:  gotgbot.DefaultGetTimeout,
 		PostTimeout: gotgbot.DefaultPostTimeout,
 	}
 
-	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, &newBotOpt)
+	var err error
+	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, newBotOpt)
 	if err != nil {
-		return err
+		log.Fatalln(err.Error())
 	}
 
 	b.Updater = ext.NewUpdater(nil)
-
 	b.registerHandlers()
-
-	err = b.LoadModules()
-	if err != nil {
-		return err
-	}
-
-	return b.startUpdater()
+	b.loadModules()
+	b.startUpdater()
 }

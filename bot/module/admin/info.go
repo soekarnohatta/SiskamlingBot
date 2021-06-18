@@ -2,8 +2,8 @@ package admin
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/core/util"
 	"SiskamlingBot/bot/model"
+	"SiskamlingBot/bot/util"
 	"context"
 	"fmt"
 )

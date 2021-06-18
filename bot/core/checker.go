@@ -1,7 +1,7 @@
-package helper
+package core
 
 import (
-	app "SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/model"
 	"context"
@@ -9,21 +9,20 @@ import (
 
 func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 	if IsUsernameRestricted(ctx, app) {
-		/* if !IsUserRestricted(ctx) {
-			return false
-		} else */ if IsProfileRestricted(ctx, app) {
+		if IsProfileRestricted(ctx, app) {
 			return true
+		} else if !IsUserRestricted(ctx) {
+			return false
 		}
 		return true
 	} else if IsProfileRestricted(ctx, app) {
-		/* if !IsUserRestricted(ctx) {
-			return false
-		} else */ if IsUsernameRestricted(ctx, app) {
+		if IsUsernameRestricted(ctx, app) {
 			return true
-		}
+		} else if !IsUserRestricted(ctx) {
+			return false
+		} 
 		return true
 	}
-
 	return IsUserRestricted(ctx)
 }
 

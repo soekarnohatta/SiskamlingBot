@@ -14,8 +14,8 @@ func (m Module) chatMetric(ctx *telegram.TgContext) {
 		ctx.Chat.InviteLink,
 		ctx.Chat.Title,
 	))
+	
 	if err != nil {
 		log.Println("failed to update chat due to: " + err.Error())
-		return
 	}
 }

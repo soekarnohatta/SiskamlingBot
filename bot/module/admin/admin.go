@@ -1,7 +1,7 @@
 package admin
 
 import (
-	app "SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
 )
 

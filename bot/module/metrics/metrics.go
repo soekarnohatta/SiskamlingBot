@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	app "SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
 
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"

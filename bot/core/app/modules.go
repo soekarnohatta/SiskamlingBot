@@ -1,8 +1,7 @@
-package core
+package app
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"fmt"
 	"log"
 )
 
@@ -23,7 +22,7 @@ var Modules = make(map[string]ModuleConstructor)
 
 func RegisterModule(name string, constructor ModuleConstructor) {
 	if _, ok := Modules[name]; ok {
-		panic(fmt.Errorf("attempted to register module under occupied name '%s'", name))
+		log.Fatalf("Attempted to register module under occupied name '%s'", name)
 	}
 
 	Modules[name] = constructor
