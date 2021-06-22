@@ -29,6 +29,7 @@ func (m Module) Messages() []telegram.Message {
 			Description: "Detect user without profile picture",
 			Filter:      telegram.ProfileAndGroupFilter(m.App.Bot),
 			Func:        m.pictureScan,
+			Async: 		 false,
 		},
 	}
 }

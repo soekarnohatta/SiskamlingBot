@@ -2,7 +2,10 @@ package user
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"regexp"
 	"time"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 func (m Module) about(ctx *telegram.TgContext) {
@@ -24,3 +27,16 @@ func (m Module) start(ctx *telegram.TgContext) {
 	ctx.ReplyMessageKeyboard(text, keyb)
 }
 
+func (m Module) helpCallback(ctx *telegram.TgContext) {
+	pattern, _ := regexp.Compile(`help\((.+?)\)`)
+	switch pattern.FindStringSubmatch(ctx.Callback.Data)[1] {
+	case "main":
+		_, keyb := telegram.CreateMenu("./data/menu/help.json", 2)
+		ctx.Callback.Message.EditReplyMarkup(ctx.Bot, &gotgbot.EditMessageReplyMarkupOpts{ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+		
+		// Library limitation as of 22/06/2021 will find a workaround later
+		//ctx.Callback.Message.EditText(ctx.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
+	default :
+		ctx.AnswerCallback("FITUR BELUM SIAP!", true)
+	}
+}

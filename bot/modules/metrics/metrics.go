@@ -3,12 +3,11 @@ package metrics
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
-	"context"
 	"log"
 )
 
 func (m Module) usernameMetric(ctx *telegram.TgContext) {
-	err := models.SaveUser(m.App.DB, context.TODO(), models.NewUser(
+	err := models.SaveUser(m.App.DB, models.NewUser(
 		ctx.Message.From.Id,
 		ctx.Message.From.FirstName,
 		ctx.Message.From.LastName,
@@ -21,7 +20,7 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) {
 }
 
 func (m Module) chatMetric(ctx *telegram.TgContext) {
-	err := models.SaveChat(m.App.DB, context.TODO(), models.NewChat(
+	err := models.SaveChat(m.App.DB, models.NewChat(
 		ctx.Chat.Id,
 		ctx.Chat.Type,
 		ctx.Chat.InviteLink,

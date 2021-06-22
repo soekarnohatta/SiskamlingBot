@@ -24,9 +24,9 @@ func NewUser(userID int64, firstName string, lastName string, userName string) *
 	}
 }
 
-func GetUserByID(db *mongo.Database, ctx context.Context, Id int) (*User, error) {
+func GetUserByID(db *mongo.Database, Id int) (*User, error) {
 	var user *User
-	dat, err := db.Collection("user").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
+	dat, err := db.Collection("user").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +35,12 @@ func GetUserByID(db *mongo.Database, ctx context.Context, Id int) (*User, error)
 	return user, err
 }
 
-func SaveUser(db *mongo.Database, ctx context.Context, user *User) error {
-	_, err := db.Collection("user").UpdateOne(ctx, bson.M{"user_id": user.UserID}, bson.D{{Key: "$set", Value: user}}, options.Update().SetUpsert(true))
+func SaveUser(db *mongo.Database, user *User) error {
+	_, err := db.Collection("user").UpdateOne(context.TODO(), bson.M{"user_id": user.UserID}, bson.D{{Key: "$set", Value: user}}, options.Update().SetUpsert(true))
 	return err
 }
 
-func DeleteUserByID(db *mongo.Database, ctx context.Context, Id int) error {
-	_, err := db.Collection("user").DeleteOne(ctx, bson.M{"user_id": Id})
+func DeleteUserByID(db *mongo.Database, Id int) error {
+	_, err := db.Collection("user").DeleteOne(context.TODO(), bson.M{"user_id": Id})
 	return err
 }

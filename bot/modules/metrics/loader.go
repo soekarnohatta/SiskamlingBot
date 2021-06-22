@@ -28,12 +28,14 @@ func (m *Module) Messages() []telegram.Message {
 			Description: "Detect user without username",
 			Filter:      filters.All,
 			Func:        m.chatMetric,
+			Async: 		 true,
 		},
 		{
 			Name:        "userMetric",
 			Description: "Detect user without profile picture",
 			Filter:      filters.All,
 			Func:        m.usernameMetric,
+			Async: 		 true,
 		},
 	}
 }

@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"log"
 	"regexp"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -16,6 +17,10 @@ func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
 
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 	p, err := msg.From.GetProfilePhotos(bot, nil)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	
 	return err == nil && p != nil && p.TotalCount == 0
 }
 

@@ -1,11 +1,27 @@
 [
   {
-    "text": "💡 Commands",
-    "data": "help(commands)"
+    "text": "Username Scanner",
+    "data": "help(username)"
   },
   {
-    "text": "💰 Others",
-    "data": "help(others)"
+    "text": "Picture Scanner",
+    "data": "help(picture)"
+  },
+  {
+    "text": "Antispam",
+    "data": "help(antispam)"
+  },
+  {
+    "text": "Admin",
+    "data": "help(admin)"
+  },
+  {
+    "text": "Misc",
+    "data": "help(misc)"
+  },
+  {
+    "text": "Kebijakan Privasi",
+    "data": "help(privasi)"
   },
   {
     "text": "⚒ Source",

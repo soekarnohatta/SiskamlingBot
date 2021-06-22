@@ -43,7 +43,14 @@ func (m Module) Messages() []telegram.Message {
 }
 
 func (m Module) Callbacks() []telegram.Callback {
-	return nil
+	return []telegram.Callback{
+		{
+			Name:        "HelpCallback",
+			Description: "",
+			Callback:    `help\((.+?)\)`,
+			Func:        m.helpCallback,
+		},
+	}
 }
 
 // NewModule returns a new instance of this module.

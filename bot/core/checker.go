@@ -4,7 +4,6 @@ import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
-	"context"
 )
 
 func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
@@ -27,12 +26,12 @@ func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 }
 
 func IsUsernameRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getUsername, _ := models.GetUsernameByID(app.DB, context.TODO(), ctx.Message.From.Id)
+	getUsername, _ := models.GetUsernameByID(app.DB, ctx.Message.From.Id)
 	return getUsername != nil && getUsername.ChatID == ctx.Message.Chat.Id && getUsername.IsMuted
 }
 
 func IsProfileRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getPicture, _ := models.GetPictureByID(app.DB, context.TODO(), ctx.User.Id)
+	getPicture, _ := models.GetPictureByID(app.DB, ctx.User.Id)
 	return getPicture != nil && getPicture.ChatID == ctx.Chat.Id && getPicture.IsMuted
 }
 

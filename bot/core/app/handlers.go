@@ -5,6 +5,7 @@ import (
 	"SiskamlingBot/bot/utils"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
@@ -47,15 +48,22 @@ func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	if ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update != nil {
+		var wg sync.WaitGroup
 		for _, messages := range b.Messages {
 			if messages.Filter == nil {
 				messages.Filter = filters.All
 			}
 
 			if messages.Filter(ctx.Message) {
-				messages.Invoke(bot, ctx)
+				if messages.Async {
+					wg.Add(1)
+					go messages.InvokeAsync(&wg, bot, ctx)
+				} else {
+					messages.Invoke(bot, ctx)
+				}
 			}
 		}
+		wg.Wait()
 		return ext.ContinueGroups
 	}
 	return ext.ContinueGroups
@@ -104,8 +112,6 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 	if ctx.Message.NewChatMembers != nil {
 		for _, user := range ctx.Message.NewChatMembers {
 			if IsBan(user.Id) {
-				//log.Printf("User %v is Banned", user.Id)
-
 				dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": utils.IntToStr(int(user.Id))}
 				text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
 				sendOpt := &gotgbot.SendMessageOpts{
@@ -115,12 +121,13 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 
 				_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
 				if err != nil {
-					text += " Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!"
+					text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 					_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
 					return ext.EndGroups
 				}
 
 				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+				_, _ = ctx.Message.Delete(bot)
 				return ext.EndGroups
 			}
 		}
@@ -136,12 +143,13 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 
 			_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
 			if err != nil {
-				text += "Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!"
+				text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
 				return ext.EndGroups
 			}
 
 			_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
+			_, _ = ctx.Message.Delete(bot)
 			return ext.EndGroups
 		}
 		return ext.ContinueGroups

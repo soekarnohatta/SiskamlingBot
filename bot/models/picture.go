@@ -22,9 +22,9 @@ func NewPicture(userID int64, chatID int64, isMuted bool) *Picture {
 	}
 }
 
-func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture, error) {
+func GetPictureByID(db *mongo.Database, Id int64) (*Picture, error) {
 	var picture *Picture
-	dat, err := db.Collection("picture").FindOne(ctx, bson.M{"user_id": Id}).DecodeBytes()
+	dat, err := db.Collection("picture").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
@@ -33,12 +33,12 @@ func GetPictureByID(db *mongo.Database, ctx context.Context, Id int64) (*Picture
 	return picture, err
 }
 
-func SavePicture(db *mongo.Database, ctx context.Context, picture *Picture) error {
-	_, err := db.Collection("picture").UpdateOne(ctx, bson.M{"user_id": picture.UserID}, bson.D{{Key: "$set", Value: picture}}, options.Update().SetUpsert(true))
+func SavePicture(db *mongo.Database, picture *Picture) error {
+	_, err := db.Collection("picture").UpdateOne(context.TODO(), bson.M{"user_id": picture.UserID}, bson.D{{Key: "$set", Value: picture}}, options.Update().SetUpsert(true))
 	return err
 }
 
-func DeletePictureByID(db *mongo.Database, ctx context.Context, Id int64) error {
-	_, err := db.Collection("picture").DeleteOne(ctx, bson.M{"user_id": Id})
+func DeletePictureByID(db *mongo.Database, Id int64) error {
+	_, err := db.Collection("picture").DeleteOne(context.TODO(), bson.M{"user_id": Id})
 	return err
 }

@@ -59,14 +59,15 @@ func IsSwBan(userId int64) bool {
 }
 
 func IsBan(userId int64) bool {
-	sendChan := make(chan bool, 2)
+	CASChan := make(chan bool)
+	SWChan := make(chan bool)
 
-	go func() { sendChan <- IsCASBan(userId) }()
-	go func() { sendChan <- IsSwBan(userId) }()
+	go func() { CASChan <- IsCASBan(userId) }()
+	go func() { SWChan <- IsSwBan(userId) }()
 
 	select {
-	case <-sendChan:
-		return <-sendChan
+	default:
+		return <-SWChan || <-CASChan
 	case <-time.After(5 * time.Second):
 		return false
 	}

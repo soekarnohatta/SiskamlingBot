@@ -30,6 +30,7 @@ func (m Module) Messages() []telegram.Message {
 			Description: "Detect user without username",
 			Filter:      telegram.UsernameAndGroupFilter,
 			Func:        m.usernameScan,
+			Async: 		 false,
 		},
 	}
 }
