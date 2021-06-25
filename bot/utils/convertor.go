@@ -12,7 +12,7 @@ func StrToInt(text string) int {
 
 	ret, err := strconv.Atoi(text)
 	if err != nil {
-		log.Println(err.Error())
+		log.Print(err.Error())
 		return 0
 	}
 

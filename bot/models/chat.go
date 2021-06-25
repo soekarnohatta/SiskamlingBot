@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,23 +25,32 @@ func NewChat(ID int64, chatType string, chatLink string, chatTitle string) *Chat
 	}
 }
 
-func GetChatByID(db *mongo.Database, Id int) (*Chat, error) {
+func GetChatByID(db *mongo.Database, Id int) *Chat {
 	var chat *Chat
 	dat, err := db.Collection("chat").FindOne(context.TODO(), bson.M{"chat_id": Id}).DecodeBytes()
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	err = bson.Unmarshal(dat, &chat)
-	return chat, err
+	if err != nil {
+		return nil
+	}
+	return chat
 }
 
-func SaveChat(db *mongo.Database, chat *Chat) error {
+func SaveChat(db *mongo.Database, chat *Chat) {
 	_, err := db.Collection("chat").UpdateOne(context.TODO(), bson.M{"chat_id": chat.ChatID}, bson.D{{Key: "$set", Value: chat}}, options.Update().SetUpsert(true))
-	return err
+	if err != nil {
+		log.Print(err.Error())
+	}
+	return
 }
 
-func DeleteChatByID(db *mongo.Database, Id int) error {
+func DeleteChatByID(db *mongo.Database, Id int) {
 	_, err := db.Collection("chat").DeleteOne(context.TODO(), bson.M{"chat_id": Id})
-	return err
+	if err != nil {
+		log.Print(err.Error())
+	}
+	return
 }

@@ -164,16 +164,16 @@ func (b *MyApp) registerHandlers() {
 	dsp.AddHandlerToGroup(handlers.NewMessage(filters.Caption, b.captionCmdHandler), 0)
 	dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
 
+	// Callback handlers
+	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
+
 	// Antispam handler
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.antispamHandler), 1)
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.antispamHandler), 2)
 
 	// Other handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.welcomeHandler), 1)
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.welcomeHandler), 2)
 
 	// Message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.messageHandler), 2)
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.messageHandler), 2)
-
-	// Callback handlers
-	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 3)
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.messageHandler), 3)
+	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.messageHandler), 3)
 }

@@ -16,11 +16,11 @@ func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
 }
 
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
-	p, err := msg.From.GetProfilePhotos(bot, nil)
+	p, err := bot.GetUserProfilePhotos(msg.From.Id, &gotgbot.GetUserProfilePhotosOpts{Limit: 1})
 	if err != nil {
-		log.Println(err.Error())
+		log.Print(err.Error())
 	}
-	
+
 	return err == nil && p != nil && p.TotalCount == 0
 }
 

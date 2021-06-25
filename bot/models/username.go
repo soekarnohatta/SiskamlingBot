@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,23 +23,32 @@ func NewUsername(userID int64, chatID int64, isMuted bool) *Username {
 	}
 }
 
-func GetUsernameByID(db *mongo.Database, Id int64) (*Username, error) {
+func GetUsernameByID(db *mongo.Database, Id int64) *Username {
 	var username *Username
 	dat, err := db.Collection("username").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	err = bson.Unmarshal(dat, &username)
-	return username, err
+	if err != nil {
+		return nil
+	}
+	return username
 }
 
-func SaveUsername(db *mongo.Database, username *Username) error {
+func SaveUsername(db *mongo.Database, username *Username) {
 	_, err := db.Collection("username").UpdateOne(context.TODO(), bson.M{"user_id": username.UserID}, bson.D{{Key: "$set", Value: username}}, options.Update().SetUpsert(true))
-	return err
+	if err != nil {
+		log.Print(err.Error())
+	}
+	return
 }
 
-func DeleteUsernameByID(db *mongo.Database, Id int64) error {
+func DeleteUsernameByID(db *mongo.Database, Id int64) {
 	_, err := db.Collection("username").DeleteOne(context.TODO(), bson.M{"user_id": Id})
-	return err
+	if err != nil {
+		log.Print(err.Error())
+	}
+	return
 }

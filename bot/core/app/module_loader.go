@@ -125,5 +125,5 @@ func (b *MyApp) loadModules() {
 		}
 	}
 
-	log.Println("Loaded All Modules!")
+	log.Print("Loaded All Modules!")
 }

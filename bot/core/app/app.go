@@ -29,7 +29,7 @@ func NewBot(config *Config) *MyApp {
 		Context: nil,
 		Config:  config,
 
-		Modules: make(map[string]Module),
+		Modules:   make(map[string]Module),
 		Commands:  make(map[string]telegram.Command),
 		Messages:  make(map[string]telegram.Message),
 		Callbacks: make(map[string]telegram.Callback),
@@ -97,7 +97,7 @@ func (b *MyApp) Run() {
 	var err error
 	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, newBotOpt)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	b.Updater = ext.NewUpdater(nil)

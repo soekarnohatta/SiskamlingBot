@@ -5,7 +5,6 @@ import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 )
@@ -27,11 +26,7 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 	}
 
 	newUsername := models.NewUsername(ctx.User.Id, ctx.User.Id, true)
-	err := models.SaveUsername(m.App.DB, newUsername)
-	if err != nil {
-		log.Println("failed to save status to DB: " + err.Error())
-		return
-	}
+	models.SaveUsername(m.App.DB, newUsername)
 
 	if !ctx.RestrictMember(0, 0) {
 		unavailable := unameMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
@@ -57,17 +52,14 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 func (m Module) usernameCallback(ctx *telegram.TgContext) {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
-		getUsername, _ := models.GetUsernameByID(m.App.DB, ctx.Callback.From.Id)
+		getUsername := models.GetUsernameByID(m.App.DB, ctx.Callback.From.Id)
 		if getUsername != nil && getUsername.ChatID == ctx.Callback.Message.Chat.Id {
 			if ctx.User.Username == "" {
 				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
 				return
 			}
 		
-			err := models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
-			if err != nil {
-				log.Println("failed to save status to DB: " + err.Error())
-			}
+			models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
 		
 			ctx.UnRestrictMember(0)
 			ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
@@ -84,10 +76,7 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) {
 		return
 	}
 
-	err := models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
-	if err != nil {
-		log.Println("failed to save status to DB: " + err.Error())
-	}
+	models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
 
 	ctx.UnRestrictMember(0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)

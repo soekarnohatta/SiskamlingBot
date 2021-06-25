@@ -9,6 +9,7 @@ import (
 
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
+	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
 type Config struct {
@@ -38,7 +39,7 @@ func NewConfig() *Config {
 
 	err := godotenv.Load("data/.env")
 	if err != nil {
-		log.Println("Using declared Env vars!")
+		log.Print("Using declared Env vars!")
 
 		conf.WebhookURL = os.Getenv("WEBHOOK_URL")
 		conf.WebhookPath = os.Getenv("WEBHOOK_PATH")
@@ -69,6 +70,7 @@ func NewConfig() *Config {
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 		conf.SWToken = os.Getenv("SWTOKEN")
+		SWClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
 
 		configuration = conf
 		return conf
@@ -76,12 +78,12 @@ func NewConfig() *Config {
 
 	err = env.Parse(conf)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatal(err.Error())
 		return nil
 	}
 
-	
 	configuration = conf
-	log.Println("Configurations have been parsed succesfully!")
+	SWClient, _ = spamwatch.NewClient("", conf.SWToken)
+	log.Print("Configurations have been parsed succesfully!")
 	return conf
 }

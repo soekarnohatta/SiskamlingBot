@@ -5,15 +5,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
 var (
-	SWClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
-	myClient    = &http.Client{Timeout: 5 * time.Second}
+	SWClient *spamwatch.Client
+	myClient = &http.Client{Timeout: 5 * time.Second}
 )
 
 type (
@@ -49,9 +48,9 @@ func IsSwBan(userId int64) bool {
 	ban, err := SWClient.GetBan(int(userId))
 	if err != nil {
 		if err.Error() == "Token is invalid" {
-			log.Fatalln(err.Error())
+			log.Fatal(err.Error())
 		}
-		log.Println(err.Error())
+		log.Print(err.Error())
 	}
 
 	//log.Printf("User %v is SW Banned: %v", userId, ban.Reason != "")
@@ -68,7 +67,7 @@ func IsBan(userId int64) bool {
 	select {
 	default:
 		return <-SWChan || <-CASChan
-	case <-time.After(5 * time.Second):
+	case <-time.After(3 * time.Second):
 		return false
 	}
 }

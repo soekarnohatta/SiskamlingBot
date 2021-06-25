@@ -24,8 +24,8 @@ const (
 
 func (m Module) getUser(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
-		usr, err := models.GetUserByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
-		if usr != nil && err == nil {
+		usr := models.GetUserByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
+		if usr != nil {
 			formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName)
 			ctx.ReplyMessage(formattedText)
 			return
@@ -33,12 +33,13 @@ func (m Module) getUser(ctx *telegram.TgContext) {
 	}
 
 	ctx.ReplyMessage("Pengguna tidak ditemukan!")
+	return
 }
 
 func (m Module) getChat(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
-		cht, err := models.GetChatByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
-		if cht != nil && err == nil {
+		cht := models.GetChatByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
+		if cht != nil {
 			formattedText := fmt.Sprintf(infoChat, ctx.Args()[0], cht.ChatTitle, cht.ChatLink, cht.ChatType)
 			ctx.ReplyMessage(formattedText)
 			return
@@ -46,6 +47,7 @@ func (m Module) getChat(ctx *telegram.TgContext) {
 	}
 
 	ctx.ReplyMessage("Obrolan tidak ditemukan!")
+	return
 }
 
 func (m Module) debug(ctx *telegram.TgContext) {
@@ -57,4 +59,5 @@ func (m Module) debug(ctx *telegram.TgContext) {
 
 	output, _ := json.MarshalIndent(ctx.Message, "", "  ")
 	ctx.ReplyMessage(string(output))
+	return
 }

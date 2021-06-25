@@ -8,30 +8,30 @@ import (
 
 func IsUserBotRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 	if IsUsernameRestricted(ctx, app) {
-		if IsProfileRestricted(ctx, app) {
-			return true
-		} else if !IsUserRestricted(ctx) {
+		if !IsUserRestricted(ctx) {
 			return false
+		} else if IsProfileRestricted(ctx, app) {
+			return true
 		}
 		return true
 	} else if IsProfileRestricted(ctx, app) {
-		if IsUsernameRestricted(ctx, app) {
-			return true
-		} else if !IsUserRestricted(ctx) {
+		if !IsUserRestricted(ctx) {
 			return false
-		}
+		} else if IsUsernameRestricted(ctx, app) {
+			return true
+		} 
 		return true
 	}
 	return IsUserRestricted(ctx)
 }
 
 func IsUsernameRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getUsername, _ := models.GetUsernameByID(app.DB, ctx.Message.From.Id)
+	getUsername := models.GetUsernameByID(app.DB, ctx.Message.From.Id)
 	return getUsername != nil && getUsername.ChatID == ctx.Message.Chat.Id && getUsername.IsMuted
 }
 
 func IsProfileRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
-	getPicture, _ := models.GetPictureByID(app.DB, ctx.User.Id)
+	getPicture := models.GetPictureByID(app.DB, ctx.User.Id)
 	return getPicture != nil && getPicture.ChatID == ctx.Chat.Id && getPicture.IsMuted
 }
 

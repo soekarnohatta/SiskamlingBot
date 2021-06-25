@@ -19,13 +19,13 @@ type Menu struct {
 func ParseMenu(path string) *Menu {
 	openFile, err := os.Open(path)
 	if err != nil {
-		log.Println("failed to open file: " + err.Error())
+		log.Print("failed to open file: " + err.Error())
 		return nil
 	}
 	defer func(openFile *os.File) {
 		err := openFile.Close()
 		if err != nil {
-			log.Println("failed to close file: " + err.Error())
+			log.Print("failed to close file: " + err.Error())
 			return
 		}
 	}(openFile)

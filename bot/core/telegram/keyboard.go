@@ -21,13 +21,13 @@ type Button struct {
 func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton) {
 	openFile, err := os.Open(path)
 	if err != nil {
-		log.Println("failed to open file: " + err.Error())
+		log.Print("failed to open file: " + err.Error())
 		return
 	}
 	defer func(openFile *os.File) {
 		err := openFile.Close()
 		if err != nil {
-			log.Println("failed to close file: " + err.Error())
+			log.Print("failed to close file: " + err.Error())
 			return
 		}
 	}(openFile)
@@ -57,13 +57,13 @@ func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton)
 func BuildKeyboardf(path string, size int, dataMap map[string]string) (res [][]gotgbot.InlineKeyboardButton) {
 	openFile, err := os.Open(path)
 	if err != nil {
-		log.Println("failed to open file: " + err.Error())
+		log.Print("failed to open file: " + err.Error())
 		return
 	}
 	defer func(openFile *os.File) {
 		err := openFile.Close()
 		if err != nil {
-			log.Println("failed to close file: " + err.Error())
+			log.Print("failed to close file: " + err.Error())
 			return
 		}
 	}(openFile)

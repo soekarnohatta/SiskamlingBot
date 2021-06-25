@@ -6,10 +6,6 @@ import (
 	"runtime"
 )
 
-func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
-
 func main() {
 	config := app.NewConfig()
 	bot := app.NewBot(config)

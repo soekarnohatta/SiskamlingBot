@@ -10,18 +10,18 @@ import (
 )
 
 func (b *MyApp) newMongo() {
-	log.Println("Connecting to MongoDB instance...")
+	log.Print("Connecting to MongoDB instance...")
 	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 
 	newMongo, err := mongo.NewClient(options.Client().ApplyURI(b.Config.DatabaseURL))
 	if err != nil {
-		log.Fatalln("Cannot create mongo client: " + err.Error())
+		log.Fatal("Cannot create mongo client: " + err.Error())
 	}
 
 	err = newMongo.Connect(ctx)
 	if err != nil {
-		log.Fatalln("Cannot connect to mongo database: " + err.Error())
+		log.Fatal("Cannot connect to mongo database: " + err.Error())
 	}
 
 	b.DB = newMongo.Database("test")
@@ -31,8 +31,8 @@ func (b *MyApp) newMongo() {
 		if b.Config.IsDebug {
 			log.Printf("Mongo URL is: %s\n", b.Config.DatabaseURL)
 		}
-		log.Fatalln("Cannot connect to mongo database: " + err.Error())
+		log.Fatal("Cannot connect to mongo database: " + err.Error())
 	}
 
-	log.Println("Successfully connected to MongoDB instance!")
+	log.Print("Successfully connected to MongoDB instance!")
 }
