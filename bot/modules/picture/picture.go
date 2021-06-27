@@ -22,9 +22,10 @@ const (
 )
 
 func (m Module) pictureScan(ctx *telegram.TgContext) {
-	if core.IsUserBotRestricted(ctx, m.App) {
+	if core.IsUserRestricted(ctx) {
 		return
 	}
+
 
 	newPicture := models.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
 	models.SavePicture(m.App.DB, newPicture)
@@ -70,7 +71,6 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 
 			ctx.UnRestrictMember(0)
 			ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
-			//ctx.DeleteMessage(0)
 			return
 		}
 

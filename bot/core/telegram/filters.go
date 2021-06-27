@@ -21,7 +21,7 @@ func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 		log.Print(err.Error())
 	}
 
-	return err == nil && p != nil && p.TotalCount == 0
+	return p !=nil && p.TotalCount == 0
 }
 
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {

@@ -21,7 +21,7 @@ const (
 )
 
 func (m Module) usernameScan(ctx *telegram.TgContext) {
-	if core.IsUserBotRestricted(ctx, m.App) {
+	if core.IsUserRestricted(ctx) {
 		return
 	}
 
@@ -63,7 +63,6 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) {
 		
 			ctx.UnRestrictMember(0)
 			ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
-			//ctx.DeleteMessage(0)
 			return 
 		}
 

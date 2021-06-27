@@ -6,7 +6,7 @@ import (
 )
 
 func IsGroup(t string) bool {
-	return t == "supergroup"
+	return t == "supergroup" || t == "group"
 }
 
 func IsPrivate(t string) bool {
