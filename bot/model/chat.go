@@ -15,7 +15,7 @@ type Chat struct {
 	ChatTitle string `json:"chat_title" bson:"chat_title" `
 }
 
-func NewChat(ID int64, chatType string, chatLink string, chatTitle string) *Chat {
+func NewChat(ID int64, chatType, chatLink, chatTitle string) *Chat {
 	return &Chat{
 		ChatID:    ID,
 		ChatType:  chatType,

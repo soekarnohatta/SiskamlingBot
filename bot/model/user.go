@@ -15,7 +15,7 @@ type User struct {
 	UserName  string `json:"user_username" bson:"user_username" `
 }
 
-func NewUser(userID int64, firstName string, lastName string, userName string) *User {
+func NewUser(userID int64, firstName, lastName, userName string) *User {
 	return &User{
 		UserID:    userID,
 		FirstName: firstName,

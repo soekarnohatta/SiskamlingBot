@@ -14,7 +14,7 @@ import (
 )
 
 // DownloadFile downloads file(s) from telegram servers.
-func DownloadFile(telegramPath string, filePath string) (*os.File, error) {
+func DownloadFile(telegramPath, filePath string) (*os.File, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func MentionHtml(userId int, name string) string {
 	return "<a href=\"tg://user?id=" + strconv.Itoa(userId) + "\">" + html.EscapeString(name) + "</a>"
 }
 
-func CreateLinkHtml(link string, txt string) string {
+func CreateLinkHtml(link, txt string) string {
 	return "<a href=\"" + link + "\">" + html.EscapeString(txt) + "</a>"
 }
 
