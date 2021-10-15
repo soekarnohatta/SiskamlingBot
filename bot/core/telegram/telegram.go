@@ -44,7 +44,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
-	
+
 	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
@@ -54,7 +54,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 			log.Println(err.Error())
 			return
 		}
-		
+
 		c.Message = msg
 		return
 	}
@@ -72,7 +72,7 @@ func (c *TgContext) ReplyMessage(text string) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
-	
+
 	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
@@ -89,7 +89,7 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
-	
+
 	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
@@ -106,11 +106,11 @@ func (c *TgContext) EditMessage(text string) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
-	
+
 	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
 	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
 
-	_ , err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
+	_, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -157,7 +157,7 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  * ChatMember
  */
 
-func (c *TgContext) RestrictMember(userId int64, untilDate int64) {
+func (c *TgContext) RestrictMember(userId, untilDate int64) {
 	if userId == 0 {
 		userId = c.User.Id
 	}
