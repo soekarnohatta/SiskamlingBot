@@ -1,13 +1,14 @@
 package app
 
 import (
-	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/soekarnohatta/go-spamwatch/spamwatch"
+
+	"SiskamlingBot/bot/utils"
 )
 
 var (
@@ -58,6 +59,11 @@ func IsSwBan(userId int64) bool {
 }
 
 func IsBan(userId int64) bool {
+	// Add temporary fix regarding anonymous channel issue
+	if userId == 136817688 {
+		return false
+	}
+
 	CASChan := make(chan bool)
 	SWChan := make(chan bool)
 
