@@ -3,6 +3,7 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
+	"fmt"
 	"regexp"
 	"strings"
 	"sync"
@@ -10,8 +11,15 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
+
+const banLog = `#BAN
+<b>User Name:</b> %s
+<b>User ID:</b> <code>%v</code>
+<b>Chat Name:</b> %s
+<b>Chat ID:</b> <code>%v</code>
+<b>Link:</b> %s`
 
 /*
  * Group 0: command messages
@@ -51,7 +59,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 		var wg sync.WaitGroup
 		for _, messages := range b.Messages {
 			if messages.Filter == nil {
-				messages.Filter = filters.All
+				messages.Filter = message.All
 			}
 
 			if messages.Filter(ctx.Message) {
@@ -119,7 +127,7 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 					ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
 				}
 
-				_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
+				_, err := bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil)
 				if err != nil {
 					text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 					_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
@@ -128,6 +136,14 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 
 				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
 				_, _ = ctx.Message.Delete(bot)
+				textToSend := fmt.Sprintf(banLog,
+					telegram.MentionHtml(int(user.Id), user.FirstName),
+					user.Id,
+					ctx.Message.Chat.Title,
+					ctx.Message.Chat.Id,
+					telegram.CreateLinkHtml(telegram.CreateMessageLink(&ctx.Message.Chat, ctx.Message.MessageId), "Here"),
+				)
+				b.SendLog(textToSend)
 				return ext.EndGroups
 			}
 		}
@@ -141,7 +157,7 @@ func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) 
 				ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
 			}
 
-			_, err := bot.KickChatMember(ctx.Message.Chat.Id, user.Id, nil)
+			_, err := bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil)
 			if err != nil {
 				text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
@@ -161,19 +177,19 @@ func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Command message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.Caption, b.captionCmdHandler), 0)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
 	dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
 
 	// Callback handlers
 	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
 
 	// Antispam handler
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.antispamHandler), 2)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.antispamHandler), 2)
 
 	// Other handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.welcomeHandler), 2)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.welcomeHandler), 2)
 
 	// Message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.NewChatMembers, b.messageHandler), 3)
-	dsp.AddHandlerToGroup(handlers.NewMessage(filters.All, b.messageHandler), 3)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 3)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.messageHandler), 3)
 }

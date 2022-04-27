@@ -1,13 +1,14 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram"
 	"log"
 	"net/http"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"SiskamlingBot/bot/core/telegram"
 )
 
 type MyApp struct {
@@ -43,7 +44,7 @@ func (b *MyApp) startWebhook() error {
 		URLPath: b.Config.WebhookPath + b.Config.BotAPIKey,
 	}
 
-	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: false})
+	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
 	if err != nil {
 		return err
 	}
@@ -63,12 +64,12 @@ func (b *MyApp) startWebhook() error {
 }
 
 func (b *MyApp) startPolling() error {
-	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: false})
+	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
 	if err != nil {
 		return err
 	}
 
-	err = b.Updater.StartPolling(b.Bot, &ext.PollingOpts{DropPendingUpdates: false})
+	err = b.Updater.StartPolling(b.Bot, &ext.PollingOpts{DropPendingUpdates: b.Config.CleanPolling})
 	if err != nil {
 		return err
 	}
@@ -103,5 +104,8 @@ func (b *MyApp) Run() {
 	b.Updater = ext.NewUpdater(nil)
 	b.registerHandlers()
 	b.loadModules()
-	b.startUpdater()
+	err = b.startUpdater()
+	if err != nil {
+		return
+	}
 }

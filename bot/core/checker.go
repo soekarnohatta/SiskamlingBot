@@ -39,7 +39,7 @@ func IsProfileRestricted(ctx *telegram.TgContext, app *app.MyApp) bool {
 
 func IsUserRestricted(ctx *telegram.TgContext) bool {
 	getMember, _ := ctx.Bot.GetChatMember(ctx.Chat.Id, ctx.User.Id)
-	if getMember != nil && !getMember.CanSendMessages {
+	if getMember != nil && getMember.GetStatus() == "restricted" {
 		return true
 	}
 	return false

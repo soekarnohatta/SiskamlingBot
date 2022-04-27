@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -13,7 +14,7 @@ import (
 
 var (
 	SWClient *spamwatch.Client
-	myClient = &http.Client{Timeout: 5 * time.Second}
+	myClient = &http.Client{Timeout: 2 * time.Second}
 )
 
 type (
@@ -36,12 +37,16 @@ func IsCASBan(userId int64) bool {
 	if err != nil {
 		return false
 	}
-	defer re.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(re.Body)
 
 	// Deserialize it...
 	var ban casBan
 	err = json.NewDecoder(re.Body).Decode(&ban)
-	//log.Printf("User %v is CAS Banned: %v", userId, ban.Ok)
 	return ban.Ok
 }
 
@@ -50,11 +55,12 @@ func IsSwBan(userId int64) bool {
 	if err != nil {
 		if err.Error() == "Token is invalid" {
 			log.Fatal(err.Error())
+			return false
 		}
 		log.Print(err.Error())
+		return false
 	}
 
-	//log.Printf("User %v is SW Banned: %v", userId, ban.Reason != "")
 	return ban.Reason != ""
 }
 
@@ -73,7 +79,7 @@ func IsBan(userId int64) bool {
 	select {
 	default:
 		return <-SWChan || <-CASChan
-	case <-time.After(3 * time.Second):
+	case <-time.After(2 * time.Second):
 		return false
 	}
 }

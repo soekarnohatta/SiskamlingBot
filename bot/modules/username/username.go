@@ -1,12 +1,14 @@
 package username
 
 import (
-	"SiskamlingBot/bot/core"
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
 	"fmt"
 	"regexp"
 	"strconv"
+	"sync"
+
+	"SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/models"
 )
 
 const (
@@ -35,9 +37,11 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		return
 	}
 
-	ctx.DeleteMessage(0)
+	var wg sync.WaitGroup
+
+	go ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
+	go ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
 
 	textToSend = fmt.Sprintf(unameLog,
 		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
@@ -46,7 +50,9 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		ctx.Chat.Id,
 		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 
-	ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	go ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	wg.Add(3)
+	wg.Wait()
 }
 
 func (m Module) usernameCallback(ctx *telegram.TgContext) {
@@ -58,12 +64,12 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) {
 				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
 				return
 			}
-		
+
 			models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
-		
+
 			ctx.UnRestrictMember(0)
 			ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
-			return 
+			return
 		}
 
 		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)

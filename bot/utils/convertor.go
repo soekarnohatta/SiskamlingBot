@@ -1,18 +1,12 @@
 package utils
 
 import (
-	"log"
 	"strconv"
 )
 
 func StrToInt(text string) int {
-	if text == "" {
-		return 0
-	}
-
 	ret, err := strconv.Atoi(text)
 	if err != nil {
-		log.Print(err.Error())
 		return 0
 	}
 

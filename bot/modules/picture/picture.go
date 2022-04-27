@@ -1,13 +1,15 @@
 package picture
 
 import (
-	"SiskamlingBot/bot/core"
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
 	"fmt"
 	"log"
 	"regexp"
 	"strconv"
+	"sync"
+
+	"SiskamlingBot/bot/core"
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/models"
 )
 
 const (
@@ -26,7 +28,6 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		return
 	}
 
-
 	newPicture := models.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
 	models.SavePicture(m.App.DB, newPicture)
 
@@ -37,9 +38,11 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		return
 	}
 
-	ctx.DeleteMessage(0)
+	var wg sync.WaitGroup
+
+	go ctx.DeleteMessage(0)
 	textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-	ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
+	go ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
 
 	textToSend = fmt.Sprintf(picLog,
 		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
@@ -49,7 +52,9 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
 	)
 
-	ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	go ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	wg.Add(3)
+	wg.Wait()
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) {

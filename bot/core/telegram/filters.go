@@ -19,9 +19,10 @@ func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 	p, err := bot.GetUserProfilePhotos(msg.From.Id, &gotgbot.GetUserProfilePhotosOpts{Limit: 1})
 	if err != nil {
 		log.Print(err.Error())
+		return false
 	}
 
-	return p !=nil && p.TotalCount == 0
+	return p.TotalCount == 0
 }
 
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {

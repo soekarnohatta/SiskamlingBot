@@ -32,8 +32,6 @@ type Config struct {
 	SWToken       string `env:"SWTOKEN,required"`
 }
 
-var configuration = &Config{}
-
 func NewConfig() *Config {
 	conf := new(Config)
 
@@ -72,7 +70,6 @@ func NewConfig() *Config {
 		conf.SWToken = os.Getenv("SWTOKEN")
 		SWClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
 
-		configuration = conf
 		return conf
 	}
 
@@ -82,7 +79,6 @@ func NewConfig() *Config {
 		return nil
 	}
 
-	configuration = conf
 	SWClient, _ = spamwatch.NewClient("", conf.SWToken)
 	log.Print("Configurations have been parsed succesfully!")
 	return conf
