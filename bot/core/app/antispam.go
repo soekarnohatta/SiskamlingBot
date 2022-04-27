@@ -66,7 +66,7 @@ func IsSwBan(userId int64) bool {
 
 func IsBan(userId int64) bool {
 	// Add temporary fix regarding anonymous channel issue
-	if userId == 136817688 {
+	if userId == 136817688 || userId == 777000 {
 		return false
 	}
 
