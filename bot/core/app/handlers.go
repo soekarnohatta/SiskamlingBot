@@ -68,7 +68,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 			}
 
 			if messages.Filter(ctx.Message) {
-				if messages.Async == true {
+				if messages.Async {
 					wg.Add(1)
 					go messages.InvokeAsync(&wg, bot, ctx)
 				} else {

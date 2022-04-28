@@ -48,14 +48,14 @@ func (m Module) removeGlobalBan(ctx *telegram.TgContext) {
 	ctx.SendMessage(text, 0)
 
 	getUser := models.GetUserByID(m.App.DB, utils.StrToInt64(ctx.Args()[0]))
-	if getUser != nil && getUser.Gban == true {
+	if getUser != nil && getUser.Gban {
 		getUser.Gban = false
 		models.SaveUser(m.App.DB, getUser)
 
 		text = fmt.Sprintf("Succeed! <code>%v</code> has been unbanned.", ctx.Args()[0])
 		ctx.EditMessage(text)
 		return
-	} else if getUser.Gban == false {
+	} else if !getUser.Gban {
 		text = fmt.Sprintf("<code>%v</code> has not been banned!", ctx.Args()[0])
 		ctx.EditMessage(text)
 		return

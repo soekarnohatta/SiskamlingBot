@@ -68,7 +68,7 @@ func isSwBan(userId int64) bool {
 }
 
 func isLocalBan(db *mongo.Database, userId int64) bool {
-	return (models.GetUserByID(db, userId) != nil) && (models.GetUserByID(db, userId).Gban == true)
+	return (models.GetUserByID(db, userId) != nil) && (models.GetUserByID(db, userId).Gban)
 }
 
 func IsBan(db *mongo.Database, userId int64) bool {
