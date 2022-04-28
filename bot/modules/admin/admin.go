@@ -35,7 +35,6 @@ func (m Module) getUser(ctx *telegram.TgContext) {
 	}
 
 	ctx.ReplyMessage("Pengguna tidak ditemukan!")
-	return
 }
 
 func (m Module) getChat(ctx *telegram.TgContext) {
@@ -49,7 +48,6 @@ func (m Module) getChat(ctx *telegram.TgContext) {
 	}
 
 	ctx.ReplyMessage("Obrolan tidak ditemukan!")
-	return
 }
 
 func (Module) debug(ctx *telegram.TgContext) {
@@ -61,5 +59,4 @@ func (Module) debug(ctx *telegram.TgContext) {
 
 	output, _ := json.MarshalIndent(ctx.Message, "", "  ")
 	ctx.ReplyMessage(string(output))
-	return
 }
