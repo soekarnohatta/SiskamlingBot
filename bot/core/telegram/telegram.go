@@ -166,10 +166,7 @@ func (c *TgContext) RestrictMember(userId int64, untilDate int64) bool {
 	}
 
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (c *TgContext) UnRestrictMember(userId int64) bool {
@@ -186,8 +183,5 @@ func (c *TgContext) UnRestrictMember(userId int64) bool {
 	}
 
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
