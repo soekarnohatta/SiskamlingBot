@@ -41,20 +41,22 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 	wg.Add(3)
 
 	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
-	textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 	go func() {
 		defer wg.Done()
+		textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
 	}()
-
-	textToSend = fmt.Sprintf(picLog,
-		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
-		ctx.User.Id,
-		ctx.Chat.Title,
-		ctx.Chat.Id,
-		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
-	)
-	go func() { defer wg.Done(); ctx.SendMessage(textToSend, m.App.Config.LogEvent) }()
+	go func() {
+		defer wg.Done()
+		textToSend := fmt.Sprintf(picLog,
+			telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
+			ctx.User.Id,
+			ctx.Chat.Title,
+			ctx.Chat.Id,
+			telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+		)
+		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
+	}()
 	wg.Wait()
 }
 

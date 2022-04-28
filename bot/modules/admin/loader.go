@@ -35,6 +35,16 @@ func (m *Module) Commands() []types.Command {
 			Description: "debug",
 			Func:        m.debug,
 		},
+		{
+			Name:        "gban",
+			Description: "gban",
+			Func:        m.globalBan,
+		},
+		{
+			Name:        "ungban",
+			Description: "ungban",
+			Func:        m.removeGlobalBan,
+		},
 	}
 }
 

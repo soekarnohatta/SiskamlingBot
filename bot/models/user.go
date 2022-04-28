@@ -17,17 +17,17 @@ type User struct {
 	UserName  string `json:"user_username" bson:"user_username" `
 }
 
-func NewUser(userID int64, firstName string, lastName string, userName string) *User {
+func NewUser(userID int64, firstName string, lastName string, userName string, gban bool) *User {
 	return &User{
 		UserID:    userID,
-		Gban:      false,
+		Gban:      gban,
 		FirstName: firstName,
 		LastName:  lastName,
 		UserName:  userName,
 	}
 }
 
-func GetUserByID(db *mongo.Database, Id int) *User {
+func GetUserByID(db *mongo.Database, Id int64) *User {
 	var user *User
 	dat, err := db.Collection("user").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
@@ -49,7 +49,7 @@ func SaveUser(db *mongo.Database, user *User) {
 	return
 }
 
-func DeleteUserByID(db *mongo.Database, Id int) {
+func DeleteUserByID(db *mongo.Database, Id int64) {
 	_, err := db.Collection("user").DeleteOne(context.TODO(), bson.M{"user_id": Id})
 	if err != nil {
 		log.Print(err.Error())

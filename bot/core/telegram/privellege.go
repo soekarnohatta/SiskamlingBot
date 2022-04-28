@@ -13,6 +13,18 @@ func IsPrivate(t string) bool {
 	return t == "private"
 }
 
+func IsSudo(u int64, sudo []int64) bool {
+	for _, val := range sudo {
+		return u == val
+	}
+
+	return false
+}
+
+func IsOwner(u int64, owner int64) bool {
+	return u == owner
+}
+
 func RequireGroup(b *gotgbot.Bot, ctx *ext.Context) error {
 	if !IsGroup(ctx.Message.Chat.Type) {
 		_, err := ctx.Message.Reply(b, "Perintah ini hanya bisa digunakan dalam grup!", nil)

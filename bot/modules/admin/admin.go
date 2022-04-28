@@ -26,9 +26,9 @@ const (
 
 func (m Module) getUser(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
-		usr := models.GetUserByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
+		usr := models.GetUserByID(m.App.DB, utils.StrToInt64(ctx.Args()[0]))
 		if usr != nil {
-			formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName, user.IsBan(int64(utils.StrToInt(ctx.Args()[0]))))
+			formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName, user.IsBan(m.App.DB, utils.StrToInt64(ctx.Args()[0])))
 			ctx.ReplyMessage(formattedText)
 			return
 		}
@@ -40,7 +40,7 @@ func (m Module) getUser(ctx *telegram.TgContext) {
 
 func (m Module) getChat(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
-		cht := models.GetChatByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
+		cht := models.GetChatByID(m.App.DB, utils.StrToInt64(ctx.Args()[0]))
 		if cht != nil {
 			formattedText := fmt.Sprintf(infoChat, ctx.Args()[0], cht.ChatTitle, cht.ChatLink, cht.ChatType)
 			ctx.ReplyMessage(formattedText)

@@ -25,7 +25,7 @@ func NewChat(ID int64, chatType string, chatLink string, chatTitle string) *Chat
 	}
 }
 
-func GetChatByID(db *mongo.Database, Id int) *Chat {
+func GetChatByID(db *mongo.Database, Id int64) *Chat {
 	var chat *Chat
 	dat, err := db.Collection("chat").FindOne(context.TODO(), bson.M{"chat_id": Id}).DecodeBytes()
 	if err != nil {
@@ -47,7 +47,7 @@ func SaveChat(db *mongo.Database, chat *Chat) {
 	return
 }
 
-func DeleteChatByID(db *mongo.Database, Id int) {
+func DeleteChatByID(db *mongo.Database, Id int64) {
 	_, err := db.Collection("chat").DeleteOne(context.TODO(), bson.M{"chat_id": Id})
 	if err != nil {
 		log.Print(err.Error())

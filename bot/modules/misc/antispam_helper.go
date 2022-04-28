@@ -1,7 +1,9 @@
 package user
 
 import (
+	"SiskamlingBot/bot/models"
 	"encoding/json"
+	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"log"
 	"net/http"
@@ -65,7 +67,11 @@ func isSwBan(userId int64) bool {
 	return ban.Reason != ""
 }
 
-func IsBan(userId int64) bool {
+func isLocalBan(db *mongo.Database, userId int64) bool {
+	return (models.GetUserByID(db, userId) != nil) && (models.GetUserByID(db, userId).Gban == true)
+}
+
+func IsBan(db *mongo.Database, userId int64) bool {
 	// Add temporary fix regarding anonymous channel issue
 	if userId == 136817688 || userId == 777000 {
 		return false
@@ -73,13 +79,15 @@ func IsBan(userId int64) bool {
 
 	CASChan := make(chan bool)
 	SWChan := make(chan bool)
+	LocalChan := make(chan bool)
 
+	go func() { LocalChan <- isLocalBan(db, userId) }()
 	go func() { CASChan <- isCASBan(userId) }()
 	go func() { SWChan <- isSwBan(userId) }()
 
 	select {
 	default:
-		return <-SWChan || <-CASChan
+		return <-LocalChan || <-SWChan || <-CASChan
 	case <-time.After(2 * time.Second):
 		return false
 	}
