@@ -3,7 +3,7 @@ package admin
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
-	"SiskamlingBot/bot/modules/misc"
+	user "SiskamlingBot/bot/modules/misc"
 	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"fmt"
@@ -52,7 +52,7 @@ func (m Module) getChat(ctx *telegram.TgContext) {
 	return
 }
 
-func (m Module) debug(ctx *telegram.TgContext) {
+func (Module) debug(ctx *telegram.TgContext) {
 	if ctx.Message.ReplyToMessage != nil {
 		output, _ := json.MarshalIndent(ctx.Message.ReplyToMessage, "", "  ")
 		ctx.ReplyMessage(string(output))

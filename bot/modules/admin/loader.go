@@ -11,7 +11,7 @@ type Module struct {
 }
 
 // Info returns basic information about this module.
-func (m *Module) Info() app.ModuleInfo {
+func (*Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{
 		Name: "Admin",
 	}
@@ -48,11 +48,11 @@ func (m *Module) Commands() []types.Command {
 	}
 }
 
-func (m *Module) Messages() []types.Message {
+func (*Module) Messages() []types.Message {
 	return nil
 }
 
-func (m *Module) Callbacks() []types.Callback {
+func (*Module) Callbacks() []types.Callback {
 	return nil
 }
 

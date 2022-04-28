@@ -3,6 +3,7 @@ package user
 import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram/types"
+
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
@@ -12,7 +13,7 @@ type Module struct {
 }
 
 // Info returns basic information about this module.
-func (m Module) Info() app.ModuleInfo {
+func (Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{
 		Name: "Misc",
 	}

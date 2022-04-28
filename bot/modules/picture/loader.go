@@ -12,14 +12,14 @@ type Module struct {
 }
 
 // Info returns basic information about this module.
-func (m Module) Info() app.ModuleInfo {
+func (Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{
 		Name: "Picture",
 	}
 }
 
 // Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []types.Command {
+func (Module) Commands() []types.Command {
 	return []types.Command{}
 }
 

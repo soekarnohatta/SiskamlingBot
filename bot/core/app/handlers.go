@@ -18,7 +18,7 @@ import (
  * Group 0: command messages
  */
 
-func (b *MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+func (*MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
 	ctx.Message.Text = ctx.Message.Caption
 	return ext.ContinueGroups
 }
