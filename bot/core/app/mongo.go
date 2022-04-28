@@ -10,7 +10,7 @@ import (
 )
 
 func (b *MyApp) newMongo() {
-	log.Print("Connecting to MongoDB instance...")
+	log.Println("Connecting to MongoDB instance...")
 	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 
@@ -34,5 +34,5 @@ func (b *MyApp) newMongo() {
 		log.Fatal("Cannot connect to mongo database: " + err.Error())
 	}
 
-	log.Print("Successfully connected to MongoDB instance!")
+	log.Println("Successfully connected to MongoDB instance!")
 }

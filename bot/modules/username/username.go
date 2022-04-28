@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"sync"
 
-	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
 )
@@ -23,9 +22,9 @@ const (
 )
 
 func (m Module) usernameScan(ctx *telegram.TgContext) {
-	if core.IsUserRestricted(ctx) {
-		return
-	}
+	// if core.IsUserRestricted(ctx) {
+	// 	 return
+	// }
 
 	newUsername := models.NewUsername(ctx.User.Id, ctx.User.Id, true)
 	models.SaveUsername(m.App.DB, newUsername)
@@ -38,11 +37,14 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 	}
 
 	var wg sync.WaitGroup
+	wg.Add(3)
 
-	go ctx.DeleteMessage(0)
+	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
 	textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-	go ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
-
+	go func() {
+		defer wg.Done()
+		ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
+	}()
 	textToSend = fmt.Sprintf(unameLog,
 		telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
 		ctx.User.Id,
@@ -50,8 +52,7 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		ctx.Chat.Id,
 		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 
-	go ctx.SendMessage(textToSend, m.App.Config.LogEvent)
-	wg.Add(3)
+	go func() { defer wg.Done(); ctx.SendMessage(textToSend, m.App.Config.LogEvent) }()
 	wg.Wait()
 }
 

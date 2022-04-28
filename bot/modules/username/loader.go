@@ -3,6 +3,7 @@ package username
 import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 )
 
 // Module contains the state for an instance of this module.
@@ -18,25 +19,25 @@ func (m Module) Info() app.ModuleInfo {
 }
 
 // Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []telegram.Command {
-	return []telegram.Command{
-	}
+func (m Module) Commands() []types.Command {
+	return []types.Command{}
 }
 
-func (m Module) Messages() []telegram.Message {
-	return []telegram.Message{
+func (m Module) Messages() []types.Message {
+	return []types.Message{
 		{
 			Name:        "UsernameScanner",
 			Description: "Detect user without username",
 			Filter:      telegram.UsernameAndGroupFilter,
 			Func:        m.usernameScan,
-			Async: 		 false,
+			Order:       1,
+			Async:       false,
 		},
 	}
 }
 
-func (m Module) Callbacks() []telegram.Callback {
-	return []telegram.Callback{
+func (m Module) Callbacks() []types.Callback {
+	return []types.Callback{
 		{
 			Name:        "UsernameCallback",
 			Description: "",

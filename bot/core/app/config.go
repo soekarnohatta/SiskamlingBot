@@ -9,7 +9,6 @@ import (
 
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
-	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
 type Config struct {
@@ -68,7 +67,6 @@ func NewConfig() *Config {
 		conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 		conf.SWToken = os.Getenv("SWTOKEN")
-		SWClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
 
 		return conf
 	}
@@ -79,7 +77,6 @@ func NewConfig() *Config {
 		return nil
 	}
 
-	SWClient, _ = spamwatch.NewClient("", conf.SWToken)
 	log.Print("Configurations have been parsed succesfully!")
 	return conf
 }

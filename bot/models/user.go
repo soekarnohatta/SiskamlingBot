@@ -11,6 +11,7 @@ import (
 
 type User struct {
 	UserID    int64  `json:"user_id" bson:"user_id" `
+	Gban      bool   `json:"user_gban" bson:"user_gban" `
 	FirstName string `json:"user_first_name" bson:"user_first_name" `
 	LastName  string `json:"user_last_name" bson:"user_last_name" `
 	UserName  string `json:"user_username" bson:"user_username" `
@@ -19,6 +20,7 @@ type User struct {
 func NewUser(userID int64, firstName string, lastName string, userName string) *User {
 	return &User{
 		UserID:    userID,
+		Gban:      false,
 		FirstName: firstName,
 		LastName:  lastName,
 		UserName:  userName,

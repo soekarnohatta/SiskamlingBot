@@ -2,9 +2,9 @@ package app
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/utils"
-	"fmt"
+	"SiskamlingBot/bot/core/telegram/types"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 
@@ -13,13 +13,6 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
-
-const banLog = `#BAN
-<b>User Name:</b> %s
-<b>User ID:</b> <code>%v</code>
-<b>Chat Name:</b> %s
-<b>Chat ID:</b> <code>%v</code>
-<b>Link:</b> %s`
 
 /*
  * Group 0: command messages
@@ -57,13 +50,25 @@ func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	if ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update != nil {
 		var wg sync.WaitGroup
-		for _, messages := range b.Messages {
+		var orderedGroup []types.Message
+
+		for _, z := range b.Modules {
+			for _, y := range z.Messages() {
+				orderedGroup = append(orderedGroup, y)
+			}
+		}
+
+		sort.SliceStable(orderedGroup, func(i, j int) bool {
+			return orderedGroup[i].Order < orderedGroup[j].Order
+		})
+
+		for _, messages := range orderedGroup {
 			if messages.Filter == nil {
 				messages.Filter = message.All
 			}
 
 			if messages.Filter(ctx.Message) {
-				if messages.Async {
+				if messages.Async == true {
 					wg.Add(1)
 					go messages.InvokeAsync(&wg, bot, ctx)
 				} else {
@@ -71,9 +76,11 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 				}
 			}
 		}
+
 		wg.Wait()
 		return ext.ContinueGroups
 	}
+
 	return ext.ContinueGroups
 }
 
@@ -116,63 +123,6 @@ func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	return ext.ContinueGroups
 }
 
-func (b *MyApp) antispamHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	if ctx.Message.NewChatMembers != nil {
-		for _, user := range ctx.Message.NewChatMembers {
-			if IsBan(user.Id) {
-				dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": utils.IntToStr(int(user.Id))}
-				text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
-				sendOpt := &gotgbot.SendMessageOpts{
-					ParseMode:   "HTML",
-					ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
-				}
-
-				_, err := bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil)
-				if err != nil {
-					text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
-					_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
-					return ext.EndGroups
-				}
-
-				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
-				_, _ = ctx.Message.Delete(bot)
-				textToSend := fmt.Sprintf(banLog,
-					telegram.MentionHtml(int(user.Id), user.FirstName),
-					user.Id,
-					ctx.Message.Chat.Title,
-					ctx.Message.Chat.Id,
-					telegram.CreateLinkHtml(telegram.CreateMessageLink(&ctx.Message.Chat, ctx.Message.MessageId), "Here"),
-				)
-				b.SendLog(textToSend)
-				return ext.EndGroups
-			}
-		}
-	} else if ctx.Message != nil {
-		user := ctx.EffectiveUser
-		if IsBan(user.Id) {
-			dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": utils.IntToStr(int(user.Id))}
-			text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
-			sendOpt := &gotgbot.SendMessageOpts{
-				ParseMode:   "HTML",
-				ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
-			}
-
-			_, err := bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil)
-			if err != nil {
-				text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
-				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
-				return ext.EndGroups
-			}
-
-			_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
-			_, _ = ctx.Message.Delete(bot)
-			return ext.EndGroups
-		}
-		return ext.ContinueGroups
-	}
-	return ext.ContinueGroups
-}
-
 func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
@@ -182,9 +132,6 @@ func (b *MyApp) registerHandlers() {
 
 	// Callback handlers
 	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
-
-	// Antispam handler
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.antispamHandler), 2)
 
 	// Other handlers
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.welcomeHandler), 2)

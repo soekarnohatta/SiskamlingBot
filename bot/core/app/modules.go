@@ -1,7 +1,7 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 	"log"
 )
 
@@ -11,9 +11,9 @@ type ModuleInfo struct {
 
 type Module interface {
 	Info() ModuleInfo
-	Commands() []telegram.Command
-	Messages() []telegram.Message
-	Callbacks() []telegram.Callback
+	Commands() []types.Command
+	Messages() []types.Message
+	Callbacks() []types.Callback
 }
 
 type ModuleConstructor func(*MyApp) (Module, error)

@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"SiskamlingBot/bot/core/app"
-	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
@@ -16,30 +16,32 @@ func (m *Module) Info() app.ModuleInfo {
 	}
 }
 
-func (m *Module) Commands() []telegram.Command {
+func (m *Module) Commands() []types.Command {
 	return nil
 }
 
-func (m *Module) Messages() []telegram.Message {
-	return []telegram.Message{
+func (m *Module) Messages() []types.Message {
+	return []types.Message{
 		{
-			Name:        "chatMetric",
+			Name:        "ChatMetric",
 			Description: "Detect user without username",
 			Filter:      message.All,
 			Func:        m.chatMetric,
+			Order:       0,
 			Async:       true,
 		},
 		{
-			Name:        "userMetric",
+			Name:        "UserMetric",
 			Description: "Detect user without profile picture",
 			Filter:      message.All,
 			Func:        m.usernameMetric,
+			Order:       0,
 			Async:       true,
 		},
 	}
 }
 
-func (m *Module) Callbacks() []telegram.Callback {
+func (m *Module) Callbacks() []types.Callback {
 	return nil
 }
 

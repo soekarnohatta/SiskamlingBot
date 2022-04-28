@@ -1,13 +1,13 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 	"fmt"
 	"log"
 	"strings"
 )
 
-func (b *MyApp) registerCommand(cmd telegram.Command) error {
+func (b *MyApp) registerCommand(cmd types.Command) error {
 	lName := strings.ToLower(cmd.Name)
 	if _, ok := b.Commands[lName]; ok {
 		return fmt.Errorf("register command '%s': name already used", cmd.Name)
@@ -40,14 +40,13 @@ func (b *MyApp) registerCommands(mod Module) error {
 	return nil
 }
 
-func (b *MyApp) registerMessage(msg telegram.Message) error {
+func (b *MyApp) registerMessage(msg types.Message) error {
 	lName := strings.ToLower(msg.Name)
 	if _, ok := b.Messages[lName]; ok {
 		return fmt.Errorf("register message '%s': name already used", msg.Name)
 	}
 
 	b.Messages[lName] = msg
-
 	return nil
 }
 
@@ -66,7 +65,7 @@ func (b *MyApp) registerMessages(mod Module) error {
 	return nil
 }
 
-func (b *MyApp) registerCallback(cb telegram.Callback) error {
+func (b *MyApp) registerCallback(cb types.Callback) error {
 	lName := strings.ToLower(cb.Name)
 	if _, ok := b.Messages[lName]; ok {
 		return fmt.Errorf("register callback '%s': name already used", cb.Name)
@@ -125,5 +124,5 @@ func (b *MyApp) loadModules() {
 		}
 	}
 
-	log.Print("Loaded All Modules!")
+	log.Println("Loaded All Modules!")
 }

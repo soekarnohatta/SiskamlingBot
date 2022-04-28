@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,8 +19,9 @@ type TgContext struct {
 	Callback *gotgbot.CallbackQuery
 
 	CmdSegment string
-	Date      int64
-	TimeInit   time.Duration
+	Date       int64
+	TimeInit   string
+	TimeProc   string
 
 	args        []string
 	haveRawArgs bool
@@ -40,7 +42,9 @@ func NewContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 	newTgContext.Callback = ctx.Update.CallbackQuery
 
 	newTgContext.Date = ctx.EffectiveMessage.Date
-	newTgContext.TimeInit = time.Since(time.Unix(newTgContext.Date, 0))
+
+	secs := time.Since(time.Unix(newTgContext.Date, 0)).Seconds()
+	newTgContext.TimeInit = strconv.FormatFloat(secs, 'f', 3, 64)
 
 	return newTgContext
 }

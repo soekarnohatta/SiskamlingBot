@@ -1,10 +1,11 @@
-package app
+package user
 
 import (
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/soekarnohatta/go-spamwatch/spamwatch"
@@ -13,8 +14,8 @@ import (
 )
 
 var (
-	SWClient *spamwatch.Client
-	myClient = &http.Client{Timeout: 2 * time.Second}
+	swClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
+	myClient    = &http.Client{Timeout: 2 * time.Second}
 )
 
 type (
@@ -30,7 +31,7 @@ type (
 	}
 )
 
-func IsCASBan(userId int64) bool {
+func isCASBan(userId int64) bool {
 	// Request data to CAS API.
 	cas := "https://api.cas.chat/check?user_id=" + utils.IntToStr(int(userId))
 	re, err := myClient.Get(cas)
@@ -50,8 +51,8 @@ func IsCASBan(userId int64) bool {
 	return ban.Ok
 }
 
-func IsSwBan(userId int64) bool {
-	ban, err := SWClient.GetBan(int(userId))
+func isSwBan(userId int64) bool {
+	ban, err := swClient.GetBan(int(userId))
 	if err != nil {
 		if err.Error() == "Token is invalid" {
 			log.Fatal(err.Error())
@@ -73,8 +74,8 @@ func IsBan(userId int64) bool {
 	CASChan := make(chan bool)
 	SWChan := make(chan bool)
 
-	go func() { CASChan <- IsCASBan(userId) }()
-	go func() { SWChan <- IsSwBan(userId) }()
+	go func() { CASChan <- isCASBan(userId) }()
+	go func() { SWChan <- isSwBan(userId) }()
 
 	select {
 	default:

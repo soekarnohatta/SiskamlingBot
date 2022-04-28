@@ -1,11 +1,12 @@
-package telegram
+package types
 
 import (
+	"SiskamlingBot/bot/core/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-type CallbackFunc = func(*TgContext)
+type CallbackFunc = func(*telegram.TgContext)
 
 type Callback struct {
 	Name        string
@@ -15,7 +16,7 @@ type Callback struct {
 }
 
 func (cmd Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
-	newCmdCtx := NewContext(bot, ctx, "")
+	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
 		cmd.Func(newCmdCtx)
 	}

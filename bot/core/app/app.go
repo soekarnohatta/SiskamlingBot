@@ -1,14 +1,13 @@
 package app
 
 import (
+	"SiskamlingBot/bot/core/telegram/types"
 	"log"
 	"net/http"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"SiskamlingBot/bot/core/telegram"
 )
 
 type MyApp struct {
@@ -17,9 +16,9 @@ type MyApp struct {
 	Context *ext.Context
 
 	Modules   map[string]Module
-	Commands  map[string]telegram.Command
-	Messages  map[string]telegram.Message
-	Callbacks map[string]telegram.Callback
+	Commands  map[string]types.Command
+	Messages  map[string]types.Message
+	Callbacks map[string]types.Callback
 
 	Config *Config
 	DB     *mongo.Database
@@ -31,9 +30,9 @@ func NewBot(config *Config) *MyApp {
 		Config:  config,
 
 		Modules:   make(map[string]Module),
-		Commands:  make(map[string]telegram.Command),
-		Messages:  make(map[string]telegram.Message),
-		Callbacks: make(map[string]telegram.Callback),
+		Commands:  make(map[string]types.Command),
+		Messages:  make(map[string]types.Message),
+		Callbacks: make(map[string]types.Callback),
 	}
 }
 
@@ -54,12 +53,15 @@ func (b *MyApp) startWebhook() error {
 		return err
 	}
 
-	_, err = b.Bot.SetWebhook(b.Config.WebhookURL+b.Config.WebhookPath+b.Config.BotAPIKey, &gotgbot.SetWebhookOpts{MaxConnections: 40})
+	_, err = b.Bot.SetWebhook(b.Config.WebhookURL+b.Config.WebhookPath+b.Config.BotAPIKey, &gotgbot.SetWebhookOpts{
+		MaxConnections:     40,
+		DropPendingUpdates: b.Config.CleanPolling,
+	})
 	if err != nil {
 		return err
 	}
 
-	log.Printf("%s is now running!\n", b.Bot.User.Username)
+	log.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -74,7 +76,7 @@ func (b *MyApp) startPolling() error {
 		return err
 	}
 
-	log.Printf("%s is now running!\n", b.Bot.User.Username)
+	log.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -87,8 +89,6 @@ func (b *MyApp) startUpdater() error {
 }
 
 func (b *MyApp) Run() {
-	b.newMongo()
-
 	newBotOpt := &gotgbot.BotOpts{
 		Client:      http.Client{},
 		GetTimeout:  gotgbot.DefaultGetTimeout,
@@ -102,8 +102,10 @@ func (b *MyApp) Run() {
 	}
 
 	b.Updater = ext.NewUpdater(nil)
-	b.registerHandlers()
 	b.loadModules()
+	b.registerHandlers()
+
+	b.newMongo()
 	err = b.startUpdater()
 	if err != nil {
 		return

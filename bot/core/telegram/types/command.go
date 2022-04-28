@@ -1,11 +1,12 @@
-package telegram
+package types
 
 import (
+	"SiskamlingBot/bot/core/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-type CommandFunc = func(*TgContext)
+type CommandFunc = func(*telegram.TgContext)
 
 type Command struct {
 	Name        string
@@ -16,7 +17,7 @@ type Command struct {
 }
 
 func (cmd Command) Invoke(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) {
-	newCmdCtx := NewContext(bot, ctx, cmdSeg)
+	newCmdCtx := telegram.NewContext(bot, ctx, cmdSeg)
 	if newCmdCtx != nil {
 		cmd.Func(newCmdCtx)
 	}

@@ -2,7 +2,7 @@ package admin
 
 import (
 	"SiskamlingBot/bot/core/app"
-	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 )
 
 // Module contains the state for an instance of this module.
@@ -18,8 +18,8 @@ func (m *Module) Info() app.ModuleInfo {
 }
 
 // Commands returns a list of telegram provided by this module.
-func (m *Module) Commands() []telegram.Command {
-	return []telegram.Command{
+func (m *Module) Commands() []types.Command {
+	return []types.Command{
 		{
 			Name:        "user",
 			Description: "get user info",
@@ -38,11 +38,11 @@ func (m *Module) Commands() []telegram.Command {
 	}
 }
 
-func (m *Module) Messages() []telegram.Message {
+func (m *Module) Messages() []types.Message {
 	return nil
 }
 
-func (m *Module) Callbacks() []telegram.Callback {
+func (m *Module) Callbacks() []types.Callback {
 	return nil
 }
 

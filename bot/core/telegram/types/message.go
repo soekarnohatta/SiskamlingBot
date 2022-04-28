@@ -1,25 +1,26 @@
-package telegram
+package types
 
 import (
-	"sync"
-
+	"SiskamlingBot/bot/core/telegram"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
+	"sync"
 )
 
-type MessageFunc = func(*TgContext)
+type MessageFunc = func(*telegram.TgContext)
 
 type Message struct {
 	Name        string
 	Description string
 	Filter      filters.Message
 	Func        MessageFunc
-	Async		bool
+	Order       int
+	Async       bool
 }
 
 func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
-	newCmdCtx := NewContext(bot, ctx, "")
+	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
 		cmd.Func(newCmdCtx)
 	}
@@ -27,7 +28,7 @@ func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
 
 func (cmd Message) InvokeAsync(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
 	defer wg.Done()
-	newCmdCtx := NewContext(bot, ctx, "")
+	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
 		cmd.Func(newCmdCtx)
 	}

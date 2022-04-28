@@ -3,6 +3,7 @@ package admin
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/modules/misc"
 	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"fmt"
@@ -13,7 +14,8 @@ const (
 <b>User ID</b>: <code>%v</code>
 <b>Username</b>: <code>%v</code>
 <b>First Name</b>: <code>%v</code>
-<b>Last Name</b>: <code>%v</code>`
+<b>Last Name</b>: <code>%v</code>
+<b>Is Banned</b>: <code>%v</code>`
 
 	infoChat = `<b>Info Obrolan</b>
 <b>Chat ID</b>: <code>%v</code>
@@ -26,7 +28,7 @@ func (m Module) getUser(ctx *telegram.TgContext) {
 	if len(ctx.Args()) > 0 {
 		usr := models.GetUserByID(m.App.DB, utils.StrToInt(ctx.Args()[0]))
 		if usr != nil {
-			formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName)
+			formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName, user.IsBan(int64(utils.StrToInt(ctx.Args()[0]))))
 			ctx.ReplyMessage(formattedText)
 			return
 		}

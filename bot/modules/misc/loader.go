@@ -2,7 +2,8 @@ package user
 
 import (
 	"SiskamlingBot/bot/core/app"
-	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
 // Module contains the state for an instance of this module.
@@ -18,8 +19,8 @@ func (m Module) Info() app.ModuleInfo {
 }
 
 // Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []telegram.Command {
-	return []telegram.Command{
+func (m Module) Commands() []types.Command {
+	return []types.Command{
 		{
 			Name:        "ping",
 			Description: "ping the bot.",
@@ -38,12 +39,21 @@ func (m Module) Commands() []telegram.Command {
 	}
 }
 
-func (m Module) Messages() []telegram.Message {
-	return nil
+func (m Module) Messages() []types.Message {
+	return []types.Message{
+		{
+			Name:        "antispam",
+			Description: "Detect user without username",
+			Filter:      message.All,
+			Func:        m.antispam,
+			Order:       0,
+			Async:       false,
+		},
+	}
 }
 
-func (m Module) Callbacks() []telegram.Callback {
-	return []telegram.Callback{
+func (m Module) Callbacks() []types.Callback {
+	return []types.Callback{
 		{
 			Name:        "HelpCallback",
 			Description: "",
