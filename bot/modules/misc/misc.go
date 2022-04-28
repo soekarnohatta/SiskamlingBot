@@ -15,7 +15,7 @@ func (m Module) about(ctx *telegram.TgContext) {
 	ctx.ReplyMessageKeyboard(text, keyb)
 }
 
-func (m Module) ping(ctx *telegram.TgContext) {
+func (Module) ping(ctx *telegram.TgContext) {
 	timeStart := time.Now()
 	ctx.ReplyMessage("<b>Ping</b>")
 	timeEnd := time.Since(timeStart)
@@ -28,7 +28,7 @@ func (m Module) start(ctx *telegram.TgContext) {
 	ctx.ReplyMessageKeyboard(text, keyb)
 }
 
-func (m Module) helpCallback(ctx *telegram.TgContext) {
+func (Module) helpCallback(ctx *telegram.TgContext) {
 	pattern, _ := regexp.Compile(`help\((.+?)\)`)
 	switch pattern.FindStringSubmatch(ctx.Callback.Data)[1] {
 	case "main":

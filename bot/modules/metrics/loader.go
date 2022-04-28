@@ -3,6 +3,7 @@ package metrics
 import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram/types"
+
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
@@ -10,13 +11,13 @@ type Module struct {
 	App *app.MyApp
 }
 
-func (m *Module) Info() app.ModuleInfo {
+func (*Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{
 		Name: "Metrics",
 	}
 }
 
-func (m *Module) Commands() []types.Command {
+func (*Module) Commands() []types.Command {
 	return nil
 }
 
@@ -41,7 +42,7 @@ func (m *Module) Messages() []types.Message {
 	}
 }
 
-func (m *Module) Callbacks() []types.Callback {
+func (*Module) Callbacks() []types.Callback {
 	return nil
 }
 
