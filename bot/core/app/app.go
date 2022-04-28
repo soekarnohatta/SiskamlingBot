@@ -3,13 +3,14 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram/types"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/shirou/gopsutil/host"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"net/http"
-	"time"
 )
 
 type MyApp struct {
