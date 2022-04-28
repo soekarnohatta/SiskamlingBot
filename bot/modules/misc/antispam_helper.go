@@ -2,17 +2,17 @@ package user
 
 import (
 	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/utils"
 	"encoding/json"
-	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/soekarnohatta/go-spamwatch/spamwatch"
+	"go.mongodb.org/mongo-driver/mongo"
 
-	"SiskamlingBot/bot/utils"
+	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
 var (

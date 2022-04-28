@@ -62,7 +62,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		return
 	}
 
-	//c.Message = msg
+	// c.Message = msg
 }
 
 func (c *TgContext) ReplyMessage(text string) {

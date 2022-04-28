@@ -1,9 +1,9 @@
 package main
 
 import (
+	"SiskamlingBot/bot/core/app"
 	"runtime"
 
-	"SiskamlingBot/bot/core/app"
 	_ "SiskamlingBot/bot/modules"
 )
 

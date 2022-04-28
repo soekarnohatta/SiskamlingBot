@@ -2,6 +2,7 @@ package types
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )

@@ -3,6 +3,7 @@ package user
 import (
 	"SiskamlingBot/bot/core/app"
 	"SiskamlingBot/bot/core/telegram/types"
+
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
