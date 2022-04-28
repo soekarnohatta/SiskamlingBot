@@ -21,7 +21,7 @@ func IsSudo(u int64, sudo []int64) bool {
 	return false
 }
 
-func IsOwner(u int64, owner int64) bool {
+func IsOwner(u, owner int64) bool {
 	return u == owner
 }
 
