@@ -20,10 +20,10 @@ const (
 	unameMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username!</b>"
 )
 
-func (m Module) usernameScan(ctx *telegram.TgContext) {
-	// if core.IsUserRestricted(ctx) {
-	// 	 return
-	// }
+func (m Module) usernameScan(ctx *telegram.TgContext) error {
+	//if core.IsUserRestricted(ctx) {
+	//	return telegram.ContinueOrder
+	//}
 
 	newUsername := models.NewUsername(ctx.User.Id, ctx.User.Id, true)
 	models.SaveUsername(m.App.DB, newUsername)
@@ -32,7 +32,7 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		unavailable := unameMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
 		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
-		return
+		return telegram.EndOrder
 	}
 
 	var wg sync.WaitGroup
@@ -58,6 +58,7 @@ func (m Module) usernameScan(ctx *telegram.TgContext) {
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
 	wg.Wait()
+	return telegram.EndOrder
 }
 
 func (m Module) usernameCallback(ctx *telegram.TgContext) {

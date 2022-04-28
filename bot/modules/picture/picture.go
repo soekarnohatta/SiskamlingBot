@@ -1,6 +1,7 @@
 package picture
 
 import (
+	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
 	"fmt"
@@ -21,10 +22,10 @@ const (
 	picMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>"
 )
 
-func (m Module) pictureScan(ctx *telegram.TgContext) {
-	// if core.IsUserRestricted(ctx) {
-	// 	 return
-	// }
+func (m Module) pictureScan(ctx *telegram.TgContext) error {
+	if core.IsUserRestricted(ctx) {
+		return telegram.ContinueOrder
+	}
 
 	newPicture := models.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
 	models.SavePicture(m.App.DB, newPicture)
@@ -33,7 +34,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		unavailable := picMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
 		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
-		return
+		return telegram.EndOrder
 	}
 
 	var wg sync.WaitGroup
@@ -57,6 +58,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) {
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
 	wg.Wait()
+	return telegram.EndOrder
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) {
@@ -75,7 +77,6 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 			}
 
 			models.DeletePictureByID(m.App.DB, ctx.Callback.From.Id)
-
 			ctx.UnRestrictMember(0)
 			ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
 			return
@@ -96,7 +97,6 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) {
 	}
 
 	models.DeletePictureByID(m.App.DB, ctx.Callback.From.Id)
-
 	ctx.UnRestrictMember(0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
 	ctx.DeleteMessage(0)

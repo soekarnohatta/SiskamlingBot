@@ -2,18 +2,26 @@ package main
 
 import (
 	"SiskamlingBot/bot/core/app"
-	"runtime"
-
 	_ "SiskamlingBot/bot/modules"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	run()
-}
-
-func run() {
 	config := app.NewConfig()
 	bot := app.NewBot(config)
-	bot.Run()
-	runtime.Goexit()
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		if err := bot.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	<-done
+	log.Print("OS Interrupt Detected, Exiting ... ")
+	defer bot.SendLogMessage("Shut Down", nil)
 }

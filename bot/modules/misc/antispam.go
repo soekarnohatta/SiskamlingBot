@@ -7,18 +7,18 @@ import (
 	"sync"
 )
 
-const unameLog = `#BAN
+const banLog = `#BAN
 <b>User Name:</b> %s
 <b>User ID:</b> <code>%v</code>
 <b>Chat Name:</b> %s
 <b>Chat ID:</b> <code>%v</code>
 <b>Link:</b> %s`
 
-func (m Module) antispam(ctx *telegram.TgContext) {
+func (m Module) antispam(ctx *telegram.TgContext) error {
 	user := ctx.User
 
 	if !IsBan(m.App.DB, user.Id) {
-		return
+		return telegram.ContinueOrder
 	}
 
 	dataMap := map[string]string{"1": telegram.MentionHtml(int(user.Id), user.FirstName), "2": utils.IntToStr(int(user.Id))}
@@ -27,7 +27,7 @@ func (m Module) antispam(ctx *telegram.TgContext) {
 	if _, err := ctx.Bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil); err != nil {
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(text, 0)
-		return
+		return telegram.EndOrder
 	}
 
 	var wg sync.WaitGroup
@@ -37,7 +37,7 @@ func (m Module) antispam(ctx *telegram.TgContext) {
 	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
 	go func() {
 		defer wg.Done()
-		textToSend := fmt.Sprintf(unameLog,
+		textToSend := fmt.Sprintf(banLog,
 			telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
 			ctx.User.Id,
 			ctx.Chat.Title,
@@ -46,4 +46,5 @@ func (m Module) antispam(ctx *telegram.TgContext) {
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
 	wg.Wait()
+	return telegram.EndOrder
 }

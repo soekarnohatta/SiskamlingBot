@@ -47,7 +47,7 @@ func (m Module) Messages() []types.Message {
 			Description: "Detect user without username",
 			Filter:      message.All,
 			Func:        m.antispam,
-			Order:       0,
+			Order:       1,
 			Async:       false,
 		},
 	}

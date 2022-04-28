@@ -2,12 +2,14 @@ package app
 
 import (
 	"SiskamlingBot/bot/core/telegram/types"
-	"log"
-	"net/http"
-
+	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/shirou/gopsutil/host"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
+	"net/http"
+	"time"
 )
 
 type MyApp struct {
@@ -88,7 +90,7 @@ func (b *MyApp) startUpdater() error {
 	}
 }
 
-func (b *MyApp) Run() {
+func (b *MyApp) Run() error {
 	newBotOpt := &gotgbot.BotOpts{
 		Client:      http.Client{},
 		GetTimeout:  gotgbot.DefaultGetTimeout,
@@ -98,16 +100,63 @@ func (b *MyApp) Run() {
 	var err error
 	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, newBotOpt)
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
 
 	b.Updater = ext.NewUpdater(nil)
-	b.loadModules()
+	err = b.loadModules()
+	if err != nil {
+		return err
+	}
+
 	b.registerHandlers()
 
-	b.newMongo()
+	err = b.newMongo()
+	if err != nil {
+		return err
+	}
+
 	err = b.startUpdater()
 	if err != nil {
-		return
+		return err
+	}
+
+	return nil
+}
+
+func (b *MyApp) SendLogMessage(msg string, err error) {
+	bot := b.Bot
+	info, _ := host.Info()
+	replyTxt := fmt.Sprintf("#ACTION\n"+
+		"<b>%v</b>\n\n"+
+		"👤<b>Bot Name :</b> %v\n"+
+		"🤖<b>Bot Username :</b> @%v\n"+
+		"🖥<b>Host OS :</b> %v\n"+
+		"⚙<b>Host Name :</b> %v\n"+
+		"⏱<b>Host Uptime :</b> %v\n"+
+		"💽<b>Kernel Version :</b> %v\n"+
+		"💾<b>Platform :</b> %v\n"+
+		"💽<b>Timestamp :</b> %v\n",
+		msg,
+		bot.FirstName,
+		bot.Username,
+		info.OS,
+		info.Hostname,
+		info.Uptime,
+		info.KernelVersion,
+		info.Platform,
+		time.Now().Local(),
+	)
+	if err != nil {
+		replyTxt += "====================="
+		replyTxt += "<b>Error Details:\n"
+		replyTxt += err.Error()
+	} else {
+		log.Println("Bye ... ")
+	}
+
+	_, errSend := b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	if errSend != nil {
+		log.Fatal(err)
 	}
 }

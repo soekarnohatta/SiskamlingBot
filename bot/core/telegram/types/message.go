@@ -2,14 +2,12 @@ package types
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-	"sync"
-
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 )
 
-type MessageFunc = func(*telegram.TgContext)
+type MessageFunc = func(*telegram.TgContext) error
 
 type Message struct {
 	Name        string
@@ -20,17 +18,17 @@ type Message struct {
 	Async       bool
 }
 
-func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
+func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) error {
 	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
-		cmd.Func(newCmdCtx)
+		return cmd.Func(newCmdCtx)
 	}
+	return ext.ContinueGroups
 }
 
-func (cmd Message) InvokeAsync(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
-	defer wg.Done()
+func (cmd Message) InvokeAsync(bot *gotgbot.Bot, ctx *ext.Context) {
 	newCmdCtx := telegram.NewContext(bot, ctx, "")
-	if newCmdCtx != nil {
-		cmd.Func(newCmdCtx)
+	if newCmdCtx != nil && cmd.Async {
+		_ = cmd.Func(newCmdCtx)
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -56,11 +55,6 @@ func isCASBan(userId int64) bool {
 func isSwBan(userId int64) bool {
 	ban, err := swClient.GetBan(int(userId))
 	if err != nil {
-		if err.Error() == "Token is invalid" {
-			log.Fatal(err.Error())
-			return false
-		}
-		log.Print(err.Error())
 		return false
 	}
 

@@ -15,7 +15,10 @@ func IsPrivate(t string) bool {
 
 func IsSudo(u int64, sudo []int64) bool {
 	for _, val := range sudo {
-		return u == val
+		if u == val {
+			return true
+		}
+		continue
 	}
 
 	return false

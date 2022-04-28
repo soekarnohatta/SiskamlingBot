@@ -15,6 +15,7 @@ func (m Module) globalBan(ctx *telegram.TgContext) {
 
 	if len(ctx.Args()) < 1 {
 		ctx.SendMessage("masukin id nya dong", 0)
+		return
 	}
 
 	text := fmt.Sprintf("Starting global ban of <code>%v</code> ...", ctx.Args()[0])
@@ -42,6 +43,7 @@ func (m Module) removeGlobalBan(ctx *telegram.TgContext) {
 
 	if len(ctx.Args()) < 1 {
 		ctx.SendMessage("masukin id nya dong", 0)
+		return
 	}
 
 	text := fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])

@@ -3,15 +3,16 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/core/telegram/types"
-	"regexp"
-	"sort"
-	"strings"
-	"sync"
-
+	"errors"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"log"
+	"regexp"
+	"sort"
+	"strings"
+	"sync"
 )
 
 /*
@@ -49,7 +50,6 @@ func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	if ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update != nil {
-		var wg sync.WaitGroup
 		var orderedGroup []types.Message
 
 		for _, z := range b.Modules {
@@ -62,7 +62,11 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 			return orderedGroup[i].Order < orderedGroup[j].Order
 		})
 
+		// max 5 goroutines
+		limit := make(chan struct{}, 5)
+		var wg sync.WaitGroup
 		for _, messages := range orderedGroup {
+
 			if messages.Filter == nil {
 				messages.Filter = message.All
 			}
@@ -70,14 +74,26 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 			if messages.Filter(ctx.Message) {
 				if messages.Async {
 					wg.Add(1)
-					go messages.InvokeAsync(&wg, bot, ctx)
+					limit <- struct{}{}
+					go func(bot *gotgbot.Bot, ctx *ext.Context) {
+						messages.InvokeAsync(bot, ctx)
+						<-limit
+						wg.Done()
+					}(bot, ctx)
 				} else {
-					messages.Invoke(bot, ctx)
+					err := messages.Invoke(bot, ctx)
+					if errors.Is(err, telegram.EndOrder) {
+						return
+					} else if errors.Is(err, telegram.ContinueOrder) {
+						continue
+					} else {
+						b.SendLogMessage("Error", err)
+					}
 				}
 			}
+			wg.Wait()
 		}
 
-		wg.Wait()
 		return ext.ContinueGroups
 	}
 
@@ -139,4 +155,6 @@ func (b *MyApp) registerHandlers() {
 	// Message handlers
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 3)
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.messageHandler), 3)
+
+	log.Println("All handlers have been registered succesfully!")
 }

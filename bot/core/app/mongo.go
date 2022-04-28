@@ -9,19 +9,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (b *MyApp) newMongo() {
+func (b *MyApp) newMongo() error {
 	log.Println("Connecting to MongoDB instance...")
-	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
 	newMongo, err := mongo.NewClient(options.Client().ApplyURI(b.Config.DatabaseURL))
 	if err != nil {
-		log.Fatal("Cannot create mongo client: " + err.Error())
+		return err
 	}
 
 	err = newMongo.Connect(ctx)
 	if err != nil {
-		log.Fatal("Cannot connect to mongo database: " + err.Error())
+		return err
 	}
 
 	b.DB = newMongo.Database("test")
@@ -31,8 +31,9 @@ func (b *MyApp) newMongo() {
 		if b.Config.IsDebug {
 			log.Printf("Mongo URL is: %s\n", b.Config.DatabaseURL)
 		}
-		log.Fatal("Cannot connect to mongo database: " + err.Error())
+		return err
 	}
 
 	log.Println("Successfully connected to MongoDB instance!")
+	return nil
 }

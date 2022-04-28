@@ -116,13 +116,14 @@ func (b *MyApp) loadModule(name string, cstr ModuleConstructor) error {
 	return nil
 }
 
-func (b *MyApp) loadModules() {
+func (b *MyApp) loadModules() error {
 	for name, cstr := range Modules {
 		err := b.loadModule(name, cstr)
 		if err != nil {
-			log.Fatalf("load module '%s': %v", name, err.Error())
+			return err
 		}
 	}
 
 	log.Println("Loaded All Modules!")
+	return nil
 }
