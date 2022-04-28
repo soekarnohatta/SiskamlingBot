@@ -1,24 +1,19 @@
 package main
 
 import (
-	"SiskamlingBot/bot/core"
-	_ "SiskamlingBot/bot/module"
-	"log"
 	"runtime"
+
+	"SiskamlingBot/bot/core/app"
+	_ "SiskamlingBot/bot/modules"
 )
 
-func init() {
-	log.SetFlags(log.Lshortfile)
-	runtime.GOMAXPROCS(runtime.NumCPU())
+func main() {
+	run()
 }
 
-func main() {
-	config := core.NewConfig()
-	bot := core.NewBot(config)
-	err := bot.Run()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
+func run() {
+	config := app.NewConfig()
+	bot := app.NewBot(config)
+	bot.Run()
 	runtime.Goexit()
 }

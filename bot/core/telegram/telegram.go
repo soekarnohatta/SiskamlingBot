@@ -17,41 +17,12 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
-	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
+	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
 
 	if chatID != 0 {
-		_, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-
-		//c.Message = msg
-		return
-	}
-
-	_, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-
-	//c.Message = msg
-}
-
-func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {
-	if text == "" {
-		text = "Bad Request: No text supplied!"
-	}
-
-	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
-	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
-
-	if chatID != 0 {
-		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
-		if err != nil {
-			log.Println(err.Error())
 			return
 		}
 
@@ -59,13 +30,39 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		return
 	}
 
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 
 	c.Message = msg
+}
+
+func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {
+	if text == "" {
+		text = "Bad Request: No text supplied!"
+	}
+
+	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+
+	if chatID != 0 {
+		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+		if err != nil {
+			return
+		}
+
+		c.Message = msg
+		return
+	}
+
+	_, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+	if err != nil {
+		log.Print(err.Error())
+		return
+	}
+
+	//c.Message = msg
 }
 
 func (c *TgContext) ReplyMessage(text string) {
@@ -73,12 +70,11 @@ func (c *TgContext) ReplyMessage(text string) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
-	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
+	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
 
 	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 
@@ -90,12 +86,11 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 		text = "Bad Request: No text supplied!"
 	}
 
-	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
-	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
+	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
 
 	msg, err := c.Message.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 
@@ -107,23 +102,21 @@ func (c *TgContext) EditMessage(text string) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	c.TimeProc = time.Now().UTC().Sub(time.Unix(c.Message.Date, 0).UTC())
-	text += "\n\n⏱ <code>" + strconv.FormatFloat(c.TimeInit.Seconds(), 'f', 3, 64) + " s</code> | ⌛ <code>" + strconv.FormatFloat(c.TimeProc.Seconds(), 'f', 3, 64) + " s</code>"
+	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
 
-	_, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
+	msg, _, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 
-	//c.Message = msg
+	c.Message = msg
 }
 
 func (c *TgContext) DeleteMessage(msgId int64) {
 	if msgId != 0 {
 		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId)
 		if err != nil {
-			log.Println(err.Error())
 			return
 		}
 		return
@@ -131,7 +124,6 @@ func (c *TgContext) DeleteMessage(msgId int64) {
 
 	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Message.MessageId)
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 }
@@ -148,7 +140,6 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
 
 	_, err := c.Callback.Answer(c.Bot, newAnswerCallbackQueryOpts)
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
 }
@@ -157,7 +148,7 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  * ChatMember
  */
 
-func (c *TgContext) RestrictMember(userId, untilDate int64) {
+func (c *TgContext) RestrictMember(userId int64, untilDate int64) bool {
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -176,7 +167,27 @@ func (c *TgContext) RestrictMember(userId, untilDate int64) {
 
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
 	if err != nil {
-		log.Println(err.Error())
-		return
+		return false
 	}
+	return true
+}
+
+func (c *TgContext) UnRestrictMember(userId int64) bool {
+	if userId == 0 {
+		userId = c.User.Id
+	}
+
+	newOpt := &gotgbot.RestrictChatMemberOpts{UntilDate: -1}
+	newChatPermission := gotgbot.ChatPermissions{
+		CanSendMessages:      true,
+		CanSendMediaMessages: true,
+		CanSendPolls:         true,
+		CanSendOtherMessages: true,
+	}
+
+	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
+	if err != nil {
+		return false
+	}
+	return true
 }

@@ -1,7 +1,7 @@
 [
     {
       "text": "💡 Bantuan",
-      "data": "about(help)"
+      "data": "help(main)"
     },
     {
       "text": "💰 Donasi",
@@ -11,4 +11,4 @@
       "text": "⚒ Source",
       "data": "https://github.com/soekarnohatta/SiskamlingBot"
     }
-  ]
+]

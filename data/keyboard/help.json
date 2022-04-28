@@ -1,0 +1,30 @@
+[
+  {
+    "text": "Username Scanner",
+    "data": "help(username)"
+  },
+  {
+    "text": "Picture Scanner",
+    "data": "help(picture)"
+  },
+  {
+    "text": "Antispam",
+    "data": "help(antispam)"
+  },
+  {
+    "text": "Admin",
+    "data": "help(admin)"
+  },
+  {
+    "text": "Misc",
+    "data": "help(misc)"
+  },
+  {
+    "text": "Kebijakan Privasi",
+    "data": "help(privasi)"
+  },
+  {
+    "text": "⚒ Source",
+    "data": "https://github.com/soekarnohatta/SiskamlingBot"
+  }
+]
