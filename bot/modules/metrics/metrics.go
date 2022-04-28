@@ -17,7 +17,6 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) {
 		ctx.Message.From.Username,
 		false,
 	))
-
 }
 
 func (m Module) chatMetric(ctx *telegram.TgContext) {
@@ -27,5 +26,4 @@ func (m Module) chatMetric(ctx *telegram.TgContext) {
 		ctx.Chat.InviteLink,
 		ctx.Chat.Title,
 	))
-
 }
