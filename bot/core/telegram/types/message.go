@@ -2,10 +2,11 @@ package types
 
 import (
 	"SiskamlingBot/bot/core/telegram"
+	"sync"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
-	"sync"
 )
 
 type MessageFunc = func(*telegram.TgContext)

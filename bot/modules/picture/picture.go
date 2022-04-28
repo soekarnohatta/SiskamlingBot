@@ -1,14 +1,13 @@
 package picture
 
 import (
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/models"
 	"fmt"
 	"log"
 	"regexp"
 	"strconv"
 	"sync"
-
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
 )
 
 const (

@@ -1,13 +1,12 @@
 package username
 
 import (
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/models"
 	"fmt"
 	"regexp"
 	"strconv"
 	"sync"
-
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
 )
 
 const (
