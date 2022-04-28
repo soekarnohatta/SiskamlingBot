@@ -13,7 +13,7 @@ func MentionHtml(userId int, name string) string {
 	return "<a href=\"tg://user?id=" + strconv.Itoa(userId) + "\">" + html.EscapeString(name) + "</a>"
 }
 
-func CreateLinkHtml(link string, txt string) string {
+func CreateLinkHtml(link, txt string) string {
 	return "<a href=\"" + link + "\">" + html.EscapeString(txt) + "</a>"
 }
 

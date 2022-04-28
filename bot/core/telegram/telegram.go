@@ -148,7 +148,7 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  * ChatMember
  */
 
-func (c *TgContext) RestrictMember(userId int64, untilDate int64) bool {
+func (c *TgContext) RestrictMember(userId, untilDate int64) bool {
 	if userId == 0 {
 		userId = c.User.Id
 	}
