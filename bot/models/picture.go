@@ -42,7 +42,7 @@ func SavePicture(db *mongo.Database, picture *Picture) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }
 
 func DeletePictureByID(db *mongo.Database, Id int64) {
@@ -50,5 +50,5 @@ func DeletePictureByID(db *mongo.Database, Id int64) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }

@@ -44,7 +44,7 @@ func SaveChat(db *mongo.Database, chat *Chat) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }
 
 func DeleteChatByID(db *mongo.Database, Id int64) {
@@ -52,5 +52,5 @@ func DeleteChatByID(db *mongo.Database, Id int64) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }

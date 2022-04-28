@@ -42,7 +42,7 @@ func SaveUsername(db *mongo.Database, username *Username) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }
 
 func DeleteUsernameByID(db *mongo.Database, Id int64) {
@@ -50,5 +50,5 @@ func DeleteUsernameByID(db *mongo.Database, Id int64) {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	return
+
 }
