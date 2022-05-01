@@ -37,7 +37,6 @@ func (m Module) getUser(ctx *telegram.TgContext) error {
 	}
 
 	return err
-
 }
 
 func (m Module) getChat(ctx *telegram.TgContext) error {

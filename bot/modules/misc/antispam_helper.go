@@ -10,9 +10,7 @@ import (
 	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
-var (
-	myClient = &http.Client{Timeout: 2 * time.Second}
-)
+var myClient = &http.Client{Timeout: 2 * time.Second}
 
 type (
 	casBan struct {

@@ -4,9 +4,10 @@ import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
 	"fmt"
-	"github.com/shirou/gopsutil/host"
 	"regexp"
 	"time"
+
+	"github.com/shirou/gopsutil/host"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
