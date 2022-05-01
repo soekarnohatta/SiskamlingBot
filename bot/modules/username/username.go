@@ -1,8 +1,8 @@
 package username
 
 import (
+	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -21,12 +21,9 @@ const (
 )
 
 func (m Module) usernameScan(ctx *telegram.TgContext) error {
-	//if core.IsUserRestricted(ctx) {
-	//	return telegram.ContinueOrder
-	//}
-
-	newUsername := models.NewUsername(ctx.User.Id, ctx.User.Id, true)
-	models.SaveUsername(m.App.DB, newUsername)
+	if core.IsUserRestricted(ctx) {
+		return telegram.ContinueOrder
+	}
 
 	if !ctx.RestrictMember(0, 0) {
 		unavailable := unameMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
@@ -43,7 +40,8 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 	go func() {
 		defer wg.Done()
 		textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-		ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
+		keyboard, _ := telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))})
+		ctx.SendMessageKeyboard(textToSend, 0, keyboard)
 	}()
 
 	go func() {
@@ -61,35 +59,27 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 	return telegram.EndOrder
 }
 
-func (m Module) usernameCallback(ctx *telegram.TgContext) {
+func (m Module) usernameCallback(ctx *telegram.TgContext) error {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
-		getUsername := models.GetUsernameByID(m.App.DB, ctx.Callback.From.Id)
-		if getUsername != nil && getUsername.ChatID == ctx.Callback.Message.Chat.Id {
-			if ctx.User.Username == "" {
-				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
-				return
-			}
 
-			models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
-
-			ctx.UnRestrictMember(0)
-			ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
-			return
+		if ctx.User.Username == "" {
+			ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
+			return nil
 		}
 
-		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)
-		return
+		ctx.UnRestrictMember(0)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+		return nil
 	}
 
 	if ctx.User.Username == "" {
 		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
-		return
+		return nil
 	}
-
-	models.DeleteUsernameByID(m.App.DB, ctx.Callback.From.Id)
 
 	ctx.UnRestrictMember(0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
 	ctx.DeleteMessage(0)
+	return telegram.ContinueOrder
 }

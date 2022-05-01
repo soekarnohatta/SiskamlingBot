@@ -17,7 +17,7 @@ const banLog = `#BAN
 func (m Module) antispam(ctx *telegram.TgContext) error {
 	user := ctx.User
 
-	if !IsBan(m.App.DB, user.Id) {
+	if !m.IsBan(user.Id) {
 		return telegram.ContinueOrder
 	}
 

@@ -14,9 +14,7 @@ type Module struct {
 
 // Info returns basic information about this module.
 func (Module) Info() app.ModuleInfo {
-	return app.ModuleInfo{
-		Name: "Misc",
-	}
+	return app.ModuleInfo{Name: "Misc"}
 }
 
 // Commands returns a list of telegram provided by this module.
@@ -24,18 +22,27 @@ func (m Module) Commands() []types.Command {
 	return []types.Command{
 		{
 			Name:        "ping",
+			Trigger:     "ping",
 			Description: "ping the bot.",
 			Func:        m.ping,
 		},
 		{
 			Name:        "about",
+			Trigger:     "about",
 			Description: "about the bot.",
 			Func:        m.about,
 		},
 		{
 			Name:        "start",
+			Trigger:     "start",
 			Description: "start the bot.",
 			Func:        m.start,
+		},
+		{
+			Name:        "info",
+			Trigger:     "info",
+			Description: "info the bot.",
+			Func:        m.info,
 		},
 	}
 }
@@ -66,9 +73,7 @@ func (m Module) Callbacks() []types.Callback {
 
 // NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
-	return &Module{
-		App: bot,
-	}, nil
+	return &Module{App: bot}, nil
 }
 
 func init() {

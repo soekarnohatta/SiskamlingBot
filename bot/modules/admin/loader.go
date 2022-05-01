@@ -12,37 +12,40 @@ type Module struct {
 
 // Info returns basic information about this module.
 func (*Module) Info() app.ModuleInfo {
-	return app.ModuleInfo{
-		Name: "Admin",
-	}
+	return app.ModuleInfo{Name: "Admin"}
 }
 
 // Commands returns a list of telegram provided by this module.
 func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
-			Name:        "user",
-			Description: "get user info",
+			Name:        "Get User",
+			Trigger:     "getuser",
+			Description: "Get specific user info",
 			Func:        m.getUser,
 		},
 		{
-			Name:        "chat",
-			Description: "get chat info",
+			Name:        "Get Chat",
+			Trigger:     "getchat",
+			Description: "Get specific chat info",
 			Func:        m.getChat,
 		},
 		{
-			Name:        "dbg",
-			Description: "debug",
+			Name:        "Debug",
+			Trigger:     "dbg",
+			Description: "Prints JSON dump of a message update",
 			Func:        m.debug,
 		},
 		{
-			Name:        "gban",
-			Description: "gban",
+			Name:        "Gban",
+			Trigger:     "gban",
+			Description: "Ban user across chats",
 			Func:        m.globalBan,
 		},
 		{
-			Name:        "ungban",
-			Description: "ungban",
+			Name:        "UnGban",
+			Trigger:     "ungban",
+			Description: "Unban user across chats",
 			Func:        m.removeGlobalBan,
 		},
 	}
@@ -58,9 +61,7 @@ func (*Module) Callbacks() []types.Callback {
 
 // NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
-	return &Module{
-		App: bot,
-	}, nil
+	return &Module{App: bot}, nil
 }
 
 func init() {

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/shirou/gopsutil/host"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MyApp struct {
@@ -23,14 +23,16 @@ type MyApp struct {
 	Messages  map[string]types.Message
 	Callbacks map[string]types.Callback
 
-	Config *Config
-	DB     *mongo.Database
+	Config   *Config
+	DB       MongoDB
+	ErrorLog *log.Logger
 }
 
 func NewBot(config *Config) *MyApp {
 	return &MyApp{
-		Context: nil,
-		Config:  config,
+		Context:  nil,
+		Config:   config,
+		ErrorLog: log.New(os.Stderr, "", log.LstdFlags),
 
 		Modules:   make(map[string]Module),
 		Commands:  make(map[string]types.Command),
@@ -79,7 +81,7 @@ func (b *MyApp) startPolling() error {
 		return err
 	}
 
-	log.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
+	b.ErrorLog.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -105,17 +107,18 @@ func (b *MyApp) Run() error {
 	}
 
 	b.Updater = ext.NewUpdater(nil)
+
+	err = b.newMongo()
+	if err != nil {
+		return err
+	}
+
 	err = b.loadModules()
 	if err != nil {
 		return err
 	}
 
 	b.registerHandlers()
-
-	err = b.newMongo()
-	if err != nil {
-		return err
-	}
 
 	err = b.startUpdater()
 	if err != nil {
@@ -130,14 +133,14 @@ func (b *MyApp) SendLogMessage(msg string, err error) {
 	info, _ := host.Info()
 	replyTxt := fmt.Sprintf("#ACTION\n"+
 		"<b>%v</b>\n\n"+
-		"👤<b>Bot Name :</b> %v\n"+
-		"🤖<b>Bot Username :</b> @%v\n"+
-		"🖥<b>Host OS :</b> %v\n"+
-		"⚙<b>Host Name :</b> %v\n"+
-		"⏱<b>Host Uptime :</b> %v\n"+
-		"💽<b>Kernel Version :</b> %v\n"+
-		"💾<b>Platform :</b> %v\n"+
-		"💽<b>Timestamp :</b> %v\n",
+		"<b>Bot Name :</b> %v\n"+
+		"<b>Bot Username :</b> @%v\n"+
+		"<b>Host OS :</b> %v\n"+
+		"<b>Host Name :</b> %v\n"+
+		"<b>Host Uptime :</b> %v\n"+
+		"<b>Kernel Version :</b> %v\n"+
+		"<b>Platform :</b> %v\n"+
+		"<b>Timestamp :</b> %v\n",
 		msg,
 		bot.FirstName,
 		bot.Username,
@@ -149,15 +152,15 @@ func (b *MyApp) SendLogMessage(msg string, err error) {
 		time.Now().Local(),
 	)
 	if err != nil {
-		replyTxt += "====================="
-		replyTxt += "<b>Error Details:\n"
+		replyTxt += "=====================\n"
+		replyTxt += "<b>Error Details:</b>\n"
 		replyTxt += err.Error()
 	} else {
 		log.Println("Bye ... ")
 	}
 
-	_, errSend := b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
-	if errSend != nil {
-		log.Fatal(err)
+	_, err = b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	if err != nil {
+		log.Println(err.Error())
 	}
 }

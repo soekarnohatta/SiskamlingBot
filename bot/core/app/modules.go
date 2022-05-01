@@ -2,6 +2,7 @@ package app
 
 import (
 	"SiskamlingBot/bot/core/telegram/types"
+	"fmt"
 	"log"
 )
 
@@ -26,5 +27,5 @@ func RegisterModule(name string, constructor ModuleConstructor) {
 	}
 
 	Modules[name] = constructor
-	log.Printf("%s module has been loaded succesfully!\n", name)
+	fmt.Printf("%s module has been loaded succesfully!\n", name)
 }

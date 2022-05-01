@@ -13,14 +13,12 @@ type Module struct {
 
 // Info returns basic information about this module.
 func (Module) Info() app.ModuleInfo {
-	return app.ModuleInfo{
-		Name: "Username",
-	}
+	return app.ModuleInfo{Name: "Username"}
 }
 
 // Commands returns a list of telegram provided by this module.
 func (Module) Commands() []types.Command {
-	return []types.Command{}
+	return nil
 }
 
 func (m Module) Messages() []types.Message {
@@ -49,9 +47,7 @@ func (m Module) Callbacks() []types.Callback {
 
 // NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
-	return &Module{
-		App: bot,
-	}, nil
+	return &Module{App: bot}, nil
 }
 
 func init() {

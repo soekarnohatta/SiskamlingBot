@@ -39,7 +39,8 @@ func ParseMenu(path string) *Menu {
 func CreateMenu(path string, length int) (string, [][]gotgbot.InlineKeyboardButton) {
 	newMenu := ParseMenu(path)
 	if newMenu != nil {
-		return newMenu.Text, BuildKeyboard(newMenu.Keyboard, length)
+		keyboard, _ := BuildKeyboard(newMenu.Keyboard, length)
+		return newMenu.Text, keyboard
 	}
 	return "", nil
 }
@@ -52,8 +53,8 @@ func CreateMenuf(path string, length int, dataMap map[string]string) (string, []
 			replData = append(replData, "{"+k+"}", v)
 		}
 		newReplace := strings.NewReplacer(replData...)
-
-		return newReplace.Replace(newMenu.Text), BuildKeyboardf(newMenu.Keyboard, length, dataMap)
+		keyboard, _ := BuildKeyboard(newMenu.Keyboard, length)
+		return newReplace.Replace(newMenu.Text), keyboard
 	}
 	return "", nil
 }

@@ -10,18 +10,24 @@ import (
 )
 
 func main() {
-	config := app.NewConfig()
-	bot := app.NewBot(config)
+	config, err := app.NewConfig()
+	if err != nil {
+		panic(err)
+	}
 
+	bot := app.NewBot(config)
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
 		if err := bot.Run(); err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	}()
+
 	<-done
-	log.Print("OS Interrupt Detected, Exiting ... ")
-	defer bot.SendLogMessage("Shut Down", nil)
+	log.Println("OS Interrupt Detected, Exiting ... ")
+	err = bot.Updater.Stop()
+	if err != nil {
+		panic(err)
+	}
 }

@@ -2,7 +2,6 @@ package types
 
 import (
 	"SiskamlingBot/bot/core/telegram"
-
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
@@ -27,9 +26,10 @@ func (cmd Message) Invoke(bot *gotgbot.Bot, ctx *ext.Context) error {
 	return ext.ContinueGroups
 }
 
-func (cmd Message) InvokeAsync(bot *gotgbot.Bot, ctx *ext.Context) {
+func (cmd Message) InvokeAsync(bot *gotgbot.Bot, ctx *ext.Context) error {
 	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil && cmd.Async {
-		_ = cmd.Func(newCmdCtx)
+		return cmd.Func(newCmdCtx)
 	}
+	return ext.ContinueGroups
 }

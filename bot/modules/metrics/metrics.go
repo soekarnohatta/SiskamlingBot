@@ -6,27 +6,45 @@ import (
 )
 
 func (m Module) usernameMetric(ctx *telegram.TgContext) error {
-	getUser := models.GetUserByID(m.App.DB, ctx.Message.From.Id)
+	getUser, err := m.App.DB.User.GetUserById(ctx.Message.From.Id)
 	if getUser != nil {
+		getUser.UserName = ctx.Message.From.Username
+		getUser.FirstName = ctx.Message.From.FirstName
+		getUser.LastName = ctx.Message.From.LastName
+		err = m.App.DB.User.SaveUser(getUser)
+		if err != nil {
+			return err
+		}
+
 		return telegram.ContinueOrder
 	}
-	models.SaveUser(m.App.DB, models.NewUser(
+
+	newUser := models.NewUser(
 		ctx.Message.From.Id,
 		ctx.Message.From.FirstName,
 		ctx.Message.From.LastName,
 		ctx.Message.From.Username,
 		false,
-	))
+	)
+	err = m.App.DB.User.SaveUser(newUser)
+	if err != nil {
+		return err
+	}
 
 	return telegram.ContinueOrder
 }
 
 func (m Module) chatMetric(ctx *telegram.TgContext) error {
-	models.SaveChat(m.App.DB, models.NewChat(
+	newChat := models.NewChat(
 		ctx.Chat.Id,
 		ctx.Chat.Type,
 		ctx.Chat.InviteLink,
 		ctx.Chat.Title,
-	))
+	)
+	err := m.App.DB.Chat.SaveChat(newChat)
+	if err != nil {
+		return err
+	}
+
 	return telegram.ContinueOrder
 }

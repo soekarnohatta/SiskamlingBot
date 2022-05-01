@@ -7,7 +7,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-type CallbackFunc = func(*telegram.TgContext)
+type CallbackFunc = func(*telegram.TgContext) error
 
 type Callback struct {
 	Name        string
@@ -16,9 +16,10 @@ type Callback struct {
 	Func        CallbackFunc
 }
 
-func (cmd Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) {
+func (cmd Callback) Invoke(bot *gotgbot.Bot, ctx *ext.Context) error {
 	newCmdCtx := telegram.NewContext(bot, ctx, "")
 	if newCmdCtx != nil {
-		cmd.Func(newCmdCtx)
+		return cmd.Func(newCmdCtx)
 	}
+	return ext.ContinueGroups
 }

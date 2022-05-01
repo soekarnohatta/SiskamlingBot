@@ -12,9 +12,7 @@ type Module struct {
 }
 
 func (*Module) Info() app.ModuleInfo {
-	return app.ModuleInfo{
-		Name: "Metrics",
-	}
+	return app.ModuleInfo{Name: "Metrics"}
 }
 
 func (*Module) Commands() []types.Command {
@@ -24,16 +22,16 @@ func (*Module) Commands() []types.Command {
 func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
-			Name:        "ChatMetric",
-			Description: "Detect user without username",
+			Name:        "Chat Metric",
+			Description: "Saves chat info",
 			Filter:      message.All,
 			Func:        m.chatMetric,
 			Order:       0,
 			Async:       true,
 		},
 		{
-			Name:        "UserMetric",
-			Description: "Detect user without profile picture",
+			Name:        "User Metric",
+			Description: "Saves user info",
 			Filter:      message.All,
 			Func:        m.usernameMetric,
 			Order:       0,
@@ -47,9 +45,7 @@ func (*Module) Callbacks() []types.Callback {
 }
 
 func NewModule(bot *app.MyApp) (app.Module, error) {
-	return &Module{
-		App: bot,
-	}, nil
+	return &Module{App: bot}, nil
 }
 
 func init() {

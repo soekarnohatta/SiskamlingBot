@@ -1,22 +1,17 @@
 package user
 
 import (
-	"SiskamlingBot/bot/models"
 	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"time"
-
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/soekarnohatta/go-spamwatch/spamwatch"
 )
 
 var (
-	swClient, _ = spamwatch.NewClient("", os.Getenv("SWTOKEN"))
-	myClient    = &http.Client{Timeout: 2 * time.Second}
+	myClient = &http.Client{Timeout: 2 * time.Second}
 )
 
 type (
@@ -32,7 +27,7 @@ type (
 	}
 )
 
-func isCASBan(userId int64) bool {
+func (m Module) isCASBan(userId int64) bool {
 	// Request data to CAS API.
 	cas := "https://api.cas.chat/check?user_id=" + utils.IntToStr(int(userId))
 	re, err := myClient.Get(cas)
@@ -52,7 +47,8 @@ func isCASBan(userId int64) bool {
 	return ban.Ok
 }
 
-func isSwBan(userId int64) bool {
+func (m Module) isSwBan(userId int64) bool {
+	swClient, _ := spamwatch.NewClient("", m.App.Config.SWToken)
 	ban, err := swClient.GetBan(int(userId))
 	if err != nil {
 		return false
@@ -61,11 +57,12 @@ func isSwBan(userId int64) bool {
 	return ban.Reason != ""
 }
 
-func isLocalBan(db *mongo.Database, userId int64) bool {
-	return (models.GetUserByID(db, userId) != nil) && (models.GetUserByID(db, userId).Gban)
+func (m Module) isLocalBan(userId int64) bool {
+	getUser, _ := m.App.DB.User.GetUserById(userId)
+	return getUser != nil && getUser.Gban
 }
 
-func IsBan(db *mongo.Database, userId int64) bool {
+func (m Module) IsBan(userId int64) bool {
 	// Add temporary fix regarding anonymous channel issue
 	if userId == 136817688 || userId == 777000 {
 		return false
@@ -75,9 +72,9 @@ func IsBan(db *mongo.Database, userId int64) bool {
 	SWChan := make(chan bool)
 	LocalChan := make(chan bool)
 
-	go func() { LocalChan <- isLocalBan(db, userId) }()
-	go func() { CASChan <- isCASBan(userId) }()
-	go func() { SWChan <- isSwBan(userId) }()
+	go func() { LocalChan <- m.isLocalBan(userId) }()
+	go func() { CASChan <- m.isCASBan(userId) }()
+	go func() { SWChan <- m.isSwBan(userId) }()
 
 	select {
 	default:
