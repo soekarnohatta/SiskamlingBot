@@ -4,7 +4,7 @@ module SiskamlingBot
 go 1.17
 
 require (
-	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.6
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.7
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/joho/godotenv v1.3.0
 	github.com/shirou/gopsutil v3.21.11+incompatible

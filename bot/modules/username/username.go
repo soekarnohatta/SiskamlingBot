@@ -21,14 +21,30 @@ const (
 )
 
 func (m Module) usernameScan(ctx *telegram.TgContext) error {
+	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	if getPref != nil && !getPref.EnforcePicture {
+		return telegram.ContinueOrder
+	} else if err != nil {
+		return err
+	}
+
 	if core.IsUserRestricted(ctx) {
 		return telegram.ContinueOrder
 	}
 
+	var wgDel sync.WaitGroup
+	wgDel.Add(1)
+	go func() { defer wgDel.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 	if !ctx.RestrictMember(0, 0) {
+		wgDel.Wait()
 		unavailable := unameMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
-		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
+		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		err := m.App.DB.Pref.SavePreference(getPref)
+		if err != nil {
+			return err
+		}
 		return telegram.EndOrder
 	}
 
@@ -36,26 +52,26 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 	wg.Add(3)
 
 	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
-
 	go func() {
 		defer wg.Done()
-		textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
+		textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		keyboard, _ := telegram.BuildKeyboardf("./data/keyboard/username.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))})
 		ctx.SendMessageKeyboard(textToSend, 0, keyboard)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		_ = m.App.DB.Pref.SavePreference(getPref)
 	}()
-
 	go func() {
 		defer wg.Done()
 		textToSend := fmt.Sprintf(unameLog,
-			telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
+			telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
 			ctx.User.Id,
 			ctx.Chat.Title,
 			ctx.Chat.Id,
 			telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
-
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
 	wg.Wait()
+	wgDel.Wait()
 	return telegram.EndOrder
 }
 

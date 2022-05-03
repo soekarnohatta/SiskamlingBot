@@ -26,6 +26,7 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) error {
 		ctx.Message.From.Username,
 		false,
 	)
+
 	err = m.App.DB.User.SaveUser(newUser)
 	if err != nil {
 		return err
@@ -41,7 +42,30 @@ func (m Module) chatMetric(ctx *telegram.TgContext) error {
 		ctx.Chat.InviteLink,
 		ctx.Chat.Title,
 	)
+
 	err := m.App.DB.Chat.SaveChat(newChat)
+	if err != nil {
+		return err
+	}
+
+	return telegram.ContinueOrder
+}
+
+func (m Module) preferenceMetric(ctx *telegram.TgContext) error {
+	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	if getPref != nil {
+		return telegram.ContinueOrder
+	}
+
+	newPref := models.Preference{
+		PreferenceID:         ctx.Chat.Id,
+		EnforcePicture:       true,
+		EnforceUsername:      true,
+		EnforceAntispam:      true,
+		LastServiceMessageId: 1,
+	}
+
+	err = m.App.DB.Pref.SavePreference(&newPref)
 	if err != nil {
 		return err
 	}

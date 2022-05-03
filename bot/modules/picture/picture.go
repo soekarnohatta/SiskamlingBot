@@ -21,14 +21,31 @@ const (
 )
 
 func (m Module) pictureScan(ctx *telegram.TgContext) error {
+	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	if getPref != nil && !getPref.EnforcePicture {
+		return telegram.ContinueOrder
+	} else if err != nil {
+		return err
+	}
+
 	if core.IsUserRestricted(ctx) {
 		return telegram.ContinueOrder
 	}
 
+	var wgDel sync.WaitGroup
+	wgDel.Add(1)
+	go func() { defer wgDel.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 	if !ctx.RestrictMember(0, 0) {
+		wgDel.Wait()
 		unavailable := picMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
-		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
+		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		err := m.App.DB.Pref.SavePreference(getPref)
+		if err != nil {
+			return err
+		}
+
 		return telegram.EndOrder
 	}
 
@@ -38,14 +55,16 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
 	go func() {
 		defer wg.Done()
-		textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
+		textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		keyboard, _ := telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))})
 		ctx.SendMessageKeyboard(textToSend, 0, keyboard)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		_ = m.App.DB.Pref.SavePreference(getPref)
 	}()
 	go func() {
 		defer wg.Done()
 		textToSend := fmt.Sprintf(picLog,
-			telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
+			telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
 			ctx.User.Id,
 			ctx.Chat.Title,
 			ctx.Chat.Id,
@@ -54,13 +73,13 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
 	wg.Wait()
+	wgDel.Wait()
 	return telegram.EndOrder
 }
 
 func (m Module) pictureCallback(ctx *telegram.TgContext) error {
 	pattern, _ := regexp.Compile(`picture\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
-
 		if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
 			if err != nil {
 				ctx.AnswerCallback("Terjadi Kesalahan, Silahkan Coba Lagi", true)

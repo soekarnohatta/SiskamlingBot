@@ -26,6 +26,14 @@ func IntToStr(integer int) string {
 	return strconv.Itoa(integer)
 }
 
+func Int64ToStr(integer int64) string {
+	if integer == 0 {
+		return ""
+	}
+
+	return strconv.Itoa(int(integer))
+}
+
 func StrToIntSlice(s []string) []int {
 	var newIntSlice []int
 	for _, val := range s {

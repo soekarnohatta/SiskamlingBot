@@ -23,7 +23,7 @@ func (Module) ping(ctx *telegram.TgContext) error {
 	timeStart := time.Now()
 	ctx.ReplyMessage("<b>Ping</b>")
 	timeEnd := time.Since(timeStart)
-	ctx.EditMessage(timeEnd.String())
+	ctx.EditMessage(fmt.Sprintf("<b>Recorded Timespan Is:</b> <code>%v</code> ", timeEnd.String()))
 	return nil
 }
 
@@ -37,14 +37,15 @@ func (m Module) start(ctx *telegram.TgContext) error {
 func (m Module) info(ctx *telegram.TgContext) error {
 	info, _ := host.Info()
 	replyTxt := fmt.Sprintf("<b>Bot Info</b>\n"+
-		"  👤 <b>Bot Name :</b> <code>%v</code>\n"+
-		"  🤖 <b>Bot Username :</b> @%v\n"+
-		"  🖥 <b>Host OS :</b> <code>%v</code>\n"+
-		"  ⚙ <b>Host Name :</b> <code>%v</code>\n"+
-		"  ⏱ <b>Host Uptime :</b> <code>%v</code>\n"+
-		"  💽 <b>Kernel Version :</b> <code>%v</code>\n"+
-		"  💾 <b>Platform :</b> <code>%v</code>\n"+
-		"  📅 <b>Timestamp :</b> <code>%v</code>\n",
+		"<b>Bot Name :</b> <code>%v</code>\n"+
+		"<b>Bot Username :</b> @%v\n\n"+
+		"<b>Platform Info</b>\n"+
+		"<b>Host OS :</b> <code>%v</code>\n"+
+		"<b>Host Name :</b> <code>%v</code>\n"+
+		"<b>Host Uptime :</b> <code>%v</code>\n"+
+		"<b>Kernel Version :</b> <code>%v</code>\n"+
+		"<b>Platform :</b> <code>%v</code>\n"+
+		"<b>Timestamp :</b> <code>%v</code>\n",
 		ctx.Bot.FirstName,
 		ctx.Bot.Username,
 		info.OS,
@@ -62,7 +63,7 @@ func (Module) helpCallback(ctx *telegram.TgContext) error {
 	pattern, _ := regexp.Compile(`help\((.+?)\)`)
 	switch pattern.FindStringSubmatch(ctx.Callback.Data)[1] {
 	case "main":
-		dataMap := map[string]string{"1": telegram.MentionHtml(int(ctx.Bot.User.Id), ctx.Bot.User.FirstName), "2": utils.IntToStr(int(ctx.Bot.User.Id))}
+		dataMap := map[string]string{"1": telegram.MentionHtml(ctx.Bot.User.Id, ctx.Bot.User.FirstName), "2": utils.IntToStr(int(ctx.Bot.User.Id))}
 		text, keyb := telegram.CreateMenuf("./data/menu/help.json", 2, dataMap)
 		_, _, err := ctx.Callback.Message.EditText(ctx.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 		if err != nil {

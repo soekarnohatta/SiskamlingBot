@@ -37,6 +37,14 @@ func (m *Module) Messages() []types.Message {
 			Order:       0,
 			Async:       true,
 		},
+		{
+			Name:        "Prefence Metric",
+			Description: "Saves preference info",
+			Filter:      message.All,
+			Func:        m.preferenceMetric,
+			Order:       0,
+			Async:       true,
+		},
 	}
 }
 
@@ -49,5 +57,8 @@ func NewModule(bot *app.MyApp) (app.Module, error) {
 }
 
 func init() {
-	app.RegisterModule("Metrics", NewModule)
+	err := app.RegisterModule("Metrics", NewModule)
+	if err != nil {
+		panic(err)
+	}
 }

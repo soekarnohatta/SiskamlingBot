@@ -1,14 +1,14 @@
 [
-    {
-      "text": "💡 Bantuan",
-      "data": "help(main)"
-    },
-    {
-      "text": "💰 Donasi",
-      "data": "start(about)"
-    },
-    {
-      "text": "⚒ Source",
-      "data": "https://github.com/soekarnohatta/SiskamlingBot"
-    }
+  {
+    "text": "💡 Bantuan",
+    "data": "help(main)"
+  },
+  {
+    "text": "💰 Donasi",
+    "data": "start(about)"
+  },
+  {
+    "text": "⚒ Source",
+    "data": "https://github.com/soekarnohatta/SiskamlingBot"
+  }
 ]

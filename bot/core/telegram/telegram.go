@@ -8,6 +8,8 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
+var defaultParseMode = &gotgbot.SendMessageOpts{ParseMode: "HTML"}
+
 /*
  * Message
  */
@@ -17,11 +19,11 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
-	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
 	if chatID != 0 {
-		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+		msg, err := c.Bot.SendMessage(chatID, text, defaultParseMode)
 		if err != nil {
 			return
 		}
@@ -30,7 +32,7 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 		return
 	}
 
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, defaultParseMode)
 	if err != nil {
 		return
 	}
@@ -43,8 +45,8 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		text = "Bad Request: No text supplied!"
 	}
 
-	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
-	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
 	if chatID != 0 {
 		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
@@ -56,11 +58,12 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		return
 	}
 
-	_, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 	if err != nil {
 		log.Print(err.Error())
 		return
 	}
+	c.Message = msg
 }
 
 func (c *TgContext) ReplyMessage(text string) {
@@ -68,10 +71,10 @@ func (c *TgContext) ReplyMessage(text string) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
-	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
-	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, defaultParseMode)
 	if err != nil {
 		return
 	}
@@ -84,8 +87,8 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 		text = "Bad Request: No text supplied!"
 	}
 
-	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
-	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
 	msg, err := c.Message.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 	if err != nil {
@@ -100,8 +103,8 @@ func (c *TgContext) EditMessage(text string) {
 		text = "Bad Request: No text supplied!"
 	}
 
-	timeProc := time.Since(time.Unix(c.Date, 0)).Seconds()
-	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + strconv.FormatFloat(timeProc, 'f', 3, 64) + " s</code>"
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
 	msg, _, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
 	if err != nil {

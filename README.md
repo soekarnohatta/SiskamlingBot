@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/soekarnohatta/SiskamlingBot/branch/main/graph/badge.svg?token=M4U97ZU3N2)](https://codecov.io/gh/soekarnohatta/SiskamlingBot)
+
 # SiskamlingBot Go
 
 Official repository of SiskamlingBot, written in Golang
@@ -25,5 +26,6 @@ Official repository of SiskamlingBot, written in Golang
 - Copy .example.env to .env and fill all required fields.
 - Server with domain name must include HTTPS support (e.g https://yoursite.co.id) for using webhook mode.
 - Run `go build .` and place your binary somewhere.
-- Setup reverse proxy for Web Server, [here example](https://www.google.com/search?client=firefox-b-d&q=nginx+reverse+proxy+example).
+- Setup reverse proxy for Web
+  Server, [here example](https://www.google.com/search?client=firefox-b-d&q=nginx+reverse+proxy+example).
 - Launch bot with `./SiskamlingBot`, your bot will run using poll or webhook.

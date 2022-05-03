@@ -57,11 +57,11 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 func (Module) debug(ctx *telegram.TgContext) error {
 	if ctx.Message.ReplyToMessage != nil {
 		output, _ := json.MarshalIndent(ctx.Message.ReplyToMessage, "", "  ")
-		ctx.ReplyMessage(string(output))
+		ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 		return nil
 	}
 
 	output, _ := json.MarshalIndent(ctx.Message, "", "  ")
-	ctx.ReplyMessage(string(output))
+	ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 	return nil
 }

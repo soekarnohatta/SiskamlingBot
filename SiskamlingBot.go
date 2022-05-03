@@ -23,7 +23,6 @@ func main() {
 			panic(err)
 		}
 	}()
-
 	<-done
 	log.Println("OS Interrupt Detected, Exiting ... ")
 	err = bot.Updater.Stop()

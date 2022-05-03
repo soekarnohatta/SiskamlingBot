@@ -51,5 +51,8 @@ func NewModule(bot *app.MyApp) (app.Module, error) {
 }
 
 func init() {
-	app.RegisterModule("Picture", NewModule)
+	err := app.RegisterModule("Picture", NewModule)
+	if err != nil {
+		panic(err)
+	}
 }

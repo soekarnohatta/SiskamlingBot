@@ -3,6 +3,7 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram/types"
 	"fmt"
+	"html"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +33,7 @@ func NewBot(config *Config) *MyApp {
 	return &MyApp{
 		Context:  nil,
 		Config:   config,
-		ErrorLog: log.New(os.Stderr, "", log.LstdFlags),
+		ErrorLog: log.New(os.Stderr, "[BOT]", log.LstdFlags),
 
 		Modules:   make(map[string]Module),
 		Commands:  make(map[string]types.Command),
@@ -131,7 +132,7 @@ func (b *MyApp) Run() error {
 func (b *MyApp) SendLogMessage(msg string, err error) {
 	bot := b.Bot
 	info, _ := host.Info()
-	replyTxt := fmt.Sprintf("#ACTION\n"+
+	replyTxt := fmt.Sprintf("<b>System Log Message</b>\n"+
 		"<b>%v</b>\n\n"+
 		"<b>Bot Name :</b> %v\n"+
 		"<b>Bot Username :</b> @%v\n"+
@@ -154,13 +155,11 @@ func (b *MyApp) SendLogMessage(msg string, err error) {
 	if err != nil {
 		replyTxt += "=====================\n"
 		replyTxt += "<b>Error Details:</b>\n"
-		replyTxt += err.Error()
-	} else {
-		log.Println("Bye ... ")
+		replyTxt += html.EscapeString(err.Error())
 	}
 
 	_, err = b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	if err != nil {
-		log.Println(err.Error())
+		b.ErrorLog.Println(err)
 	}
 }
