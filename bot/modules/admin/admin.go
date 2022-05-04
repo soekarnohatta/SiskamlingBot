@@ -56,12 +56,12 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 
 func (Module) debug(ctx *telegram.TgContext) error {
 	if ctx.Message.ReplyToMessage != nil {
-		output, _ := json.MarshalIndent(ctx.Message.ReplyToMessage, "", "  ")
+		output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 		ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 		return nil
 	}
 
-	output, _ := json.MarshalIndent(ctx.Message, "", "  ")
+	output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 	ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 	return nil
 }

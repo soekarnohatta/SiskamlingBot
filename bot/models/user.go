@@ -31,7 +31,7 @@ func NewUser(userID int64, firstName, lastName, userName string, gban bool) *Use
 	}
 }
 
-func (u UserModel) GetUserById(Id int64) (*User, error) {
+func (u *UserModel) GetUserById(Id int64) (*User, error) {
 	var user *User
 	dat, err := u.MongoDB.Collection("user").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
 	if err != nil {
@@ -45,7 +45,7 @@ func (u UserModel) GetUserById(Id int64) (*User, error) {
 	return user, nil
 }
 
-func (u UserModel) SaveUser(user *User) error {
+func (u *UserModel) SaveUser(user *User) error {
 	_, err := u.MongoDB.Collection("user").UpdateOne(context.TODO(), bson.M{"user_id": user.UserID}, bson.D{{Key: "$set", Value: user}}, options.Update().SetUpsert(true))
 	if err != nil {
 		return fmt.Errorf("SaveUser: failed to save data due to: %w", err)
@@ -53,7 +53,7 @@ func (u UserModel) SaveUser(user *User) error {
 	return nil
 }
 
-func (u UserModel) DeleteUserById(Id int64) error {
+func (u *UserModel) DeleteUserById(Id int64) error {
 	_, err := u.MongoDB.Collection("user").DeleteOne(context.TODO(), bson.M{"user_id": Id})
 	if err != nil {
 		return fmt.Errorf("DeleteUserByID: failed to delete data due to: %w", err)

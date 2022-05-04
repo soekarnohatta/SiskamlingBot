@@ -40,12 +40,10 @@ func NewContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {
 	newTgContext.User = ctx.EffectiveUser
 	newTgContext.Chat = ctx.EffectiveChat
 	newTgContext.Callback = ctx.Update.CallbackQuery
-
 	newTgContext.Date = ctx.EffectiveMessage.Date
 
 	secs := time.Since(time.Unix(newTgContext.Date, 0)).Seconds()
 	newTgContext.TimeInit = strconv.FormatFloat(secs, 'f', 3, 64)
-
 	return newTgContext
 }
 

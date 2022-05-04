@@ -21,22 +21,20 @@ const (
 )
 
 func (m Module) pictureScan(ctx *telegram.TgContext) error {
-	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	getPref, _ := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforcePicture {
 		return telegram.ContinueOrder
-	} else if err != nil {
-		return err
 	}
 
 	if core.IsUserRestricted(ctx) {
 		return telegram.ContinueOrder
 	}
 
-	var wgDel sync.WaitGroup
-	wgDel.Add(1)
-	go func() { defer wgDel.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+	var wg sync.WaitGroup
+	defer wg.Wait()
+	wg.Add(1)
+	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 	if !ctx.RestrictMember(0, 0) {
-		wgDel.Wait()
 		unavailable := picMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
 		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
@@ -49,9 +47,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	var wg sync.WaitGroup
 	wg.Add(3)
-
 	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
 	go func() {
 		defer wg.Done()
@@ -72,8 +68,6 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 		)
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
-	wg.Wait()
-	wgDel.Wait()
 	return telegram.EndOrder
 }
 

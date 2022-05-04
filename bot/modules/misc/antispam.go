@@ -30,11 +30,11 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 	dataMap := map[string]string{"1": telegram.MentionHtml(user.Id, user.FirstName), "2": utils.IntToStr(int(user.Id))}
 	text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
 
-	var wgDel sync.WaitGroup
-	wgDel.Add(1)
-	go func() { defer wgDel.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+	var wg sync.WaitGroup
+	defer wg.Wait()
+	wg.Add(1)
+	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 	if _, err := ctx.Bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil); err != nil {
-		wgDel.Wait()
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(text, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
@@ -45,9 +45,7 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	var wg sync.WaitGroup
 	wg.Add(3)
-
 	go func() {
 		defer wg.Done()
 		ctx.SendMessageKeyboard(text, 0, keyb)
@@ -65,7 +63,5 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 			telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"))
 		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
 	}()
-	wgDel.Wait()
-	wg.Wait()
 	return telegram.EndOrder
 }

@@ -11,9 +11,10 @@ import (
 )
 
 type MongoDB struct {
-	User models.UserModel
-	Chat models.ChatModel
-	Pref models.PreferenceModel
+	User      models.UserModel
+	Chat      models.ChatModel
+	Pref      models.PreferenceModel
+	Blacklist models.BlacklistModel
 }
 
 func (b *MyApp) newMongo() error {
@@ -43,6 +44,7 @@ func (b *MyApp) newMongo() error {
 	b.DB.User.MongoDB = mongoDB
 	b.DB.Chat.MongoDB = mongoDB
 	b.DB.Pref.MongoDB = mongoDB
+	b.DB.Blacklist.MongoDB = mongoDB
 
 	b.ErrorLog.Println("Successfully connected to MongoDB instance!")
 	return nil

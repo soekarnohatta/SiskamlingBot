@@ -97,9 +97,11 @@ func (b *MyApp) startUpdater() error {
 
 func (b *MyApp) Run() error {
 	newBotOpt := &gotgbot.BotOpts{
-		Client:      http.Client{},
-		GetTimeout:  gotgbot.DefaultGetTimeout,
-		PostTimeout: gotgbot.DefaultPostTimeout,
+		Client: http.Client{},
+		DefaultRequestOpts: &gotgbot.RequestOpts{
+			Timeout: gotgbot.DefaultTimeout,
+			APIURL:  gotgbot.DefaultAPIURL,
+		},
 	}
 
 	var err error
@@ -108,7 +110,17 @@ func (b *MyApp) Run() error {
 		return err
 	}
 
-	b.Updater = ext.NewUpdater(nil)
+	b.Updater = ext.NewUpdater(&ext.UpdaterOpts{
+		ErrorLog: b.ErrorLog,
+		DispatcherOpts: ext.DispatcherOpts{
+			// If an error is returned by a handler, log it and continue going.
+			Error: func(bot *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
+				b.SendLogMessage("Error Handler", err)
+				return ext.DispatcherActionNoop
+			},
+			MaxRoutines: ext.DefaultMaxRoutines,
+		},
+	})
 
 	err = b.newMongo()
 	if err != nil {
@@ -156,7 +168,7 @@ func (b *MyApp) SendLogMessage(msg string, err error) {
 	)
 	if err != nil {
 		replyTxt += "=====================\n"
-		replyTxt += "<b>Error Details:</b>\n"
+		replyTxt += "<b>Message Details:</b>\n"
 		replyTxt += html.EscapeString(err.Error())
 	}
 

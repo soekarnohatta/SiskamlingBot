@@ -18,14 +18,13 @@ import (
 func (b *MyApp) registerCommandUsingDispatcher() {
 	defer b.handlePanicSendLog()
 	for _, cmd := range b.Commands {
-		b.Updater.Dispatcher.AddHandlerToGroup(&handlers.Command{
-			Triggers:     []rune{'/', '!'},
+		b.Updater.Dispatcher.AddHandler(&handlers.Command{
+			Triggers:     []rune{'/', '!', ','},
 			AllowEdited:  true,
 			AllowChannel: false,
 			Command:      cmd.Trigger,
 			Response:     cmd.InvokeWithDispatcher,
-		},
-			0)
+		})
 	}
 }
 
@@ -54,21 +53,26 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 			if messages.Async == true {
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
+					defer wg.Done()
 					defer b.handlePanicSendLog()
 					err := messages.InvokeAsync(bot, ctx)
-					if !errors.Is(err, telegram.EndOrder) && !errors.Is(err, telegram.ContinueOrder) {
-						b.SendLogMessage("Error", err)
+					if errors.Is(err, telegram.EndOrder) {
+						return
+					} else if errors.Is(err, telegram.ContinueOrder) {
+						return
+					} else if err != nil {
+						b.SendLogMessage("Error Callback", err)
+						return
 					}
-					wg.Done()
 				}(&wg, bot, ctx)
 			} else {
 				err := messages.Invoke(bot, ctx)
 				if errors.Is(err, telegram.EndOrder) {
 					return nil
-				} else if errors.Is(err, telegram.ContinueOrder) {
+				} else if errors.Is(err, telegram.ContinueOrder) || err.Error() == telegram.ContinueOrder.Error() {
 					continue
-				} else {
-					b.SendLogMessage("Error", err)
+				} else if err != nil {
+					b.SendLogMessage("Error Message", err)
 					continue
 				}
 			}
@@ -89,8 +93,8 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 					return nil
 				} else if errors.Is(err, telegram.ContinueOrder) {
 					continue
-				} else {
-					b.SendLogMessage("Error", err)
+				} else if err != nil {
+					b.SendLogMessage("Error Callback", err)
 					continue
 				}
 			}

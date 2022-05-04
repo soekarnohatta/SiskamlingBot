@@ -1,19 +1,26 @@
 package telegram
 
 import (
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
-var defaultParseMode = &gotgbot.SendMessageOpts{
-	ParseMode:                "HTML",
-	AllowSendingWithoutReply: true,
-	DisableWebPagePreview:    true,
-	ReplyToMessageId:         0,
-}
+var (
+	defaultParseMode = &gotgbot.SendMessageOpts{
+		ParseMode:                "HTML",
+		AllowSendingWithoutReply: true,
+		DisableWebPagePreview:    true,
+		ReplyToMessageId:         -1,
+	}
+
+	replyDefaultParseMode = &gotgbot.SendMessageOpts{
+		ParseMode:                "HTML",
+		AllowSendingWithoutReply: true,
+		DisableWebPagePreview:    true,
+	}
+)
 
 /*
  * Message
@@ -65,7 +72,6 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 	if err != nil {
-		log.Print(err.Error())
 		return
 	}
 	c.Message = msg
@@ -79,7 +85,7 @@ func (c *TgContext) ReplyMessage(text string) {
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
-	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, defaultParseMode)
+	msg, err := c.Message.Reply(c.Bot, text, replyDefaultParseMode)
 	if err != nil {
 		c.SendMessage(text, 0)
 		return
@@ -122,14 +128,14 @@ func (c *TgContext) EditMessage(text string) {
 
 func (c *TgContext) DeleteMessage(msgId int64) {
 	if msgId != 0 {
-		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId)
+		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId, nil)
 		if err != nil {
 			return
 		}
 		return
 	}
 
-	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Message.MessageId)
+	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Message.MessageId, nil)
 	if err != nil {
 		return
 	}

@@ -44,6 +44,18 @@ func (m Module) Commands() []types.Command {
 			Description: "info the bot.",
 			Func:        m.info,
 		},
+		{
+			Name:        "addbl",
+			Trigger:     "addbl",
+			Description: "info the bot.",
+			Func:        m.blacklistAdd,
+		},
+		{
+			Name:        "delbl",
+			Trigger:     "delbl",
+			Description: "info the bot.",
+			Func:        m.blacklistRemove,
+		},
 	}
 }
 
@@ -56,6 +68,14 @@ func (m Module) Messages() []types.Message {
 			Func:        m.antispam,
 			Order:       1,
 			Async:       false,
+		},
+		{
+			Name:        "blacklist",
+			Description: "Detect blacklisted trigger",
+			Filter:      message.All,
+			Func:        m.blacklist,
+			Order:       0,
+			Async:       true,
 		},
 	}
 }
