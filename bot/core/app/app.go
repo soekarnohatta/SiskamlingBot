@@ -24,9 +24,10 @@ type MyApp struct {
 	Messages  map[string]types.Message
 	Callbacks map[string]types.Callback
 
-	Config   *Config
-	DB       MongoDB
-	ErrorLog *log.Logger
+	Config    *Config
+	DB        MongoDB
+	ErrorLog  *log.Logger
+	TimeStart time.Time
 }
 
 func NewBot(config *Config) *MyApp {
@@ -67,7 +68,7 @@ func (b *MyApp) startWebhook() error {
 		return err
 	}
 
-	log.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
+	b.ErrorLog.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -126,6 +127,7 @@ func (b *MyApp) Run() error {
 		return err
 	}
 
+	b.TimeStart = time.Now()
 	return nil
 }
 

@@ -13,7 +13,7 @@ import (
 )
 
 func (m Module) about(ctx *telegram.TgContext) error {
-	dataMap := map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Unknown"}
+	dataMap := map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Devz"}
 	text, keyb := telegram.CreateMenuf("./data/menu/about.json", 2, dataMap)
 	ctx.ReplyMessageKeyboard(text, keyb)
 	return nil
@@ -36,18 +36,24 @@ func (m Module) start(ctx *telegram.TgContext) error {
 
 func (m Module) info(ctx *telegram.TgContext) error {
 	info, _ := host.Info()
-	replyTxt := fmt.Sprintf("<b>Bot Info</b>\n"+
+	replyTxt := fmt.Sprintf("📁 <b>Bot Info</b>\n"+
 		"<b>Bot Name :</b> <code>%v</code>\n"+
-		"<b>Bot Username :</b> @%v\n\n"+
-		"<b>Platform Info</b>\n"+
+		"<b>Bot Username :</b> @%v\n"+
+		"<b>Is Debug :</b> <code>%v</code>\n"+
+		"<b>Version :</b> <code>%v</code>\n"+
+		"<b>Bot Uptime :</b> <code>%v</code>\n\n"+
+		"🖥️ <b>Platform Info</b>\n"+
 		"<b>Host OS :</b> <code>%v</code>\n"+
 		"<b>Host Name :</b> <code>%v</code>\n"+
 		"<b>Host Uptime :</b> <code>%v</code>\n"+
 		"<b>Kernel Version :</b> <code>%v</code>\n"+
 		"<b>Platform :</b> <code>%v</code>\n"+
-		"<b>Timestamp :</b> <code>%v</code>\n",
+		"<b>Timestamp :</b> <code>%v</code>",
 		ctx.Bot.FirstName,
 		ctx.Bot.Username,
+		m.App.Config.IsDebug,
+		m.App.Config.BotVer,
+		utils.ConvertSeconds(uint64(time.Since(m.App.TimeStart).Seconds())),
 		info.OS,
 		info.Hostname,
 		utils.ConvertSeconds(info.Uptime),

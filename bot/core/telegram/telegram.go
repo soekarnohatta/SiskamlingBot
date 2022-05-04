@@ -8,7 +8,12 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
-var defaultParseMode = &gotgbot.SendMessageOpts{ParseMode: "HTML"}
+var defaultParseMode = &gotgbot.SendMessageOpts{
+	ParseMode:                "HTML",
+	AllowSendingWithoutReply: true,
+	DisableWebPagePreview:    true,
+	ReplyToMessageId:         0,
+}
 
 /*
  * Message
@@ -76,6 +81,7 @@ func (c *TgContext) ReplyMessage(text string) {
 
 	msg, err := c.Context.EffectiveMessage.Reply(c.Bot, text, defaultParseMode)
 	if err != nil {
+		c.SendMessage(text, 0)
 		return
 	}
 

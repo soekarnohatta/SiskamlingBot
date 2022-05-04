@@ -3,7 +3,6 @@ package main
 import (
 	"SiskamlingBot/bot/core/app"
 	_ "SiskamlingBot/bot/modules"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,7 +23,7 @@ func main() {
 		}
 	}()
 	<-done
-	log.Println("OS Interrupt Detected, Exiting ... ")
+	bot.ErrorLog.Println("OS Interrupt Detected, Exiting ... ")
 	err = bot.Updater.Stop()
 	if err != nil {
 		panic(err)

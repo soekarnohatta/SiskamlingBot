@@ -45,7 +45,6 @@ func (m Module) Callbacks() []types.Callback {
 	}
 }
 
-// NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
 	return &Module{App: bot}, nil
 }

@@ -16,20 +16,16 @@ import (
 )
 
 func (b *MyApp) registerCommandUsingDispatcher() {
-	defer func() {
-		if r := recover(); r != nil {
-			b.SendLogMessage("Error", fmt.Errorf("%w", r))
-		}
-	}()
-
+	defer b.handlePanicSendLog()
 	for _, cmd := range b.Commands {
-		b.Updater.Dispatcher.AddHandler(&handlers.Command{
+		b.Updater.Dispatcher.AddHandlerToGroup(&handlers.Command{
 			Triggers:     []rune{'/', '!'},
 			AllowEdited:  true,
 			AllowChannel: false,
 			Command:      cmd.Trigger,
 			Response:     cmd.InvokeWithDispatcher,
-		})
+		},
+			0)
 	}
 }
 
@@ -38,14 +34,8 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	defer func() {
-		if r := recover(); r != nil {
-			b.SendLogMessage("Error", fmt.Errorf("%w", r))
-		}
-	}()
-
+	defer b.handlePanicSendLog()
 	var orderedGroup []types.Message
-
 	for _, y := range b.Messages {
 		orderedGroup = append(orderedGroup, y)
 	}
@@ -64,12 +54,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 			if messages.Async == true {
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
-					defer func() {
-						if r := recover(); r != nil {
-							b.SendLogMessage("Error", fmt.Errorf("%w", r))
-						}
-					}()
-
+					defer b.handlePanicSendLog()
 					err := messages.InvokeAsync(bot, ctx)
 					if !errors.Is(err, telegram.EndOrder) && !errors.Is(err, telegram.ContinueOrder) {
 						b.SendLogMessage("Error", err)
@@ -95,17 +80,29 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 
 func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	if ctx.CallbackQuery != nil || ctx.Update.CallbackQuery != nil {
+		defer b.handlePanicSendLog()
 		for _, callbacks := range b.Callbacks {
 			pattern, _ := regexp.Compile(callbacks.Callback)
 			if pattern.MatchString(ctx.CallbackQuery.Data) {
 				err := callbacks.Invoke(bot, ctx)
-				if err != nil {
+				if errors.Is(err, telegram.EndOrder) {
+					return nil
+				} else if errors.Is(err, telegram.ContinueOrder) {
+					continue
+				} else {
 					b.SendLogMessage("Error", err)
+					continue
 				}
 			}
 		}
 	}
 	return ext.ContinueGroups
+}
+
+func (b *MyApp) handlePanicSendLog() {
+	if r := recover(); r != nil {
+		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r))
+	}
 }
 
 func (b *MyApp) registerHandlers() {
@@ -121,5 +118,5 @@ func (b *MyApp) registerHandlers() {
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.messageHandler), 2)
 
-	b.ErrorLog.Println("All handlers have been registered succesfully!")
+	b.ErrorLog.Println("All handlers have been registered successfully!")
 }
