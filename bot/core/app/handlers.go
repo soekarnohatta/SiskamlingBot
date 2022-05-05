@@ -61,7 +61,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 					} else if errors.Is(err, telegram.ContinueOrder) {
 						return
 					} else if err != nil {
-						b.SendLogMessage("Error Callback", err)
+						b.SendLogMessage("Error Message", err)
 						return
 					}
 				}(&wg, bot, ctx)
