@@ -17,7 +17,8 @@ const (
 <b>Chat ID:</b> <code>%v</code>
 <b>Link:</b> %s`
 
-	unameMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username!</b>"
+	unameMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Username</b>. Silahkan verifikasi " +
+		"jika sudah memasang foto/username. Tombol berlaku untuk semua pengguna yang dibisukan."
 )
 
 func (m Module) usernameScan(ctx *telegram.TgContext) error {
@@ -72,7 +73,6 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 func (m Module) usernameCallback(ctx *telegram.TgContext) error {
 	pattern, _ := regexp.Compile(`username\((.+?)\)`)
 	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
-
 		if ctx.User.Username == "" {
 			ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
 			return nil
@@ -86,10 +86,24 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) error {
 	if ctx.User.Username == "" {
 		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
 		return nil
+	} else if ctx.User.Username != "" {
+		ctx.UnRestrictMember(0)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+		ctx.DeleteMessage(0)
+		return nil
+	} else if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
+		if err != nil {
+			ctx.AnswerCallback("Terjadi Kesalahan, Silahkan Coba Lagi", true)
+			return err
+		}
+
+		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
+		return nil
 	}
 
 	ctx.UnRestrictMember(0)
-	ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+	ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
 	ctx.DeleteMessage(0)
+
 	return telegram.ContinueOrder
 }

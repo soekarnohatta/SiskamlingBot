@@ -17,7 +17,8 @@ const (
 <b>Chat ID:</b> <code>%v</code>
 <b>Link:</b> %s`
 
-	picMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>"
+	picMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil</b>. Silahkan verifikasi " +
+		"jika sudah memasang foto/username. Tombol berlaku untuk semua pengguna yang dibisukan"
 )
 
 func (m Module) pictureScan(ctx *telegram.TgContext) error {
@@ -96,6 +97,14 @@ func (m Module) pictureCallback(ctx *telegram.TgContext) error {
 		}
 
 		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
+		return nil
+	} else if ctx.User.Username == "" {
+		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
+		return nil
+	} else if ctx.User.Username != "" {
+		ctx.UnRestrictMember(0)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+		ctx.DeleteMessage(0)
 		return nil
 	}
 

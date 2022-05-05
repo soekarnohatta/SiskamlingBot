@@ -10,6 +10,7 @@ import (
 
 func (m Module) blacklist(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
+	defer wg.Wait()
 
 	getBlacklist, err := m.App.DB.Blacklist.GetAllBlacklist()
 	if err != nil {
@@ -20,12 +21,13 @@ func (m Module) blacklist(ctx *telegram.TgContext) error {
 		wg.Add(1)
 		go func(compare string) {
 			defer wg.Done()
-			if strings.Contains(ctx.Message.Text, compare) {
+			text := strings.ToLower(ctx.Message.Text)
+			comp := strings.ToLower(compare)
+			if strings.Contains(text, comp) {
 				ctx.DeleteMessage(0)
 			}
 		}(val.BlacklistTrigger)
 	}
-	wg.Wait()
 	return telegram.ContinueOrder
 }
 

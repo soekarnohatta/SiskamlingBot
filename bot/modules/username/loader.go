@@ -17,8 +17,15 @@ func (Module) Info() app.ModuleInfo {
 }
 
 // Commands returns a list of telegram provided by this module.
-func (Module) Commands() []types.Command {
-	return nil
+func (m Module) Commands() []types.Command {
+	return []types.Command{
+		{
+			Name:        "setusername",
+			Trigger:     "setusername",
+			Description: "ping the bot.",
+			Func:        m.usernameSetting,
+		},
+	}
 }
 
 func (m Module) Messages() []types.Message {

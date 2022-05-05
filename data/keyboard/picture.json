@@ -1,9 +1,5 @@
 [
   {
-    "text": "Cara Pasang Foto Profil",
-    "data": "https://t.me/SwatzDevelopmentChannel/10"
-  },
-  {
     "text": "Verifikasi",
     "data": "picture({1})"
   }

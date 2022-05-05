@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -14,6 +15,30 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
+
+func (*MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+	ctx.Message.Text = ctx.Message.Caption
+	return ext.ContinueGroups
+}
+func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
+	text := ctx.EffectiveMessage.Text
+	if ctx.Message.Caption != "" {
+		text = ctx.Message.Caption
+	}
+	var cmd string
+	split := strings.Split(strings.ToLower(strings.Fields(text)[0]), "@")
+	if len(split) > 1 && strings.ToLower(bot.User.Username) != split[1] {
+		return ext.ContinueGroups
+	}
+	cmd = split[0][1:]
+	if command, ok := b.Commands[cmd]; ok {
+		err := command.Invoke(bot, ctx, cmd)
+		if err != nil {
+			return err
+		}
+	}
+	return ext.ContinueGroups
+}
 
 func (b *MyApp) registerCommandUsingDispatcher() {
 	defer b.handlePanicSendLog()
@@ -113,6 +138,8 @@ func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Command message handlers
+	//dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
+	//dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
 	b.registerCommandUsingDispatcher()
 
 	// Callback handlers

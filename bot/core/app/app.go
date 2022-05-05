@@ -116,7 +116,7 @@ func (b *MyApp) Run() error {
 			// If an error is returned by a handler, log it and continue going.
 			Error: func(bot *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
 				b.SendLogMessage("Error Handler", err)
-				return ext.DispatcherActionNoop
+				return ext.DispatcherActionContinueGroups
 			},
 			MaxRoutines: ext.DefaultMaxRoutines,
 		},
