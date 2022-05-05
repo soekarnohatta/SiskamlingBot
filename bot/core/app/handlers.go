@@ -20,6 +20,7 @@ func (*MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
 	ctx.Message.Text = ctx.Message.Caption
 	return ext.ContinueGroups
 }
+
 func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
 	text := ctx.EffectiveMessage.Text
 	if ctx.Message.Caption != "" {
@@ -138,8 +139,8 @@ func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Command message handlers
-	//dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
-	//dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
+	// dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
+	// dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
 	b.registerCommandUsingDispatcher()
 
 	// Callback handlers
