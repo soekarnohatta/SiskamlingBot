@@ -28,6 +28,7 @@ func (m Module) blacklist(ctx *telegram.TgContext) error {
 			}
 		}(val.BlacklistTrigger)
 	}
+
 	return telegram.ContinueOrder
 }
 

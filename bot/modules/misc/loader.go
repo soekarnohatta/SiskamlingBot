@@ -7,18 +7,15 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
-// Module contains the state for an instance of this module.
 type Module struct {
 	App *app.MyApp
 }
 
-// Info returns basic information about this module.
-func (Module) Info() app.ModuleInfo {
+func (*Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{Name: "Misc"}
 }
 
-// Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []types.Command {
+func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
 			Name:        "ping",
@@ -56,10 +53,16 @@ func (m Module) Commands() []types.Command {
 			Description: "info the bot.",
 			Func:        m.blacklistRemove,
 		},
+		{
+			Name:        "setantispam",
+			Trigger:     "setantispam",
+			Description: "info the bot.",
+			Func:        m.antispamSetting,
+		},
 	}
 }
 
-func (m Module) Messages() []types.Message {
+func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
 			Name:        "antispam",
@@ -80,7 +83,7 @@ func (m Module) Messages() []types.Message {
 	}
 }
 
-func (m Module) Callbacks() []types.Callback {
+func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
 			Name:        "HelpCallback",
@@ -91,7 +94,6 @@ func (m Module) Callbacks() []types.Callback {
 	}
 }
 
-// NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
 	return &Module{App: bot}, nil
 }

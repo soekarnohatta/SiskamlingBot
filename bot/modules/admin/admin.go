@@ -46,13 +46,6 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 	}
 
 	cht, err := m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
-	chat, err := m.App.Bot.GetChat(utils.StrToInt64(ctx.Args()[0]), nil)
-	if err != nil {
-		return err
-	}
-
-	output, _ := json.MarshalIndent(chat, "", "")
-	ctx.SendMessage(string(output), 0)
 	if cht != nil {
 		formattedText := fmt.Sprintf(infoChat, ctx.Args()[0], cht.ChatTitle, cht.ChatLink, cht.ChatType)
 		ctx.ReplyMessage(formattedText)

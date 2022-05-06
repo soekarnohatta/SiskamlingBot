@@ -32,9 +32,11 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
+
 	wg.Add(1)
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
-	if _, err := ctx.Bot.BanChatMember(ctx.Message.Chat.Id, user.Id, nil); err != nil {
+
+	if !ctx.BanChatMember(0) {
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(text, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
@@ -42,6 +44,7 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 		if err != nil {
 			return err
 		}
+
 		return telegram.EndOrder
 	}
 

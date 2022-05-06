@@ -3,13 +3,14 @@ package username
 import (
 	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/utils"
 	"fmt"
 	"regexp"
 	"strconv"
 	"sync"
 )
 
-const (
+var (
 	unameLog = `#USERNAME
 <b>User Name:</b> %s
 <b>User ID:</b> <code>%v</code>
@@ -33,11 +34,14 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
+
 	wg.Add(1)
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
-	if !ctx.RestrictMember(0, 0) {
-		unavailable := unameMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
-		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
+
+	untilDate := utils.ExtractTime("5m")
+	if !ctx.RestrictMember(0, untilDate) {
+		unameMsg += "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
+		textToSend := fmt.Sprintf(unameMsg, telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName), ctx.User.Id)
 		ctx.SendMessage(textToSend, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
 		err := m.App.DB.Pref.SavePreference(getPref)
@@ -104,6 +108,5 @@ func (m Module) usernameCallback(ctx *telegram.TgContext) error {
 	ctx.UnRestrictMember(0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
 	ctx.DeleteMessage(0)
-
 	return telegram.ContinueOrder
 }

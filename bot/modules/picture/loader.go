@@ -6,18 +6,15 @@ import (
 	"SiskamlingBot/bot/core/telegram/types"
 )
 
-// Module contains the state for an instance of this module.
 type Module struct {
 	App *app.MyApp
 }
 
-// Info returns basic information about this module.
-func (Module) Info() app.ModuleInfo {
+func (*Module) Info() app.ModuleInfo {
 	return app.ModuleInfo{Name: "Picture"}
 }
 
-// Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []types.Command {
+func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
 			Name:        "setpicture",
@@ -28,7 +25,7 @@ func (m Module) Commands() []types.Command {
 	}
 }
 
-func (m Module) Messages() []types.Message {
+func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
 			Name:        "PictureScanner",
@@ -41,7 +38,7 @@ func (m Module) Messages() []types.Message {
 	}
 }
 
-func (m Module) Callbacks() []types.Callback {
+func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
 			Name:        "PictureCallback",

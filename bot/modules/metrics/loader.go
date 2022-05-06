@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"SiskamlingBot/bot/core/app"
+	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/core/telegram/types"
 
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
@@ -24,7 +25,7 @@ func (m *Module) Messages() []types.Message {
 		{
 			Name:        "Chat Metric",
 			Description: "Saves chat info",
-			Filter:      message.All,
+			Filter:      telegram.GroupFilter,
 			Func:        m.chatMetric,
 			Order:       0,
 			Async:       true,
@@ -40,7 +41,7 @@ func (m *Module) Messages() []types.Message {
 		{
 			Name:        "Prefence Metric",
 			Description: "Saves preference info",
-			Filter:      message.All,
+			Filter:      telegram.GroupFilter,
 			Func:        m.preferenceMetric,
 			Order:       0,
 			Async:       true,

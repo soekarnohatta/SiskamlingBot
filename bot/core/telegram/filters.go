@@ -14,6 +14,10 @@ func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
 	return UsernameFilter(msg) && IsGroup(msg.Chat.Type)
 }
 
+func GroupFilter(msg *gotgbot.Message) bool {
+	return IsGroup(msg.Chat.Type)
+}
+
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 	p, err := bot.GetUserProfilePhotos(msg.From.Id, &gotgbot.GetUserProfilePhotosOpts{Limit: 1})
 	if err != nil {

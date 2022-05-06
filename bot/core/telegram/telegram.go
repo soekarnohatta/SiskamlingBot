@@ -59,9 +59,13 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+	msgOpt := &gotgbot.SendMessageOpts{
+		ParseMode:   "HTML",
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+	}
 
 	if chatID != 0 {
-		msg, err := c.Bot.SendMessage(chatID, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+		msg, err := c.Bot.SendMessage(chatID, text, msgOpt)
 		if err != nil {
 			return
 		}
@@ -70,7 +74,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 		return
 	}
 
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		return
 	}
@@ -84,8 +88,9 @@ func (c *TgContext) ReplyMessage(text string) {
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+	replyDefaultParseMode.ReplyToMessageId = c.Message.MessageId
 
-	msg, err := c.Message.Reply(c.Bot, text, replyDefaultParseMode)
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, replyDefaultParseMode)
 	if err != nil {
 		c.SendMessage(text, 0)
 		return
@@ -101,8 +106,13 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+	msgOpt := &gotgbot.SendMessageOpts{
+		ParseMode:        "HTML",
+		ReplyMarkup:      gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+		ReplyToMessageId: c.Message.MessageId,
+	}
 
-	msg, err := c.Message.Reply(c.Bot, text, &gotgbot.SendMessageOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		return
 	}
@@ -197,4 +207,41 @@ func (c *TgContext) UnRestrictMember(userId int64) bool {
 
 	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
 	return err == nil
+}
+
+func (c *TgContext) BanChatMember(userId int64) bool {
+	if userId == 0 {
+		userId = c.User.Id
+	}
+
+	banOpt := &gotgbot.BanChatMemberOpts{
+		UntilDate:      0,
+		RevokeMessages: true,
+		RequestOpts:    nil,
+	}
+
+	_, err := c.Bot.BanChatMember(c.Chat.Id, userId, banOpt)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (c *TgContext) UnBanChatMember(userId int64) bool {
+	if userId == 0 {
+		userId = c.User.Id
+	}
+
+	unbanOpt := &gotgbot.UnbanChatMemberOpts{
+		OnlyIfBanned: true,
+		RequestOpts:  nil,
+	}
+
+	_, err := c.Bot.UnbanChatMember(c.Chat.Id, userId, unbanOpt)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
