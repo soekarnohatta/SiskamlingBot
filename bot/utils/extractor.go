@@ -18,7 +18,6 @@ func ExtractTime(timeVal string) int64 {
 	if strings.ContainsAny(lastLetter, "m & d & h") {
 		t := timeVal[:len(timeVal)-1]
 		timeNum, err := strconv.Atoi(t)
-
 		if err != nil {
 			return -1
 		}
