@@ -13,30 +13,30 @@ import (
 )
 
 func (m Module) about(ctx *telegram.TgContext) error {
-	var dataMap = map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Devz"}
-	var text, keyb = telegram.CreateMenuf("./data/menu/about.json", 2, dataMap)
+	dataMap := map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Devz"}
+	text, keyb := telegram.CreateMenuf("./data/menu/about.json", 2, dataMap)
 	ctx.ReplyMessageKeyboard(text, keyb)
 	return nil
 }
 
 func (Module) ping(ctx *telegram.TgContext) error {
-	var timeStart = time.Now()
+	timeStart := time.Now()
 	ctx.ReplyMessage("<b>Ping</b>")
-	var timeEnd = time.Since(timeStart)
+	timeEnd := time.Since(timeStart)
 	ctx.EditMessage(fmt.Sprintf("<b>Recorded Timespan Is:</b> <code>%v</code> ", timeEnd.String()))
 	return nil
 }
 
 func (m Module) start(ctx *telegram.TgContext) error {
-	var dataMap = map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Unknown", "uname": m.App.Bot.User.Username}
-	var text, keyb = telegram.CreateMenuf("./data/menu/start.json", 2, dataMap)
+	dataMap := map[string]string{"1": m.App.Bot.User.FirstName, "2": m.App.Config.BotVer, "3": "Unknown", "uname": m.App.Bot.User.Username}
+	text, keyb := telegram.CreateMenuf("./data/menu/start.json", 2, dataMap)
 	ctx.ReplyMessageKeyboard(text, keyb)
 	return nil
 }
 
 func (m Module) info(ctx *telegram.TgContext) error {
-	var info, _ = host.Info()
-	var replyTxt = fmt.Sprintf(
+	info, _ := host.Info()
+	replyTxt := fmt.Sprintf(
 		"📁 <b>Bot Info</b>\n"+
 			"<b>Bot Name :</b> <code>%v</code>\n"+
 			"<b>Bot Username :</b> @%v\n"+
@@ -68,12 +68,12 @@ func (m Module) info(ctx *telegram.TgContext) error {
 }
 
 func (Module) helpCallback(ctx *telegram.TgContext) error {
-	var pattern, _ = regexp.Compile(`help\((.+?)\)`)
+	pattern, _ := regexp.Compile(`help\((.+?)\)`)
 	switch pattern.FindStringSubmatch(ctx.Callback.Data)[1] {
 	case "main":
-		var dataMap = map[string]string{"1": telegram.MentionHtml(ctx.Bot.User.Id, ctx.Bot.User.FirstName), "2": utils.IntToStr(int(ctx.Bot.User.Id))}
-		var text, keyb = telegram.CreateMenuf("./data/menu/help.json", 2, dataMap)
-		var _, _, err = ctx.Callback.Message.EditText(ctx.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
+		dataMap := map[string]string{"1": telegram.MentionHtml(ctx.Bot.User.Id, ctx.Bot.User.FirstName), "2": utils.IntToStr(int(ctx.Bot.User.Id))}
+		text, keyb := telegram.CreateMenuf("./data/menu/help.json", 2, dataMap)
+		_, _, err := ctx.Callback.Message.EditText(ctx.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML", ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb}})
 		if err != nil {
 			return err
 		}

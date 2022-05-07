@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	var config, err = app.NewConfig()
+	config, err := app.NewConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	var bot = app.NewBot(config)
+	bot := app.NewBot(config)
 	if err := bot.Run(); err != nil {
 		panic(err)
 	}

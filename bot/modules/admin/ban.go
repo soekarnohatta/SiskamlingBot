@@ -16,13 +16,13 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var text = fmt.Sprintf("Starting global ban of <code>%v</code> ...", ctx.Args()[0])
-	var getUser, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	text := fmt.Sprintf("Starting global ban of <code>%v</code> ...", ctx.Args()[0])
+	getUser, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 
 	ctx.SendMessage(text, 0)
 	if getUser != nil {
 		getUser.Gban = true
-		var err = m.App.DB.User.SaveUser(getUser)
+		err := m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}
@@ -47,13 +47,13 @@ func (m Module) removeGlobalBan(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var text = fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
-	var getUser, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	text := fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
+	getUser, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 
 	ctx.SendMessage(text, 0)
 	if getUser != nil && getUser.Gban {
 		getUser.Gban = false
-		var err = m.App.DB.User.SaveUser(getUser)
+		err := m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}

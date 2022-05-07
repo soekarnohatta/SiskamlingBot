@@ -37,7 +37,7 @@ func Int64ToStr(integer int64) string {
 func StrToIntSlice(s []string) []int {
 	var newIntSlice []int
 	for _, val := range s {
-		var newInt = StrToInt(val)
+		newInt := StrToInt(val)
 		newIntSlice = append(newIntSlice, newInt)
 	}
 	return newIntSlice
@@ -46,7 +46,7 @@ func StrToIntSlice(s []string) []int {
 func StrToInt64Slice(s []string) []int64 {
 	var newInt64Slice []int64
 	for _, val := range s {
-		var newInt64 = StrToInt64(val)
+		newInt64 := StrToInt64(val)
 		newInt64Slice = append(newInt64Slice, newInt64)
 	}
 	return newInt64Slice
@@ -54,17 +54,17 @@ func StrToInt64Slice(s []string) []int64 {
 
 func ConvertSeconds(input uint64) (result string) {
 	if input != 0 {
-		var years = math.Floor(float64(input) / 60 / 60 / 24 / 7 / 30 / 12)
-		var seconds = input % (60 * 60 * 24 * 7 * 30 * 12)
-		var months = math.Floor(float64(seconds) / 60 / 60 / 24 / 7 / 30)
+		years := math.Floor(float64(input) / 60 / 60 / 24 / 7 / 30 / 12)
+		seconds := input % (60 * 60 * 24 * 7 * 30 * 12)
+		months := math.Floor(float64(seconds) / 60 / 60 / 24 / 7 / 30)
 		seconds = input % (60 * 60 * 24 * 7 * 30)
-		var weeks = math.Floor(float64(seconds) / 60 / 60 / 24 / 7)
+		weeks := math.Floor(float64(seconds) / 60 / 60 / 24 / 7)
 		seconds = input % (60 * 60 * 24 * 7)
-		var days = math.Floor(float64(seconds) / 60 / 60 / 24)
+		days := math.Floor(float64(seconds) / 60 / 60 / 24)
 		seconds = input % (60 * 60 * 24)
-		var hours = math.Floor(float64(seconds) / 60 / 60)
+		hours := math.Floor(float64(seconds) / 60 / 60)
 		seconds = input % (60 * 60)
-		var minutes = math.Floor(float64(seconds) / 60)
+		minutes := math.Floor(float64(seconds) / 60)
 		seconds = input % 60
 
 		if years > 0 {

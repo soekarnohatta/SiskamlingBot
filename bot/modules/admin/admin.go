@@ -14,9 +14,9 @@ func (m Module) getUser(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var usr, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	usr, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 	if usr != nil {
-		var infoUser = fmt.Sprintf(
+		infoUser := fmt.Sprintf(
 			"<b>Info Pengguna</b>"+
 				"\n<b>User ID</b>: <code>%v</code>"+
 				"\n<b>Username</b>: <code>%v</code>"+
@@ -42,9 +42,9 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var cht, err = m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
+	cht, err := m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
 	if cht != nil {
-		var infoChat = fmt.Sprintf(
+		infoChat := fmt.Sprintf(
 			"<b>Info Obrolan</b>"+
 				"\n<b>Chat ID</b>: <code>%v</code>"+
 				"\n<b>Chat Name</b>: <code>%v</code>"+
@@ -63,12 +63,12 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 
 func (Module) debug(ctx *telegram.TgContext) error {
 	if ctx.Message.ReplyToMessage != nil {
-		var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
+		output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 		ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 		return nil
 	}
 
-	var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
+	output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 	ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 	return nil
 }

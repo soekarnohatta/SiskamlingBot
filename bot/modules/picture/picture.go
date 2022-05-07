@@ -4,13 +4,14 @@ import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
 	"fmt"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"regexp"
 	"sync"
+
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
 func (m Module) pictureScan(ctx *telegram.TgContext) error {
-	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	getPref, _ := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforcePicture {
 		return telegram.ContinueOrder
 	}
@@ -25,27 +26,27 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 	wg.Add(1)
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 
-	var dataButton = map[string]string{
+	dataButton := map[string]string{
 		"1": utils.Int64ToStr(ctx.User.Id),
 		"2": utils.Int64ToStr(ctx.Chat.Id),
 	}
 
-	var dataGroup = map[string]string{
+	dataGroup := map[string]string{
 		"1": telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
 		"2": utils.Int64ToStr(ctx.User.Id),
 		"3": utils.IntToStr(0),
 	}
 
-	var dataPrivate = map[string]string{
+	dataPrivate := map[string]string{
 		"1": telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
 		"2": utils.Int64ToStr(ctx.User.Id),
 		"3": ctx.Chat.Title,
 	}
 
-	var txtGroup, keybGroup = telegram.CreateMenuKeyboardf("./data/menu/picture_group.json", 1, dataGroup, dataButton)
-	var txtPrivate, keybPrivate = telegram.CreateMenuKeyboardf("./data/menu/picture_private.json", 1, dataPrivate, dataButton)
-	var untilDate = utils.ExtractTime("5m")
-	var txtLog = fmt.Sprintf(
+	txtGroup, keybGroup := telegram.CreateMenuKeyboardf("./data/menu/picture_group.json", 1, dataGroup, dataButton)
+	txtPrivate, keybPrivate := telegram.CreateMenuKeyboardf("./data/menu/picture_private.json", 1, dataPrivate, dataButton)
+	untilDate := utils.ExtractTime("5m")
+	txtLog := fmt.Sprintf(
 		"#PICTURE"+
 			"\n<b>User Name:</b> %s"+
 			"\n<b>User ID:</b> <code>%v</code>"+
@@ -64,7 +65,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 		ctx.SendMessage(txtGroup, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
 
-		var err = m.App.DB.Pref.SavePreference(getPref)
+		err := m.App.DB.Pref.SavePreference(getPref)
 		if err != nil {
 			return err
 		}
@@ -76,7 +77,7 @@ func (m Module) pictureScan(ctx *telegram.TgContext) error {
 	ctx.SendMessageKeyboard(txtPrivate, ctx.User.Id, keybPrivate)
 	ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
 	getPref.LastServiceMessageId = ctx.Message.MessageId
-	var _ = m.App.DB.Pref.SavePreference(getPref)
+	_ = m.App.DB.Pref.SavePreference(getPref)
 	return telegram.EndOrder
 }
 
@@ -85,8 +86,8 @@ func (m Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
 		return ext.ContinueGroups
 	}
 
-	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
-	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
+	pattern, _ := regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
+	userId := utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
 	// var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
 
 	if !(userId == ctx.Callback.From.Id) {
@@ -134,9 +135,9 @@ func (m Module) pictureCallbackPrivate(ctx *telegram.TgContext) error {
 		return ext.ContinueGroups
 	}
 
-	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
-	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
-	var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
+	pattern, _ := regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
+	userId := utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
+	chatId := utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
 
 	if !(userId == ctx.Callback.From.Id) {
 		ctx.AnswerCallback("Anda dilarang menggunakan tombol ini!", true)
