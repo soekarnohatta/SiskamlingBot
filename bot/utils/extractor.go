@@ -11,13 +11,13 @@ func ExtractBool(text string) bool {
 }
 
 func ExtractTime(timeVal string) int64 {
-	lastLetter := timeVal[len(timeVal)-1:]
-	lastLetter = strings.ToLower(lastLetter)
+	var lastLetter = timeVal[len(timeVal)-1:]
 	var ret int64 = 0
+	lastLetter = strings.ToLower(lastLetter)
 
 	if strings.ContainsAny(lastLetter, "m & d & h") {
-		t := timeVal[:len(timeVal)-1]
-		timeNum, err := strconv.Atoi(t)
+		var t = timeVal[:len(timeVal)-1]
+		var timeNum, err = strconv.Atoi(t)
 
 		if err != nil {
 			return -1

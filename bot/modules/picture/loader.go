@@ -41,10 +41,16 @@ func (m *Module) Messages() []types.Message {
 func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
-			Name:        "PictureCallback",
+			Name:        "PictureCallbackGroup",
 			Description: "",
-			Callback:    `picture\((.+?)\)`,
-			Func:        m.pictureCallback,
+			Callback:    `picture\((.+?)\)\((.+?)\)`,
+			Func:        m.pictureCallbackGroup,
+		},
+		{
+			Name:        "PictureCallbackPrivate",
+			Description: "",
+			Callback:    `picture\((.+?)\)\((.+?)\)`,
+			Func:        m.pictureCallbackPrivate,
 		},
 	}
 }

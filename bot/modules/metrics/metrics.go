@@ -6,12 +6,12 @@ import (
 )
 
 func (m Module) usernameMetric(ctx *telegram.TgContext) error {
-	getUser, err := m.App.DB.User.GetUserById(ctx.Message.From.Id)
+	var getUser, err = m.App.DB.User.GetUserById(ctx.Message.From.Id)
 	if getUser != nil {
 		getUser.UserName = ctx.Message.From.Username
 		getUser.FirstName = ctx.Message.From.FirstName
 		getUser.LastName = ctx.Message.From.LastName
-		err = m.App.DB.User.SaveUser(getUser)
+		var err = m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}
@@ -19,7 +19,7 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	newUser := models.NewUser(
+	var newUser = models.NewUser(
 		ctx.Message.From.Id,
 		ctx.Message.From.FirstName,
 		ctx.Message.From.LastName,
@@ -36,14 +36,14 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) error {
 }
 
 func (m Module) chatMetric(ctx *telegram.TgContext) error {
-	newChat := models.NewChat(
+	var newChat = models.NewChat(
 		ctx.Chat.Id,
 		ctx.Chat.Type,
 		ctx.Chat.InviteLink,
 		ctx.Chat.Title,
 	)
 
-	err := m.App.DB.Chat.SaveChat(newChat)
+	var err = m.App.DB.Chat.SaveChat(newChat)
 	if err != nil {
 		return err
 	}
@@ -52,12 +52,12 @@ func (m Module) chatMetric(ctx *telegram.TgContext) error {
 }
 
 func (m Module) preferenceMetric(ctx *telegram.TgContext) error {
-	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	var getPref, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil {
 		return telegram.ContinueOrder
 	}
 
-	newPref := models.Preference{
+	var newPref = models.Preference{
 		PreferenceID:         ctx.Chat.Id,
 		EnforcePicture:       true,
 		EnforceUsername:      true,

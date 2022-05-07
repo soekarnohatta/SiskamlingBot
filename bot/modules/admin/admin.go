@@ -8,31 +8,28 @@ import (
 	"fmt"
 )
 
-const (
-	infoUser = `<b>Info Pengguna</b>
-  <b>User ID</b>: <code>%v</code>
-  <b>Username</b>: <code>%v</code>
-  <b>First Name</b>: <code>%v</code>
-  <b>Last Name</b>: <code>%v</code>
-  <b>Is Banned</b>: <code>%v</code>`
-
-	infoChat = `<b>Info Obrolan</b>
-  <b>Chat ID</b>: <code>%v</code>
-  <b>Chat Name</b>: <code>%v</code>
-  <b>Chat Invitelink</b>: <code>%v</code>
-  <b>Chat Type</b>: <code>%v</code>`
-)
-
 func (m Module) getUser(ctx *telegram.TgContext) error {
 	if len(ctx.Args()) < 1 {
 		ctx.ReplyMessage("Pengguna tidak ditemukan!")
 		return nil
 	}
 
-	usr, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	var usr, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 	if usr != nil {
-		formattedText := fmt.Sprintf(infoUser, ctx.Args()[0], usr.UserName, usr.FirstName, usr.LastName, misc.Module{App: m.App}.IsBan(utils.StrToInt64(ctx.Args()[0])))
-		ctx.ReplyMessage(formattedText)
+		var infoUser = fmt.Sprintf(
+			"<b>Info Pengguna</b>"+
+				"\n<b>User ID</b>: <code>%v</code>"+
+				"\n<b>Username</b>: <code>%v</code>"+
+				"\n<b>First Name</b>: <code>%v</code>"+
+				"\n<b>Last Name</b>: <code>%v</code>"+
+				"\n<b>Is Banned</b>: <code>%v</code>",
+			ctx.Args()[0],
+			usr.UserName,
+			usr.FirstName,
+			usr.LastName,
+			misc.Module{App: m.App}.IsBan(utils.StrToInt64(ctx.Args()[0])))
+
+		ctx.ReplyMessage(infoUser)
 		return nil
 	}
 
@@ -45,10 +42,20 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	cht, err := m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
+	var cht, err = m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
 	if cht != nil {
-		formattedText := fmt.Sprintf(infoChat, ctx.Args()[0], cht.ChatTitle, cht.ChatLink, cht.ChatType)
-		ctx.ReplyMessage(formattedText)
+		var infoChat = fmt.Sprintf(
+			"<b>Info Obrolan</b>"+
+				"\n<b>Chat ID</b>: <code>%v</code>"+
+				"\n<b>Chat Name</b>: <code>%v</code>"+
+				"\n<b>Chat Invitelink</b>: <code>%v</code>"+
+				"\n<b>Chat Type</b>: <code>%v</code>",
+			ctx.Args()[0],
+			cht.ChatTitle,
+			cht.ChatLink,
+			cht.ChatType)
+
+		ctx.ReplyMessage(infoChat)
 		return nil
 	}
 	return err
@@ -56,12 +63,12 @@ func (m Module) getChat(ctx *telegram.TgContext) error {
 
 func (Module) debug(ctx *telegram.TgContext) error {
 	if ctx.Message.ReplyToMessage != nil {
-		output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
+		var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
 		ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 		return nil
 	}
 
-	output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
+	var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
 	ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 	return nil
 }

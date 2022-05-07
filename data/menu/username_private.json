@@ -1,0 +1,5 @@
+{
+  "callback": "username(",
+  "keyboard": "data/keyboard/username.json",
+  "text": "\uD83D\uDEAB <b>{1}</b> [<code>{2}</code>] telah dibisukan di <b>{3}</b> karena belum memasang username. Silahkan tekan tombol verifikasi jika sudah memasang. <a href=\"https://t.me/SwatzDevelopmentChannel/9\">(?)</a>"
+}

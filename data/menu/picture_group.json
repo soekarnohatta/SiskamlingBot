@@ -1,0 +1,5 @@
+{
+  "callback": "picture(",
+  "keyboard": "data/keyboard/picture.json",
+  "text": "\uD83D\uDEAB <b>{1}</b> [<code>{2}</code>] dan {3} pengguna lainnya dibisukan karena belum memasang username/foto. <a href=\"https://t.me/SwatzDevelopmentChannel/10\">(?)</a>"
+}

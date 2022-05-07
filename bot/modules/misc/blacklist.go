@@ -12,7 +12,7 @@ func (m Module) blacklist(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
-	getBlacklist, err := m.App.DB.Blacklist.GetAllBlacklist()
+	var getBlacklist, err = m.App.DB.Blacklist.GetAllBlacklist()
 	if err != nil {
 		return err
 	}
@@ -21,8 +21,8 @@ func (m Module) blacklist(ctx *telegram.TgContext) error {
 		wg.Add(1)
 		go func(compare string) {
 			defer wg.Done()
-			text := strings.ToLower(ctx.Message.Text)
-			comp := strings.ToLower(compare)
+			var text = strings.ToLower(ctx.Message.Text)
+			var comp = strings.ToLower(compare)
 			if strings.Contains(text, comp) {
 				ctx.DeleteMessage(0)
 			}
@@ -42,8 +42,8 @@ func (m Module) blacklistAdd(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	newBlacklist := &models.Blacklist{BlacklistTrigger: ctx.Args()[0]}
-	err := m.App.DB.Blacklist.SaveBlacklist(newBlacklist)
+	var newBlacklist = &models.Blacklist{BlacklistTrigger: ctx.Args()[0]}
+	var err = m.App.DB.Blacklist.SaveBlacklist(newBlacklist)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (m Module) blacklistRemove(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	err := m.App.DB.Blacklist.DeleteBlacklistByTrigger(ctx.Args()[0])
+	var err = m.App.DB.Blacklist.DeleteBlacklistByTrigger(ctx.Args()[0])
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package telegram
 import (
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -26,6 +27,7 @@ type TgContext struct {
 	args        []string
 	haveRawArgs bool
 	rawArgs     string
+	sync.Mutex
 }
 
 func NewContext(bot *gotgbot.Bot, ctx *ext.Context, cmdSeg string) *TgContext {

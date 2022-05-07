@@ -18,13 +18,14 @@ func (m Module) usernameSetting(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	prefs, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	var prefs, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if err != nil {
 		ctx.SendMessage("Error pas ngambil data, coba lagi.", 0)
 		return err
 	}
 
-	extractArgs := utils.ExtractBool(ctx.Args()[0])
+	var extractArgs = utils.ExtractBool(ctx.Args()[0])
+	var txtToSend = fmt.Sprintf("Pengaturan pengawasan username diatur ke <code>%v</code> ", extractArgs)
 	prefs.EnforceUsername = extractArgs
 	err = m.App.DB.Pref.SavePreference(prefs)
 	if err != nil {
@@ -32,6 +33,6 @@ func (m Module) usernameSetting(ctx *telegram.TgContext) error {
 		return err
 	}
 
-	ctx.SendMessage(fmt.Sprintf("Pengaturan pengawasan username diatur ke <code>%v</code> ", extractArgs), 0)
+	ctx.SendMessage(txtToSend, 0)
 	return nil
 }

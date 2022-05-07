@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -16,32 +15,8 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
-func (*MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
-	ctx.Message.Text = ctx.Message.Caption
-	return ext.ContinueGroups
-}
-func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	text := ctx.EffectiveMessage.Text
-	if ctx.Message.Caption != "" {
-		text = ctx.Message.Caption
-	}
-	var cmd string
-	split := strings.Split(strings.ToLower(strings.Fields(text)[0]), "@")
-	if len(split) > 1 && strings.ToLower(bot.User.Username) != split[1] {
-		return ext.ContinueGroups
-	}
-	cmd = split[0][1:]
-	if command, ok := b.Commands[cmd]; ok {
-		err := command.Invoke(bot, ctx, cmd)
-		if err != nil {
-			return err
-		}
-	}
-	return ext.ContinueGroups
-}
-
 func (b *MyApp) registerCommandUsingDispatcher() {
-	defer b.handlePanicSendLog()
+	defer b.handlePanicSendLog(nil)
 	for _, cmd := range b.Commands {
 		b.Updater.Dispatcher.AddHandler(&handlers.Command{
 			Triggers:     []rune{'/', '!', ','},
@@ -58,7 +33,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return ext.ContinueGroups
 	}
 
-	defer b.handlePanicSendLog()
+	defer b.handlePanicSendLog(ctx)
 	var orderedGroup []types.Message
 	for _, y := range b.Messages {
 		orderedGroup = append(orderedGroup, y)
@@ -79,14 +54,14 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
 					defer wg.Done()
-					defer b.handlePanicSendLog()
+					defer b.handlePanicSendLog(ctx)
 					err := messages.InvokeAsync(bot, ctx)
 					if errors.Is(err, telegram.EndOrder) {
 						return
 					} else if errors.Is(err, telegram.ContinueOrder) {
 						return
 					} else if err != nil {
-						b.SendLogMessage("Error Message", err)
+						b.SendLogMessage("Error Async Message Handler", err, ctx)
 						return
 					}
 				}(&wg, bot, ctx)
@@ -97,7 +72,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 				} else if errors.Is(err, telegram.ContinueOrder) || err.Error() == telegram.ContinueOrder.Error() {
 					continue
 				} else if err != nil {
-					b.SendLogMessage("Error Message", err)
+					b.SendLogMessage("Error Message Handler", err, ctx)
 					continue
 				}
 			}
@@ -109,17 +84,18 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 
 func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	if ctx.CallbackQuery != nil || ctx.Update.CallbackQuery != nil {
-		defer b.handlePanicSendLog()
+		defer b.handlePanicSendLog(ctx)
 		for _, callbacks := range b.Callbacks {
 			pattern, _ := regexp.Compile(callbacks.Callback)
 			if pattern.MatchString(ctx.CallbackQuery.Data) {
 				err := callbacks.Invoke(bot, ctx)
 				if errors.Is(err, telegram.EndOrder) {
 					return nil
-				} else if errors.Is(err, telegram.ContinueOrder) {
+				} else if errors.Is(err, telegram.ContinueOrder) ||
+					(err != nil && err.Error() == telegram.ContinueOrder.Error()) {
 					continue
 				} else if err != nil {
-					b.SendLogMessage("Error Callback", err)
+					b.SendLogMessage("Error Callback Handler", err, ctx)
 					continue
 				}
 			}
@@ -128,9 +104,9 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	return ext.ContinueGroups
 }
 
-func (b *MyApp) handlePanicSendLog() {
+func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
 	if r := recover(); r != nil {
-		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r))
+		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r), ctx)
 	}
 }
 
@@ -138,8 +114,6 @@ func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Command message handlers
-	//dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
-	//dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
 	b.registerCommandUsingDispatcher()
 
 	// Callback handlers

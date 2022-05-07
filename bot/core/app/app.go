@@ -2,6 +2,7 @@ package app
 
 import (
 	"SiskamlingBot/bot/core/telegram/types"
+	"SiskamlingBot/bot/utils"
 	"fmt"
 	"html"
 	"log"
@@ -115,7 +116,7 @@ func (b *MyApp) Run() error {
 		DispatcherOpts: ext.DispatcherOpts{
 			// If an error is returned by a handler, log it and continue going.
 			Error: func(bot *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
-				b.SendLogMessage("Error Handler", err)
+				b.SendLogMessage("Error Middleware", err, ctx)
 				return ext.DispatcherActionContinueGroups
 			},
 			MaxRoutines: ext.DefaultMaxRoutines,
@@ -140,19 +141,21 @@ func (b *MyApp) Run() error {
 	}
 
 	b.TimeStart = time.Now()
+	b.Updater.Idle()
 	return nil
 }
 
-func (b *MyApp) SendLogMessage(msg string, err error) {
+func (b *MyApp) SendLogMessage(msg string, err error, ctx *ext.Context) {
 	bot := b.Bot
 	info, _ := host.Info()
-	replyTxt := fmt.Sprintf("<b>System Log Message</b>\n"+
+	replyTxt := fmt.Sprintf("⚙ <b>EventLog Viewer</b>\n"+
 		"<b>%v</b>\n\n"+
 		"<b>Bot Name :</b> %v\n"+
 		"<b>Bot Username :</b> @%v\n"+
 		"<b>Host OS :</b> %v\n"+
 		"<b>Host Name :</b> %v\n"+
 		"<b>Host Uptime :</b> %v\n"+
+		"<b>Bot Uptime :</b> %v\n"+
 		"<b>Kernel Version :</b> %v\n"+
 		"<b>Platform :</b> %v\n"+
 		"<b>Timestamp :</b> %v\n",
@@ -161,15 +164,24 @@ func (b *MyApp) SendLogMessage(msg string, err error) {
 		bot.Username,
 		info.OS,
 		info.Hostname,
-		info.Uptime,
+		utils.ConvertSeconds(info.Uptime),
+		time.Since(b.TimeStart).String(),
 		info.KernelVersion,
 		info.Platform,
 		time.Now().Local(),
 	)
+
 	if err != nil {
 		replyTxt += "=====================\n"
-		replyTxt += "<b>Message Details:</b>\n"
-		replyTxt += html.EscapeString(err.Error())
+		if ctx != nil {
+			replyTxt += "<b>From ChatId:</b> %v\n"
+			replyTxt += "<b>From ChatTitle:</b> %v\n"
+			replyTxt = fmt.Sprintf(replyTxt, ctx.EffectiveChat.Id, ctx.EffectiveChat.Title)
+		}
+
+		replyTxt += "<b>Message Details:</b> \n%v"
+		replyTxt = fmt.Sprintf(replyTxt, html.EscapeString(err.Error()))
+
 	}
 
 	_, err = b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})

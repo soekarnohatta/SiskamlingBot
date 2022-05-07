@@ -41,10 +41,16 @@ func (m *Module) Messages() []types.Message {
 func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
-			Name:        "UsernameCallback",
+			Name:        "UsernameCallbackGroup",
 			Description: "",
-			Callback:    `username\((.+?)\)`,
-			Func:        m.usernameCallback,
+			Callback:    `username\((.+?)\)\((.+?)\)`,
+			Func:        m.usernameCallbackGroup,
+		},
+		{
+			Name:        "UsernameCallbackPrivate",
+			Description: "",
+			Callback:    `username\((.+?)\)\((.+?)\)`,
+			Func:        m.usernameCallbackPrivate,
 		},
 	}
 }
@@ -55,7 +61,7 @@ func NewModule(bot *app.MyApp) (app.Module, error) {
 }
 
 func init() {
-	err := app.RegisterModule("Username", NewModule)
+	var err = app.RegisterModule("Username", NewModule)
 	if err != nil {
 		panic(err)
 	}

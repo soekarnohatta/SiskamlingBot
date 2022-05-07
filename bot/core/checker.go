@@ -15,5 +15,5 @@ func IsUserAdmin(ctx *telegram.TgContext) bool {
 		return false
 	}
 
-	return member.MergeChatMember().Status == "administrator" || member.MergeChatMember().Status == "owner"
+	return member.MergeChatMember().Status == "administrator" || member.MergeChatMember().Status == "creator"
 }

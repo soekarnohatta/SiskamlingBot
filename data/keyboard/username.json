@@ -1,6 +1,6 @@
 [
   {
     "text": "Verifikasi",
-    "data": "username({1})"
+    "data": "username({1})({2})"
   }
 ]

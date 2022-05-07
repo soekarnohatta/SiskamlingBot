@@ -24,7 +24,8 @@ func (m Module) pictureSetting(ctx *telegram.TgContext) error {
 		return err
 	}
 
-	extractArgs := utils.ExtractBool(ctx.Args()[0])
+	var extractArgs = utils.ExtractBool(ctx.Args()[0])
+	var txtToSend = fmt.Sprintf("Pengaturan pengawasan profil gambar diatur ke <code>%v</code>", extractArgs)
 	prefs.EnforcePicture = extractArgs
 	err = m.App.DB.Pref.SavePreference(prefs)
 	if err != nil {
@@ -32,6 +33,6 @@ func (m Module) pictureSetting(ctx *telegram.TgContext) error {
 		return err
 	}
 
-	ctx.SendMessage(fmt.Sprintf("Pengaturan pengawasan profil gambar diatur ke <code>%v</code> ", extractArgs), 0)
+	ctx.SendMessage(txtToSend, 0)
 	return nil
 }

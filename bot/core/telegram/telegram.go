@@ -27,6 +27,9 @@ var (
  */
 
 func (c *TgContext) SendMessage(text string, chatID int64) {
+	c.Lock()
+	defer c.Unlock()
+
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -52,7 +55,10 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	c.Message = msg
 }
 
-func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {
+func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
+	c.Lock()
+	defer c.Unlock()
+
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -60,12 +66,13 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 	msgOpt := &gotgbot.SendMessageOpts{
-		ParseMode:   "HTML",
-		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+		ParseMode:             "HTML",
+		ReplyMarkup:           gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+		DisableWebPagePreview: true,
 	}
 
-	if chatID != 0 {
-		msg, err := c.Bot.SendMessage(chatID, text, msgOpt)
+	if chatId != 0 {
+		msg, err := c.Bot.SendMessage(chatId, text, msgOpt)
 		if err != nil {
 			return
 		}
@@ -82,6 +89,9 @@ func (c *TgContext) SendMessageKeyboard(text string, chatID int64, keyb [][]gotg
 }
 
 func (c *TgContext) ReplyMessage(text string) {
+	c.Lock()
+	defer c.Unlock()
+
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -100,6 +110,9 @@ func (c *TgContext) ReplyMessage(text string) {
 }
 
 func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKeyboardButton) {
+	c.Lock()
+	defer c.Unlock()
+
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -107,9 +120,10 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 	msgOpt := &gotgbot.SendMessageOpts{
-		ParseMode:        "HTML",
-		ReplyMarkup:      gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
-		ReplyToMessageId: c.Message.MessageId,
+		ParseMode:             "HTML",
+		ReplyMarkup:           gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+		ReplyToMessageId:      c.Message.MessageId,
+		DisableWebPagePreview: true,
 	}
 
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
@@ -121,6 +135,9 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 }
 
 func (c *TgContext) EditMessage(text string) {
+	c.Lock()
+	defer c.Unlock()
+
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -137,6 +154,9 @@ func (c *TgContext) EditMessage(text string) {
 }
 
 func (c *TgContext) DeleteMessage(msgId int64) {
+	c.Lock()
+	defer c.Unlock()
+
 	if msgId != 0 {
 		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId, nil)
 		if err != nil {
@@ -145,7 +165,7 @@ func (c *TgContext) DeleteMessage(msgId int64) {
 		return
 	}
 
-	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Message.MessageId, nil)
+	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Context.EffectiveMessage.MessageId, nil)
 	if err != nil {
 		return
 	}
@@ -156,6 +176,9 @@ func (c *TgContext) DeleteMessage(msgId int64) {
  */
 
 func (c *TgContext) AnswerCallback(text string, alert bool) {
+	c.Lock()
+	defer c.Unlock()
+
 	newAnswerCallbackQueryOpts := &gotgbot.AnswerCallbackQueryOpts{
 		Text:      text,
 		ShowAlert: alert,
@@ -171,9 +194,16 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  * ChatMember
  */
 
-func (c *TgContext) RestrictMember(userId, untilDate int64) bool {
+func (c *TgContext) RestrictMember(userId, chatId, untilDate int64) bool {
+	c.Lock()
+	defer c.Unlock()
+
 	if userId == 0 {
 		userId = c.User.Id
+	}
+
+	if chatId == 0 {
+		chatId = c.Chat.Id
 	}
 
 	if untilDate == 0 {
@@ -188,13 +218,20 @@ func (c *TgContext) RestrictMember(userId, untilDate int64) bool {
 		CanSendOtherMessages: false,
 	}
 
-	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
+	_, err := c.Bot.RestrictChatMember(chatId, userId, newChatPermission, newOpt)
 	return err == nil
 }
 
-func (c *TgContext) UnRestrictMember(userId int64) bool {
+func (c *TgContext) UnRestrictMember(userId, chatId int64) bool {
+	c.Lock()
+	defer c.Unlock()
+
 	if userId == 0 {
 		userId = c.User.Id
+	}
+
+	if chatId == 0 {
+		chatId = c.Chat.Id
 	}
 
 	newOpt := &gotgbot.RestrictChatMemberOpts{UntilDate: -1}
@@ -205,13 +242,20 @@ func (c *TgContext) UnRestrictMember(userId int64) bool {
 		CanSendOtherMessages: true,
 	}
 
-	_, err := c.Bot.RestrictChatMember(c.Chat.Id, userId, newChatPermission, newOpt)
+	_, err := c.Bot.RestrictChatMember(chatId, userId, newChatPermission, newOpt)
 	return err == nil
 }
 
-func (c *TgContext) BanChatMember(userId int64) bool {
+func (c *TgContext) BanChatMember(userId, chatId int64) bool {
+	c.Lock()
+	defer c.Unlock()
+
 	if userId == 0 {
 		userId = c.User.Id
+	}
+
+	if chatId == 0 {
+		chatId = c.Chat.Id
 	}
 
 	banOpt := &gotgbot.BanChatMemberOpts{
@@ -220,7 +264,7 @@ func (c *TgContext) BanChatMember(userId int64) bool {
 		RequestOpts:    nil,
 	}
 
-	_, err := c.Bot.BanChatMember(c.Chat.Id, userId, banOpt)
+	_, err := c.Bot.BanChatMember(chatId, userId, banOpt)
 	if err != nil {
 		return false
 	}
@@ -228,9 +272,16 @@ func (c *TgContext) BanChatMember(userId int64) bool {
 	return true
 }
 
-func (c *TgContext) UnBanChatMember(userId int64) bool {
+func (c *TgContext) UnBanChatMember(userId, chatId int64) bool {
+	c.Lock()
+	defer c.Unlock()
+
 	if userId == 0 {
 		userId = c.User.Id
+	}
+
+	if chatId == 0 {
+		chatId = c.Chat.Id
 	}
 
 	unbanOpt := &gotgbot.UnbanChatMemberOpts{
@@ -238,7 +289,7 @@ func (c *TgContext) UnBanChatMember(userId int64) bool {
 		RequestOpts:  nil,
 	}
 
-	_, err := c.Bot.UnbanChatMember(c.Chat.Id, userId, unbanOpt)
+	_, err := c.Bot.UnbanChatMember(chatId, userId, unbanOpt)
 	if err != nil {
 		return false
 	}

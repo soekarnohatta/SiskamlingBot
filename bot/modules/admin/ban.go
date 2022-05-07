@@ -8,7 +8,6 @@ import (
 
 func (m Module) globalBan(ctx *telegram.TgContext) error {
 	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
-		ctx.SendMessage("Anda bukan Sudo!", 0)
 		return nil
 	}
 
@@ -17,13 +16,13 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	text := fmt.Sprintf("Starting global ban of <code>%v</code> ...", ctx.Args()[0])
-	ctx.SendMessage(text, 0)
+	var text = fmt.Sprintf("Starting global ban of <code>%v</code> ...", ctx.Args()[0])
+	var getUser, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 
-	getUser, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	ctx.SendMessage(text, 0)
 	if getUser != nil {
 		getUser.Gban = true
-		err := m.App.DB.User.SaveUser(getUser)
+		var err = m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}
@@ -40,7 +39,6 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 
 func (m Module) removeGlobalBan(ctx *telegram.TgContext) error {
 	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
-		ctx.SendMessage("Anda bukan Sudo!", 0)
 		return nil
 	}
 
@@ -49,13 +47,13 @@ func (m Module) removeGlobalBan(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	text := fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
-	ctx.SendMessage(text, 0)
+	var text = fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
+	var getUser, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 
-	getUser, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	ctx.SendMessage(text, 0)
 	if getUser != nil && getUser.Gban {
 		getUser.Gban = false
-		err := m.App.DB.User.SaveUser(getUser)
+		var err = m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}

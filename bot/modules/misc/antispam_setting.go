@@ -18,13 +18,13 @@ func (m Module) antispamSetting(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	prefs, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	var prefs, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if err != nil {
 		ctx.SendMessage("Error pas ngambil data, coba lagi.", 0)
 		return err
 	}
 
-	extractArgs := utils.ExtractBool(ctx.Args()[0])
+	var extractArgs = utils.ExtractBool(ctx.Args()[0])
 	prefs.EnforceAntispam = extractArgs
 	err = m.App.DB.Pref.SavePreference(prefs)
 	if err != nil {
