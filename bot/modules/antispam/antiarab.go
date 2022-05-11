@@ -10,12 +10,12 @@ import (
 )
 
 func (m *Module) antiarab(ctx *telegram.TgContext) error {
-	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	getPref, _ := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforceAntiArab {
 		return telegram.ContinueOrder
 	}
 
-	var getChat, _ = m.App.DB.Chat.GetChatById(ctx.Chat.Id)
+	getChat, _ := m.App.DB.Chat.GetChatById(ctx.Chat.Id)
 	if getChat != nil && !getChat.ChatVIP {
 		return telegram.ContinueOrder
 	}
@@ -24,14 +24,14 @@ func (m *Module) antiarab(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	var text = fmt.Sprintf(
+	text := fmt.Sprintf(
 		"⚠ <b>%v</b> [<code>%v</code>] telah dihapus pesannya karena mengirim/menggunakan "+
 			"karakter <b>Arabic</b>. Silahkan gunakan karakter lain.",
 		telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
 		ctx.User.Id,
 	)
 
-	var banLog = fmt.Sprintf(
+	banLog := fmt.Sprintf(
 		"#ARAB"+
 			"\n<b>User Name:</b> %s"+
 			"\n<b>User ID:</b> <code>%v</code>"+
@@ -80,7 +80,7 @@ func (m *Module) antiarabSetting(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var getChat, _ = m.App.DB.Chat.GetChatById(ctx.Chat.Id)
+	getChat, _ := m.App.DB.Chat.GetChatById(ctx.Chat.Id)
 	if getChat != nil && !getChat.ChatVIP {
 		ctx.SendMessage("Chat ini bukan VIP, silahkan beli VIP dahulu!", 0)
 		return nil
@@ -91,13 +91,13 @@ func (m *Module) antiarabSetting(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var prefs, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	prefs, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if err != nil {
 		ctx.SendMessage("Error pas ngambil data, coba lagi.", 0)
 		return nil
 	}
 
-	var extractArgs = utils.ExtractBool(ctx.Args()[0])
+	extractArgs := utils.ExtractBool(ctx.Args()[0])
 	prefs.EnforceAntiArab = extractArgs
 	err = m.App.DB.Pref.SavePreference(prefs)
 	if err != nil {

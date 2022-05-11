@@ -1,13 +1,12 @@
 package user
 
 import (
+	"SiskamlingBot/bot/utils"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
-
-	"SiskamlingBot/bot/utils"
 )
 
 type (
@@ -61,7 +60,7 @@ func (m *Module) isSwBan(userId int64) bool {
 		return false
 	}
 
-	var client = http.Client{
+	client := http.Client{
 		Timeout: 2 * time.Second,
 	}
 
@@ -77,12 +76,11 @@ func (m *Module) isSwBan(userId int64) bool {
 		}
 	}(resp.Body)
 
-	var swBan = &banList{}
+	swBan := &banList{}
 	err = json.NewDecoder(resp.Body).Decode(&swBan)
 	if err != nil {
 		return false
 	}
-
 
 	return swBan.Reason != "" || resp.StatusCode == http.StatusOK
 }
@@ -113,7 +111,7 @@ func (m *Module) IsBan(userId int64) bool {
 		close(LocalChan)
 		close(SWChan)
 		close(CASChan)
-		
+
 		return false
 	}
 }

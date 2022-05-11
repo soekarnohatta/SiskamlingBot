@@ -1,10 +1,9 @@
 package admin
 
 import (
-	"fmt"
-
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
+	"fmt"
 )
 
 func (m Module) globalBan(ctx *telegram.TgContext) error {
@@ -24,8 +23,8 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 			continue
 		}
 
-		var text = fmt.Sprintf("Starting global ban of <code>%v</code> ...", val)
-		var getUser, _ = m.App.DB.User.GetUserById(utils.StrToInt64(val))
+		text := fmt.Sprintf("Starting global ban of <code>%v</code> ...", val)
+		getUser, _ := m.App.DB.User.GetUserById(utils.StrToInt64(val))
 
 		if idx < 1 {
 			ctx.SendMessage(text, 0)
@@ -35,7 +34,7 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 
 		if getUser != nil {
 			getUser.Gban = true
-			var err = m.App.DB.User.SaveUser(getUser)
+			err := m.App.DB.User.SaveUser(getUser)
 			if err != nil {
 				text = fmt.Sprintf("Global ban of <code>%v</code> has failed due to: %s", val, err.Error())
 				ctx.EditMessage(text)
@@ -54,7 +53,7 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 		continue
 	}
 
-	var text = fmt.Sprintf("<code>%v</code> individuals have been banned, %v has failed.", success, failed)
+	text := fmt.Sprintf("<code>%v</code> individuals have been banned, %v has failed.", success, failed)
 	ctx.SendMessage(text, 0)
 	return nil
 }
@@ -69,13 +68,13 @@ func (m Module) removeGlobalBan(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var text = fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
-	var getUser, err = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	text := fmt.Sprintf("Starting to remove global ban of <code>%v</code> ...", ctx.Args()[0])
+	getUser, err := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 
 	ctx.SendMessage(text, 0)
 	if getUser != nil && getUser.Gban {
 		getUser.Gban = false
-		var err = m.App.DB.User.SaveUser(getUser)
+		err := m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}
