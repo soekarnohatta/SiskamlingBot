@@ -1,16 +1,14 @@
 package user
 
 import (
-	"SiskamlingBot/bot/utils"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"github.com/soekarnohatta/go-spamwatch/spamwatch"
+	"SiskamlingBot/bot/utils"
 )
-
-var myClient = &http.Client{Timeout: 2 * time.Second}
 
 type (
 	casBan struct {
@@ -20,18 +18,27 @@ type (
 
 	result struct {
 		Offenses  int      `json:"offenses"`
-		Messages  []string `json:"message"`
 		TimeAdded int      `json:"time_added"`
+		Messages  []string `json:"message"`
 	}
 )
 
-func (m Module) isCASBan(userId int64) bool {
+type banList struct {
+	Admin   int    `json:"admin,omitempty"`
+	Date    int64  `json:"date,omitempty"`
+	Id      int64  `json:"id"`
+	Reason  string `json:"reason"`
+	Message string `json:"message,omitempty"`
+}
+
+func (m *Module) isCASBan(userId int64) bool {
 	// Request data to CAS API.
 	cas := "https://api.cas.chat/check?user_id=" + utils.IntToStr(int(userId))
-	re, err := myClient.Get(cas)
+	re, err := http.Get(cas)
 	if err != nil {
 		return false
 	}
+
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
@@ -45,22 +52,47 @@ func (m Module) isCASBan(userId int64) bool {
 	return ban.Ok
 }
 
-func (m Module) isSwBan(userId int64) bool {
-	swClient, _ := spamwatch.NewClient("", m.App.Config.SWToken)
-	ban, err := swClient.GetBan(int(userId))
+func (m *Module) isSwBan(userId int64) bool {
+	r, err := http.NewRequest(http.MethodGet, "https://api.spamwat.ch/banlist/"+utils.Int64ToStr(userId), nil)
+	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", m.App.Config.SWToken))
+	r.Header.Set("Content-Type", "application/json")
+
 	if err != nil {
 		return false
 	}
 
-	return ban.Reason != ""
+	var client = http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	resp, err := client.Do(r)
+	if err != nil {
+		return false
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+
+	var swBan = &banList{}
+	err = json.NewDecoder(resp.Body).Decode(&swBan)
+	if err != nil {
+		return false
+	}
+
+
+	return swBan.Reason != "" || resp.StatusCode == http.StatusOK
 }
 
-func (m Module) isLocalBan(userId int64) bool {
+func (m *Module) isLocalBan(userId int64) bool {
 	getUser, _ := m.App.DB.User.GetUserById(userId)
 	return getUser != nil && getUser.Gban
 }
 
-func (m Module) IsBan(userId int64) bool {
+func (m *Module) IsBan(userId int64) bool {
 	// Add temporary fix regarding anonymous channel issue
 	if userId == 136817688 || userId == 777000 {
 		return false
@@ -78,6 +110,10 @@ func (m Module) IsBan(userId int64) bool {
 	default:
 		return <-LocalChan || <-SWChan || <-CASChan
 	case <-time.After(2 * time.Second):
+		close(LocalChan)
+		close(SWChan)
+		close(CASChan)
+		
 		return false
 	}
 }

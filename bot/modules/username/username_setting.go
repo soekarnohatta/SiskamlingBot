@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func (m Module) usernameSetting(ctx *telegram.TgContext) error {
+func (m *Module) usernameSetting(ctx *telegram.TgContext) error {
 	if !core.IsUserAdmin(ctx) {
 		ctx.SendMessage("Anda bukan admin!", 0)
 		return nil

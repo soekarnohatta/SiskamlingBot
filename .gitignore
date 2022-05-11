@@ -101,7 +101,7 @@ fabric.properties
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+# .idea/antispam.xml
 # *.ipr
 
 # Sonarlint plugin

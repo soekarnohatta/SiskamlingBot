@@ -23,28 +23,25 @@ func (*Module) Commands() []types.Command {
 func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
-			Name:        "Chat Metric",
-			Description: "Saves chat info",
-			Filter:      telegram.GroupFilter,
-			Func:        m.chatMetric,
-			Order:       0,
-			Async:       true,
+			Name:   "Chat Metric",
+			Filter: telegram.GroupFilter,
+			Func:   m.chatMetric,
+			Order:  0,
+			Async:  true,
 		},
 		{
-			Name:        "User Metric",
-			Description: "Saves user info",
-			Filter:      message.All,
-			Func:        m.usernameMetric,
-			Order:       0,
-			Async:       true,
+			Name:   "User Metric",
+			Filter: message.All,
+			Func:   m.usernameMetric,
+			Order:  0,
+			Async:  true,
 		},
 		{
-			Name:        "Prefence Metric",
-			Description: "Saves preference info",
-			Filter:      telegram.GroupFilter,
-			Func:        m.preferenceMetric,
-			Order:       0,
-			Async:       true,
+			Name:   "Prefence Metric",
+			Filter: telegram.GroupFilter,
+			Func:   m.preferenceMetric,
+			Order:  0,
+			Async:  true,
 		},
 	}
 }

@@ -27,9 +27,6 @@ var (
  */
 
 func (c *TgContext) SendMessage(text string, chatID int64) {
-	c.Lock()
-	defer c.Unlock()
-
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -38,6 +35,9 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
 	if chatID != 0 {
+		c.Lock()
+		defer c.Unlock()
+
 		msg, err := c.Bot.SendMessage(chatID, text, defaultParseMode)
 		if err != nil {
 			return
@@ -47,6 +47,8 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 		return
 	}
 
+	c.Lock()
+	defer c.Unlock()
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, defaultParseMode)
 	if err != nil {
 		return
@@ -56,9 +58,6 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 }
 
 func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
-	c.Lock()
-	defer c.Unlock()
-
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -72,6 +71,9 @@ func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotg
 	}
 
 	if chatId != 0 {
+		c.Lock()
+		defer c.Unlock()
+
 		msg, err := c.Bot.SendMessage(chatId, text, msgOpt)
 		if err != nil {
 			return
@@ -81,6 +83,9 @@ func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotg
 		return
 	}
 
+	c.Lock()
+	defer c.Unlock()
+
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		return
@@ -89,9 +94,6 @@ func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotg
 }
 
 func (c *TgContext) ReplyMessage(text string) {
-	c.Lock()
-	defer c.Unlock()
-
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -99,6 +101,9 @@ func (c *TgContext) ReplyMessage(text string) {
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 	replyDefaultParseMode.ReplyToMessageId = c.Message.MessageId
+
+	c.Lock()
+	defer c.Unlock()
 
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, replyDefaultParseMode)
 	if err != nil {
@@ -110,9 +115,6 @@ func (c *TgContext) ReplyMessage(text string) {
 }
 
 func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKeyboardButton) {
-	c.Lock()
-	defer c.Unlock()
-
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -126,6 +128,9 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 		DisableWebPagePreview: true,
 	}
 
+	c.Lock()
+	defer c.Unlock()
+
 	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		return
@@ -135,15 +140,15 @@ func (c *TgContext) ReplyMessageKeyboard(text string, keyb [][]gotgbot.InlineKey
 }
 
 func (c *TgContext) EditMessage(text string) {
-	c.Lock()
-	defer c.Unlock()
-
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+
+	c.Lock()
+	defer c.Unlock()
 
 	msg, _, err := c.Message.EditText(c.Bot, text, &gotgbot.EditMessageTextOpts{ParseMode: "HTML"})
 	if err != nil {
@@ -154,9 +159,6 @@ func (c *TgContext) EditMessage(text string) {
 }
 
 func (c *TgContext) DeleteMessage(msgId int64) {
-	c.Lock()
-	defer c.Unlock()
-
 	if msgId != 0 {
 		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId, nil)
 		if err != nil {
@@ -176,9 +178,6 @@ func (c *TgContext) DeleteMessage(msgId int64) {
  */
 
 func (c *TgContext) AnswerCallback(text string, alert bool) {
-	c.Lock()
-	defer c.Unlock()
-
 	newAnswerCallbackQueryOpts := &gotgbot.AnswerCallbackQueryOpts{
 		Text:      text,
 		ShowAlert: alert,
@@ -195,9 +194,6 @@ func (c *TgContext) AnswerCallback(text string, alert bool) {
  */
 
 func (c *TgContext) RestrictMember(userId, chatId, untilDate int64) bool {
-	c.Lock()
-	defer c.Unlock()
-
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -223,9 +219,6 @@ func (c *TgContext) RestrictMember(userId, chatId, untilDate int64) bool {
 }
 
 func (c *TgContext) UnRestrictMember(userId, chatId int64) bool {
-	c.Lock()
-	defer c.Unlock()
-
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -247,9 +240,6 @@ func (c *TgContext) UnRestrictMember(userId, chatId int64) bool {
 }
 
 func (c *TgContext) BanChatMember(userId, chatId int64) bool {
-	c.Lock()
-	defer c.Unlock()
-
 	if userId == 0 {
 		userId = c.User.Id
 	}
@@ -273,9 +263,6 @@ func (c *TgContext) BanChatMember(userId, chatId int64) bool {
 }
 
 func (c *TgContext) UnBanChatMember(userId, chatId int64) bool {
-	c.Lock()
-	defer c.Unlock()
-
 	if userId == 0 {
 		userId = c.User.Id
 	}

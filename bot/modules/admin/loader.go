@@ -16,34 +16,34 @@ func (*Module) Info() app.ModuleInfo {
 func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
-			Name:        "Get User",
-			Trigger:     "getuser",
-			Description: "Get specific user info",
-			Func:        m.getUser,
+			Name:    "Get User",
+			Trigger: "getuser",
+			Func:    m.getUser,
 		},
 		{
-			Name:        "Get Chat",
-			Trigger:     "getchat",
-			Description: "Get specific chat info",
-			Func:        m.getChat,
+			Name:    "Get Chat",
+			Trigger: "getchat",
+			Func:    m.getChat,
 		},
 		{
-			Name:        "Debug",
-			Trigger:     "dbg",
-			Description: "Prints JSON dump of a message update",
-			Func:        m.debug,
+			Name:    "Debug",
+			Trigger: "dbg",
+			Func:    m.debug,
 		},
 		{
-			Name:        "Gban",
-			Trigger:     "gban",
-			Description: "Ban user across chats",
-			Func:        m.globalBan,
+			Name:    "Gban",
+			Trigger: "gban",
+			Func:    m.globalBan,
 		},
 		{
-			Name:        "UnGban",
-			Trigger:     "ungban",
-			Description: "Unban user across chats",
-			Func:        m.removeGlobalBan,
+			Name:    "UnGban",
+			Trigger: "ungban",
+			Func:    m.removeGlobalBan,
+		},
+		{
+			Name:    "addvip",
+			Trigger: "addvip",
+			Func:    m.addVip,
 		},
 	}
 }
@@ -56,7 +56,6 @@ func (*Module) Callbacks() []types.Callback {
 	return nil
 }
 
-// NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
 	return &Module{App: bot}, nil
 }

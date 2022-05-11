@@ -17,6 +17,8 @@ type Preference struct {
 	EnforcePicture       bool  `json:"preference_enforce_picture" bson:"preference_enforce_picture" `
 	EnforceUsername      bool  `json:"preference_enforce_username" bson:"preference_enforce_username" `
 	EnforceAntispam      bool  `json:"preference_enforce_antispam" bson:"preference_enforce_antispam" `
+	EnforceAntiChinese   bool  `json:"preference_enforce_antichinese" bson:"preference_enforce_antichinese" `
+	EnforceAntiArab      bool  `json:"preference_enforce_antiarab" bson:"preference_enforce_antiaran" `
 	LastServiceMessageId int64 `json:"preference_last_service_id" bson:"preference_last_service_id" `
 }
 

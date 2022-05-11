@@ -17,10 +17,9 @@ func (*Module) Info() app.ModuleInfo {
 func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
-			Name:        "setusername",
-			Trigger:     "setusername",
-			Description: "ping the bot.",
-			Func:        m.usernameSetting,
+			Name:    "setusername",
+			Trigger: "setusername",
+			Func:    m.usernameSetting,
 		},
 	}
 }
@@ -28,12 +27,11 @@ func (m *Module) Commands() []types.Command {
 func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
-			Name:        "UsernameScanner",
-			Description: "Detect user without username",
-			Filter:      telegram.UsernameAndGroupFilter,
-			Func:        m.usernameScan,
-			Order:       2,
-			Async:       false,
+			Name:   "UsernameScanner",
+			Filter: telegram.UsernameAndGroupFilter,
+			Func:   m.usernameScan,
+			Order:  2,
+			Async:  false,
 		},
 	}
 }
@@ -41,16 +39,14 @@ func (m *Module) Messages() []types.Message {
 func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
-			Name:        "UsernameCallbackGroup",
-			Description: "",
-			Callback:    `username\((.+?)\)\((.+?)\)`,
-			Func:        m.usernameCallbackGroup,
+			Name:     "UsernameCallbackGroup",
+			Callback: `username\((.+?)\)\((.+?)\)`,
+			Func:     m.usernameCallbackGroup,
 		},
 		{
-			Name:        "UsernameCallbackPrivate",
-			Description: "",
-			Callback:    `username\((.+?)\)\((.+?)\)`,
-			Func:        m.usernameCallbackPrivate,
+			Name:     "UsernameCallbackPrivate",
+			Callback: `username\((.+?)\)\((.+?)\)`,
+			Func:     m.usernameCallbackPrivate,
 		},
 	}
 }

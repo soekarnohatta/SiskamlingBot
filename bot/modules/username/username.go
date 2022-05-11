@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func (m Module) usernameScan(ctx *telegram.TgContext) error {
+func (m *Module) usernameScan(ctx *telegram.TgContext) error {
 	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforceUsername {
 		return telegram.ContinueOrder
@@ -22,7 +22,11 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
+	var rstrChan = make(chan bool, 1)
+	var untilDate = utils.ExtractTime("5m")
+
 	wg.Add(1)
+	go func() { rstrChan <- ctx.RestrictMember(0, 0, untilDate) }()
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 
 	var dataButton = map[string]string{
@@ -44,7 +48,6 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 
 	var txtGroup, keybGroup = telegram.CreateMenuKeyboardf("./data/menu/username_group.json", 1, dataGroup, dataButton)
 	var txtPrivate, keybPrivate = telegram.CreateMenuKeyboardf("./data/menu/username_private.json", 1, dataPrivate, dataButton)
-	var untilDate = utils.ExtractTime("5m")
 	var txtLog = fmt.Sprintf(
 		"#USERNAME"+
 			"\n<b>User Name:</b> %s"+
@@ -59,7 +62,7 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
 	)
 
-	if !ctx.RestrictMember(0, 0, untilDate) {
+	if !<-rstrChan {
 		txtGroup += "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(txtGroup, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
@@ -72,15 +75,16 @@ func (m Module) usernameScan(ctx *telegram.TgContext) error {
 	}
 
 	ctx.DeleteMessage(0)
-	ctx.SendMessage(txtLog, m.App.Config.LogEvent)
-	ctx.SendMessageKeyboard(txtPrivate, ctx.User.Id, keybPrivate)
 	ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
 	getPref.LastServiceMessageId = ctx.Message.MessageId
 	var _ = m.App.DB.Pref.SavePreference(getPref)
+
+	ctx.SendMessageKeyboard(txtPrivate, ctx.User.Id, keybPrivate)
+	ctx.SendMessage(txtLog, m.App.Config.LogEvent)
 	return telegram.EndOrder
 }
 
-func (m Module) usernameCallbackGroup(ctx *telegram.TgContext) error {
+func (m *Module) usernameCallbackGroup(ctx *telegram.TgContext) error {
 	if telegram.IsPrivate(ctx.Chat.Type) {
 		return ext.ContinueGroups
 	}
@@ -124,7 +128,7 @@ func (m Module) usernameCallbackGroup(ctx *telegram.TgContext) error {
 	return telegram.ContinueOrder
 }
 
-func (m Module) usernameCallbackPrivate(ctx *telegram.TgContext) error {
+func (m *Module) usernameCallbackPrivate(ctx *telegram.TgContext) error {
 	if !telegram.IsPrivate(ctx.Chat.Type) {
 		return ext.ContinueGroups
 	}

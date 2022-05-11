@@ -6,7 +6,7 @@ import (
 )
 
 func StrToInt(text string) int {
-	ret, err := strconv.Atoi(text)
+	var ret, err = strconv.Atoi(text)
 	if err != nil {
 		return 0
 	}
