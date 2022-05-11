@@ -6,12 +6,12 @@ import (
 )
 
 func (m *Module) usernameMetric(ctx *telegram.TgContext) error {
-	var getUser, err = m.App.DB.User.GetUserById(ctx.Message.From.Id)
+	getUser, err := m.App.DB.User.GetUserById(ctx.Message.From.Id)
 	if getUser != nil {
 		getUser.UserName = ctx.Message.From.Username
 		getUser.FirstName = ctx.Message.From.FirstName
 		getUser.LastName = ctx.Message.From.LastName
-		var err = m.App.DB.User.SaveUser(getUser)
+		err := m.App.DB.User.SaveUser(getUser)
 		if err != nil {
 			return err
 		}
@@ -19,7 +19,7 @@ func (m *Module) usernameMetric(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	var newUser = &models.User{
+	newUser := &models.User{
 		UserID:    ctx.Message.From.Id,
 		Gban:      false,
 		FirstName: ctx.Message.From.FirstName,
@@ -36,12 +36,12 @@ func (m *Module) usernameMetric(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) chatMetric(ctx *telegram.TgContext) error {
-	var getChat, err = m.App.DB.Chat.GetChatById(ctx.Chat.Id)
+	getChat, err := m.App.DB.Chat.GetChatById(ctx.Chat.Id)
 	if getChat != nil {
 		getChat.ChatTitle = ctx.Chat.Title
 		getChat.ChatType = ctx.Chat.Type
 		getChat.ChatLink = ctx.Chat.InviteLink
-		var err = m.App.DB.Chat.SaveChat(getChat)
+		err := m.App.DB.Chat.SaveChat(getChat)
 		if err != nil {
 			return err
 		}
@@ -49,7 +49,7 @@ func (m *Module) chatMetric(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	var newChat = &models.Chat{
+	newChat := &models.Chat{
 		ChatID:    ctx.Chat.Id,
 		ChatType:  ctx.Chat.Type,
 		ChatLink:  ctx.Chat.InviteLink,
@@ -66,12 +66,12 @@ func (m *Module) chatMetric(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) preferenceMetric(ctx *telegram.TgContext) error {
-	var getPref, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	getPref, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil {
 		return telegram.ContinueOrder
 	}
 
-	var newPref = &models.Preference{
+	newPref := &models.Preference{
 		PreferenceID:         ctx.Chat.Id,
 		EnforcePicture:       true,
 		EnforceUsername:      true,

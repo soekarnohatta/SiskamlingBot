@@ -9,26 +9,26 @@ import (
 )
 
 func (m *Module) antispam(ctx *telegram.TgContext) error {
-	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	getPref, _ := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforceAntispam {
 		return telegram.ContinueOrder
 	}
 
-	var user = ctx.User
+	user := ctx.User
 	if !m.IsBan(user.Id) {
 		return telegram.ContinueOrder
 	}
 
-	var banChan = make(chan bool, 1)
+	banChan := make(chan bool, 1)
 	go func() { banChan <- ctx.BanChatMember(0, 0) }()
 
-	var dataMap = map[string]string{
+	dataMap := map[string]string{
 		"1": telegram.MentionHtml(user.Id, user.FirstName),
 		"2": utils.Int64ToStr(user.Id),
 	}
 
-	var text, keyb = telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
-	var banLog = fmt.Sprintf(
+	text, keyb := telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
+	banLog := fmt.Sprintf(
 		"#BAN"+
 			"\n<b>User Name:</b> %s"+
 			"\n<b>User ID:</b> <code>%v</code>"+
@@ -52,7 +52,7 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(text, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
-		var err = m.App.DB.Pref.SavePreference(getPref)
+		err := m.App.DB.Pref.SavePreference(getPref)
 		if err != nil {
 			return err
 		}
@@ -80,13 +80,13 @@ func (m *Module) antispamSetting(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var prefs, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	prefs, err := m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if err != nil {
 		ctx.SendMessage("Error pas ngambil data, coba lagi.", 0)
 		return err
 	}
 
-	var extractArgs = utils.ExtractBool(ctx.Args()[0])
+	extractArgs := utils.ExtractBool(ctx.Args()[0])
 	prefs.EnforceAntispam = extractArgs
 	err = m.App.DB.Pref.SavePreference(prefs)
 	if err != nil {
