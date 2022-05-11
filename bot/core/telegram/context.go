@@ -11,22 +11,20 @@ import (
 )
 
 type TgContext struct {
-	Bot     *gotgbot.Bot
-	Context *ext.Context
+	haveRawArgs bool
+	Date        int64
+	CmdSegment  string
+	TimeInit    string
+	TimeProc    string
+	rawArgs     string
+	args        []string
 
+	Bot      *gotgbot.Bot
+	Context  *ext.Context
 	Message  *gotgbot.Message
 	Chat     *gotgbot.Chat
 	User     *gotgbot.User
 	Callback *gotgbot.CallbackQuery
-
-	CmdSegment string
-	Date       int64
-	TimeInit   string
-	TimeProc   string
-
-	args        []string
-	haveRawArgs bool
-	rawArgs     string
 	sync.Mutex
 }
 

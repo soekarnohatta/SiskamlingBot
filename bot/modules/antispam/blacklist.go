@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func (m Module) blacklist(ctx *telegram.TgContext) error {
+func (m *Module) blacklist(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
@@ -32,7 +32,7 @@ func (m Module) blacklist(ctx *telegram.TgContext) error {
 	return telegram.ContinueOrder
 }
 
-func (m Module) blacklistAdd(ctx *telegram.TgContext) error {
+func (m *Module) blacklistAdd(ctx *telegram.TgContext) error {
 	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}
@@ -52,7 +52,7 @@ func (m Module) blacklistAdd(ctx *telegram.TgContext) error {
 	return nil
 }
 
-func (m Module) blacklistRemove(ctx *telegram.TgContext) error {
+func (m *Module) blacklistRemove(ctx *telegram.TgContext) error {
 	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}

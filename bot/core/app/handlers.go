@@ -1,8 +1,6 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/core/telegram/types"
 	"errors"
 	"fmt"
 	"regexp"
@@ -12,29 +10,28 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 )
 
 func (b *MyApp) registerCommandUsingDispatcher() {
 	defer b.handlePanicSendLog(nil)
 	for _, cmd := range b.Commands {
-		b.Updater.Dispatcher.AddHandler(&handlers.Command{
-			Triggers:     []rune{'/', '!', ','},
-			AllowEdited:  true,
-			AllowChannel: false,
-			Command:      cmd.Trigger,
-			Response:     cmd.InvokeWithDispatcher,
-		})
+		b.Updater.Dispatcher.AddHandler(newCustomCommandHandler(cmd.Trigger, cmd.InvokeWithDispatcher))
 	}
 }
 
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
-	if !(ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update.EditedMessage != nil || ctx.Update != nil) {
+	defer b.handlePanicSendLog(ctx)
+	if ctx.EffectiveMessage == nil {
 		return ext.ContinueGroups
 	}
 
-	defer b.handlePanicSendLog(ctx)
 	var orderedGroup []types.Message
+
 	for _, y := range b.Messages {
 		orderedGroup = append(orderedGroup, y)
 	}
@@ -49,12 +46,15 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 			messages.Filter = message.All
 		}
 
-		if messages.Filter(ctx.Message) {
+		if messages.Filter(ctx.EffectiveMessage) {
 			if messages.Async == true {
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
 					defer wg.Done()
 					defer b.handlePanicSendLog(ctx)
+
+					// we use our own message handler, we process update manually so we can't use
+					// the error handling middleware provided from the library
 					err := messages.InvokeAsync(bot, ctx)
 					if errors.Is(err, telegram.EndOrder) {
 						return
@@ -66,6 +66,8 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 					}
 				}(&wg, bot, ctx)
 			} else {
+				// we use our own message handler, we process update manually so we can't use
+				// the error handling middleware provided from the library
 				err := messages.Invoke(bot, ctx)
 				if errors.Is(err, telegram.EndOrder) {
 					return nil
@@ -83,8 +85,8 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 }
 
 func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
+	defer b.handlePanicSendLog(ctx)
 	if ctx.CallbackQuery != nil || ctx.Update.CallbackQuery != nil {
-		defer b.handlePanicSendLog(ctx)
 		for _, callbacks := range b.Callbacks {
 			pattern, _ := regexp.Compile(callbacks.Callback)
 			if pattern.MatchString(ctx.CallbackQuery.Data) {
@@ -110,6 +112,25 @@ func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
 	}
 }
 
+func newCustomMessageHandler(f filters.Message, r handlers.Response) handlers.Message {
+	return handlers.Message{
+		AllowEdited:  true,
+		AllowChannel: false,
+		Filter:       f,
+		Response:     r,
+	}
+}
+
+func newCustomCommandHandler(cmd string, r handlers.Response) handlers.Command {
+	return handlers.Command{
+		Triggers:     []rune{'/', '!', ','},
+		AllowEdited:  true,
+		AllowChannel: false,
+		Command:      cmd,
+		Response:     r,
+	}
+}
+
 func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
@@ -121,7 +142,7 @@ func (b *MyApp) registerHandlers() {
 
 	// Message handlers
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.messageHandler), 2)
+	dsp.AddHandlerToGroup(newCustomMessageHandler(message.All, b.messageHandler), 2)
 
 	b.ErrorLog.Println("All handlers have been registered successfully!")
 }

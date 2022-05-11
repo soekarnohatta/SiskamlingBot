@@ -34,7 +34,6 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	conf := new(Config)
-
 	err := godotenv.Load("data/.env")
 	if err != nil {
 		log.Print("Using declared Env vars!")

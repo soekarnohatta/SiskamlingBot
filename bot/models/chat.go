@@ -18,15 +18,7 @@ type Chat struct {
 	ChatType  string `json:"chat_type" bson:"chat_type" `
 	ChatLink  string `json:"chat_link" bson:"chat_link" `
 	ChatTitle string `json:"chat_title" bson:"chat_title" `
-}
-
-func NewChat(ID int64, chatType, chatLink, chatTitle string) *Chat {
-	return &Chat{
-		ChatID:    ID,
-		ChatType:  chatType,
-		ChatLink:  chatLink,
-		ChatTitle: chatTitle,
-	}
+	ChatVIP   bool   `json:"chat_vip" bson:"chat_vip" `
 }
 
 func (m *ChatModel) GetChatById(Id int64) (*Chat, error) {

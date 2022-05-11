@@ -1,13 +1,14 @@
 package user
 
 import (
+	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
 	"fmt"
 	"sync"
 )
 
-func (m Module) antispam(ctx *telegram.TgContext) error {
+func (m *Module) antispam(ctx *telegram.TgContext) error {
 	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil && !getPref.EnforceAntispam {
 		return telegram.ContinueOrder
@@ -17,6 +18,9 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 	if !m.IsBan(user.Id) {
 		return telegram.ContinueOrder
 	}
+
+	var banChan = make(chan bool, 1)
+	go func() { banChan <- ctx.BanChatMember(0, 0) }()
 
 	var dataMap = map[string]string{
 		"1": telegram.MentionHtml(user.Id, user.FirstName),
@@ -44,7 +48,7 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 	wg.Add(1)
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 
-	if !ctx.BanChatMember(0, 0) {
+	if !<-banChan {
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
 		ctx.SendMessage(text, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
@@ -57,9 +61,39 @@ func (m Module) antispam(ctx *telegram.TgContext) error {
 	}
 
 	ctx.DeleteMessage(0)
-	ctx.SendMessage(banLog, m.App.Config.LogEvent)
 	ctx.SendMessageKeyboard(text, 0, keyb)
 	getPref.LastServiceMessageId = ctx.Message.MessageId
 	_ = m.App.DB.Pref.SavePreference(getPref)
+
+	ctx.SendMessage(banLog, m.App.Config.LogEvent)
 	return telegram.EndOrder
+}
+
+func (m *Module) antispamSetting(ctx *telegram.TgContext) error {
+	if !core.IsUserAdmin(ctx) {
+		ctx.SendMessage("Anda bukan admin!", 0)
+		return nil
+	}
+
+	if len(ctx.Args()) < 1 {
+		ctx.SendMessage("Masukan argumen true/false", 0)
+		return nil
+	}
+
+	var prefs, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	if err != nil {
+		ctx.SendMessage("Error pas ngambil data, coba lagi.", 0)
+		return err
+	}
+
+	var extractArgs = utils.ExtractBool(ctx.Args()[0])
+	prefs.EnforceAntispam = extractArgs
+	err = m.App.DB.Pref.SavePreference(prefs)
+	if err != nil {
+		ctx.SendMessage("Error pas masukin data, coba lagi.", 0)
+		return err
+	}
+
+	ctx.SendMessage(fmt.Sprintf("Pengaturan antispam diatur ke <code>%v</code> ", extractArgs), 0)
+	return nil
 }

@@ -1,8 +1,6 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram/types"
-	"SiskamlingBot/bot/utils"
 	"fmt"
 	"html"
 	"log"
@@ -13,12 +11,14 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/shirou/gopsutil/host"
+
+	"SiskamlingBot/bot/core/telegram/types"
+	"SiskamlingBot/bot/utils"
 )
 
 type MyApp struct {
 	Bot     *gotgbot.Bot
 	Updater ext.Updater
-	Context *ext.Context
 
 	Modules   map[string]Module
 	Commands  map[string]types.Command
@@ -33,9 +33,8 @@ type MyApp struct {
 
 func NewBot(config *Config) *MyApp {
 	return &MyApp{
-		Context:  nil,
 		Config:   config,
-		ErrorLog: log.New(os.Stderr, "[BOT]", log.LstdFlags),
+		ErrorLog: log.New(os.Stderr, "[BOT] ", log.LstdFlags),
 
 		Modules:   make(map[string]Module),
 		Commands:  make(map[string]types.Command),
@@ -141,7 +140,6 @@ func (b *MyApp) Run() error {
 	}
 
 	b.TimeStart = time.Now()
-	b.Updater.Idle()
 	return nil
 }
 

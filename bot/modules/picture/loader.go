@@ -17,10 +17,9 @@ func (*Module) Info() app.ModuleInfo {
 func (m *Module) Commands() []types.Command {
 	return []types.Command{
 		{
-			Name:        "setpicture",
-			Trigger:     "setpicture",
-			Description: "ping the bot.",
-			Func:        m.pictureSetting,
+			Name:    "setpicture",
+			Trigger: "setpicture",
+			Func:    m.pictureSetting,
 		},
 	}
 }
@@ -28,12 +27,11 @@ func (m *Module) Commands() []types.Command {
 func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
-			Name:        "PictureScanner",
-			Description: "Detect user without profile picture",
-			Filter:      telegram.ProfileAndGroupFilter(m.App.Bot),
-			Func:        m.pictureScan,
-			Order:       2,
-			Async:       false,
+			Name:   "PictureScanner",
+			Filter: telegram.ProfileAndGroupFilter(m.App.Bot),
+			Func:   m.pictureScan,
+			Order:  2,
+			Async:  false,
 		},
 	}
 }
@@ -41,16 +39,14 @@ func (m *Module) Messages() []types.Message {
 func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
-			Name:        "PictureCallbackGroup",
-			Description: "",
-			Callback:    `picture\((.+?)\)\((.+?)\)`,
-			Func:        m.pictureCallbackGroup,
+			Name:     "PictureCallbackGroup",
+			Callback: `picture\((.+?)\)\((.+?)\)`,
+			Func:     m.pictureCallbackGroup,
 		},
 		{
-			Name:        "PictureCallbackPrivate",
-			Description: "",
-			Callback:    `picture\((.+?)\)\((.+?)\)`,
-			Func:        m.pictureCallbackPrivate,
+			Name:     "PictureCallbackPrivate",
+			Callback: `picture\((.+?)\)\((.+?)\)`,
+			Func:     m.pictureCallbackPrivate,
 		},
 	}
 }

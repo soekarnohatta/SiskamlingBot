@@ -5,7 +5,7 @@ import (
 	"SiskamlingBot/bot/models"
 )
 
-func (m Module) usernameMetric(ctx *telegram.TgContext) error {
+func (m *Module) usernameMetric(ctx *telegram.TgContext) error {
 	var getUser, err = m.App.DB.User.GetUserById(ctx.Message.From.Id)
 	if getUser != nil {
 		getUser.UserName = ctx.Message.From.Username
@@ -19,13 +19,13 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	var newUser = models.NewUser(
-		ctx.Message.From.Id,
-		ctx.Message.From.FirstName,
-		ctx.Message.From.LastName,
-		ctx.Message.From.Username,
-		false,
-	)
+	var newUser = &models.User{
+		UserID:    ctx.Message.From.Id,
+		Gban:      false,
+		FirstName: ctx.Message.From.FirstName,
+		LastName:  ctx.Message.From.LastName,
+		UserName:  ctx.Message.From.Username,
+	}
 
 	err = m.App.DB.User.SaveUser(newUser)
 	if err != nil {
@@ -35,15 +35,29 @@ func (m Module) usernameMetric(ctx *telegram.TgContext) error {
 	return telegram.ContinueOrder
 }
 
-func (m Module) chatMetric(ctx *telegram.TgContext) error {
-	var newChat = models.NewChat(
-		ctx.Chat.Id,
-		ctx.Chat.Type,
-		ctx.Chat.InviteLink,
-		ctx.Chat.Title,
-	)
+func (m *Module) chatMetric(ctx *telegram.TgContext) error {
+	var getChat, err = m.App.DB.Chat.GetChatById(ctx.Chat.Id)
+	if getChat != nil {
+		getChat.ChatTitle = ctx.Chat.Title
+		getChat.ChatType = ctx.Chat.Type
+		getChat.ChatLink = ctx.Chat.InviteLink
+		var err = m.App.DB.Chat.SaveChat(getChat)
+		if err != nil {
+			return err
+		}
 
-	var err = m.App.DB.Chat.SaveChat(newChat)
+		return telegram.ContinueOrder
+	}
+
+	var newChat = &models.Chat{
+		ChatID:    ctx.Chat.Id,
+		ChatType:  ctx.Chat.Type,
+		ChatLink:  ctx.Chat.InviteLink,
+		ChatTitle: ctx.Chat.Title,
+		ChatVIP:   false,
+	}
+
+	err = m.App.DB.Chat.SaveChat(newChat)
 	if err != nil {
 		return err
 	}
@@ -51,13 +65,13 @@ func (m Module) chatMetric(ctx *telegram.TgContext) error {
 	return telegram.ContinueOrder
 }
 
-func (m Module) preferenceMetric(ctx *telegram.TgContext) error {
+func (m *Module) preferenceMetric(ctx *telegram.TgContext) error {
 	var getPref, err = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
 	if getPref != nil {
 		return telegram.ContinueOrder
 	}
 
-	var newPref = models.Preference{
+	var newPref = &models.Preference{
 		PreferenceID:         ctx.Chat.Id,
 		EnforcePicture:       true,
 		EnforceUsername:      true,
@@ -65,7 +79,7 @@ func (m Module) preferenceMetric(ctx *telegram.TgContext) error {
 		LastServiceMessageId: 1,
 	}
 
-	err = m.App.DB.Pref.SavePreference(&newPref)
+	err = m.App.DB.Pref.SavePreference(newPref)
 	if err != nil {
 		return err
 	}

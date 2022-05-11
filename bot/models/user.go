@@ -21,16 +21,6 @@ type User struct {
 	UserName  string `json:"user_username" bson:"user_username" `
 }
 
-func NewUser(userID int64, firstName, lastName, userName string, gban bool) *User {
-	return &User{
-		UserID:    userID,
-		Gban:      gban,
-		FirstName: firstName,
-		LastName:  lastName,
-		UserName:  userName,
-	}
-}
-
 func (u *UserModel) GetUserById(Id int64) (*User, error) {
 	var user *User
 	dat, err := u.MongoDB.Collection("user").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
