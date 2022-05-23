@@ -23,7 +23,10 @@ type User struct {
 
 func (u *UserModel) GetUserById(Id int64) (*User, error) {
 	var user *User
-	dat, err := u.MongoDB.Collection("user").FindOne(context.TODO(), bson.M{"user_id": Id}).DecodeBytes()
+	dat, err := u.MongoDB.
+		Collection("user").
+		FindOne(context.TODO(), bson.M{"user_id": Id}).
+		DecodeBytes()
 	if err != nil {
 		return nil, fmt.Errorf("GetUserByID: failed to retrieve data due to: %w", err)
 	}
@@ -36,7 +39,14 @@ func (u *UserModel) GetUserById(Id int64) (*User, error) {
 }
 
 func (u *UserModel) SaveUser(user *User) error {
-	_, err := u.MongoDB.Collection("user").UpdateOne(context.TODO(), bson.M{"user_id": user.UserID}, bson.D{{Key: "$set", Value: user}}, options.Update().SetUpsert(true))
+	_, err := u.MongoDB.
+		Collection("user").
+		UpdateOne(
+			context.TODO(),
+			bson.M{"user_id": user.UserID},
+			bson.D{{Key: "$set", Value: user}},
+			options.Update().SetUpsert(true),
+		)
 	if err != nil {
 		return fmt.Errorf("SaveUser: failed to save data due to: %w", err)
 	}

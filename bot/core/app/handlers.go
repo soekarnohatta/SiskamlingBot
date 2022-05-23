@@ -18,7 +18,6 @@ import (
 )
 
 func (b *MyApp) registerCommandUsingDispatcher() {
-	defer b.handlePanicSendLog(nil)
 	for _, cmd := range b.Commands {
 		b.Updater.Dispatcher.AddHandler(newCustomCommandHandler(cmd.Trigger, cmd.InvokeWithDispatcher))
 	}
@@ -49,25 +48,13 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		if messages.Filter(ctx.EffectiveMessage) {
 			if messages.Async == true {
 				wg.Add(1)
-				go func(wg *sync.WaitGroup, bot *gotgbot.Bot, ctx *ext.Context) {
+				go func(wg *sync.WaitGroup, handle types.Message, bot *gotgbot.Bot, ctx *ext.Context) {
 					defer wg.Done()
 					defer b.handlePanicSendLog(ctx)
-
-					// we use our own message handler, we process update manually so we can't use
-					// the error handling middleware provided from the library
-					err := messages.InvokeAsync(bot, ctx)
-					if errors.Is(err, telegram.EndOrder) {
-						return
-					} else if errors.Is(err, telegram.ContinueOrder) {
-						return
-					} else if err != nil {
-						b.SendLogMessage("Error Async Message Handler", err, ctx)
-						return
-					}
-				}(&wg, bot, ctx)
+					_ = handle.InvokeAsync(bot, ctx)
+				}(&wg, messages, bot, ctx)
+				continue
 			} else {
-				// we use our own message handler, we process update manually so we can't use
-				// the error handling middleware provided from the library
 				err := messages.Invoke(bot, ctx)
 				if errors.Is(err, telegram.EndOrder) {
 					return nil
@@ -79,8 +66,9 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 				}
 			}
 		}
-		wg.Wait()
 	}
+
+	wg.Wait()
 	return ext.ContinueGroups
 }
 
@@ -112,6 +100,22 @@ func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
 	}
 }
 
+func (b *MyApp) registerHandlers() {
+	dsp := b.Updater.Dispatcher
+
+	// Command message handlers
+	b.registerCommandUsingDispatcher()
+
+	// Callback handlers
+	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
+
+	// Message handlers
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
+	dsp.AddHandlerToGroup(newCustomMessageHandler(message.All, b.messageHandler), 2)
+
+	b.ErrorLog.Println("All handlers have been registered successfully!")
+}
+
 func newCustomMessageHandler(f filters.Message, r handlers.Response) handlers.Message {
 	return handlers.Message{
 		AllowEdited:  true,
@@ -129,20 +133,4 @@ func newCustomCommandHandler(cmd string, r handlers.Response) handlers.Command {
 		Command:      cmd,
 		Response:     r,
 	}
-}
-
-func (b *MyApp) registerHandlers() {
-	dsp := b.Updater.Dispatcher
-
-	// Command message handlers
-	b.registerCommandUsingDispatcher()
-
-	// Callback handlers
-	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
-
-	// Message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
-	dsp.AddHandlerToGroup(newCustomMessageHandler(message.All, b.messageHandler), 2)
-
-	b.ErrorLog.Println("All handlers have been registered successfully!")
 }

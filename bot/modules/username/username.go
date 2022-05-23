@@ -25,7 +25,7 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) error {
 	var rstrChan = make(chan bool, 1)
 	var untilDate = utils.ExtractTime("5m")
 
-	wg.Add(1)
+	wg.Add(4)
 	go func() { rstrChan <- ctx.RestrictMember(0, 0, untilDate) }()
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 
@@ -46,6 +46,7 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) error {
 		"3": ctx.Chat.Title,
 	}
 
+	var toDelete = ctx.Message.MessageId
 	var txtGroup, keybGroup = telegram.CreateMenuKeyboardf("./data/menu/username_group.json", 1, dataGroup, dataButton)
 	var txtPrivate, keybPrivate = telegram.CreateMenuKeyboardf("./data/menu/username_private.json", 1, dataPrivate, dataButton)
 	var txtLog = fmt.Sprintf(
@@ -74,13 +75,13 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	ctx.DeleteMessage(0)
 	ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
 	getPref.LastServiceMessageId = ctx.Message.MessageId
 	var _ = m.App.DB.Pref.SavePreference(getPref)
 
-	ctx.SendMessageKeyboard(txtPrivate, ctx.User.Id, keybPrivate)
-	ctx.SendMessage(txtLog, m.App.Config.LogEvent)
+	go func() { defer wg.Done(); ctx.DeleteMessage(toDelete) }()
+	go func() { defer wg.Done(); ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate) }()
+	go func() { defer wg.Done(); ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil) }()
 	return telegram.EndOrder
 }
 

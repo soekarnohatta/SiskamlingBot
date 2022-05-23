@@ -23,7 +23,10 @@ type Chat struct {
 
 func (m *ChatModel) GetChatById(Id int64) (*Chat, error) {
 	var chat *Chat
-	dat, err := m.MongoDB.Collection("chat").FindOne(context.TODO(), bson.M{"chat_id": Id}).DecodeBytes()
+	dat, err := m.MongoDB.
+		Collection("chat").
+		FindOne(context.TODO(), bson.M{"chat_id": Id}).
+		DecodeBytes()
 	if err != nil {
 		return nil, fmt.Errorf("GetChatByID: failed to retrieve data due to: %w", err)
 	}
@@ -36,7 +39,14 @@ func (m *ChatModel) GetChatById(Id int64) (*Chat, error) {
 }
 
 func (m *ChatModel) SaveChat(chat *Chat) error {
-	_, err := m.MongoDB.Collection("chat").UpdateOne(context.TODO(), bson.M{"chat_id": chat.ChatID}, bson.D{{Key: "$set", Value: chat}}, options.Update().SetUpsert(true))
+	_, err := m.MongoDB.
+		Collection("chat").
+		UpdateOne(
+			context.TODO(),
+			bson.M{"chat_id": chat.ChatID},
+			bson.D{{Key: "$set", Value: chat}},
+			options.Update().SetUpsert(true),
+		)
 	if err != nil {
 		return fmt.Errorf("SaveChat: failed to save data due to: %w", err)
 	}
@@ -44,7 +54,9 @@ func (m *ChatModel) SaveChat(chat *Chat) error {
 }
 
 func (m *ChatModel) DeleteChatById(Id int64) error {
-	_, err := m.MongoDB.Collection("chat").DeleteOne(context.TODO(), bson.M{"chat_id": Id})
+	_, err := m.MongoDB.
+		Collection("chat").
+		DeleteOne(context.TODO(), bson.M{"chat_id": Id})
 	if err != nil {
 		return fmt.Errorf("DeleteChatByID: failed to save data due to: %w", err)
 	}

@@ -15,7 +15,6 @@ type TgContext struct {
 	Date        int64
 	CmdSegment  string
 	TimeInit    string
-	TimeProc    string
 	rawArgs     string
 	args        []string
 
@@ -25,6 +24,7 @@ type TgContext struct {
 	Chat     *gotgbot.Chat
 	User     *gotgbot.User
 	Callback *gotgbot.CallbackQuery
+
 	sync.Mutex
 }
 

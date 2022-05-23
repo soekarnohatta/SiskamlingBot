@@ -57,6 +57,34 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	c.Message = msg
 }
 
+func (c *TgContext) SendMessageAsync(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {
+	if text == "" {
+		text = "Bad Request: No text supplied!"
+	}
+
+	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
+	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+	msgOpt := &gotgbot.SendMessageOpts{
+		ParseMode:             "HTML",
+		ReplyMarkup:           gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
+		DisableWebPagePreview: true,
+	}
+
+	if chatID != 0 {
+		_, err := c.Bot.SendMessage(chatID, text, msgOpt)
+		if err != nil {
+			return
+		}
+
+		return
+	}
+
+	_, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
+	if err != nil {
+		return
+	}
+}
+
 func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
@@ -159,6 +187,8 @@ func (c *TgContext) EditMessage(text string) {
 }
 
 func (c *TgContext) DeleteMessage(msgId int64) {
+	toDelete := c.Message.MessageId
+
 	if msgId != 0 {
 		_, err := c.Bot.DeleteMessage(c.Chat.Id, msgId, nil)
 		if err != nil {
@@ -167,7 +197,7 @@ func (c *TgContext) DeleteMessage(msgId int64) {
 		return
 	}
 
-	_, err := c.Bot.DeleteMessage(c.Chat.Id, c.Context.EffectiveMessage.MessageId, nil)
+	_, err := c.Bot.DeleteMessage(c.Chat.Id, toDelete, nil)
 	if err != nil {
 		return
 	}

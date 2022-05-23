@@ -24,6 +24,7 @@ func (m *Module) antiarab(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
+	var toDelete = ctx.Message.MessageId
 	var text = fmt.Sprintf(
 		"⚠ <b>%v</b> [<code>%v</code>] telah dihapus pesannya karena mengirim/menggunakan "+
 			"karakter <b>Arabic</b>. Silahkan gunakan karakter lain.",
@@ -48,29 +49,15 @@ func (m *Module) antiarab(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
-	wg.Add(1)
+	wg.Add(3)
 	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
 
-	/*
-		if !ctx.BanChatMember(0, 0) {
-			text += "\n\n🚫 <b>Tetapi saya tidak bisa menmbisukannya, mohon periksa kembali perizinan saya!</b>"
-			ctx.SendMessage(text, 0)
-			getPref.LastServiceMessageId = ctx.Message.MessageId
-			var err = m.App.DB.Pref.SavePreference(getPref)
-			if err != nil {
-				return err
-			}
-
-			return telegram.EndOrder
-		}
-	*/
-
-	ctx.DeleteMessage(0)
 	ctx.SendMessage(text, 0)
 	getPref.LastServiceMessageId = ctx.Message.MessageId
 	_ = m.App.DB.Pref.SavePreference(getPref)
 
-	ctx.SendMessage(banLog, m.App.Config.LogEvent)
+	go func() { defer wg.Done(); ctx.DeleteMessage(toDelete) }()
+	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
 	return telegram.EndOrder
 }
 

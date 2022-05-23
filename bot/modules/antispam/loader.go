@@ -73,7 +73,7 @@ func (m *Module) Messages() []types.Message {
 			Filter: telegram.GroupFilter,
 			Func:   m.antispam,
 			Order:  1,
-			Async:  false,
+			Async:  true,
 		},
 		{
 			Name:   "antiarab",
