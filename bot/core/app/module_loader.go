@@ -3,7 +3,6 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram/types"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -33,7 +32,7 @@ func (b *MyApp) registerCommands(mod Module) error {
 
 		err := b.registerCommand(cmd)
 		if err != nil {
-			return err
+			return fmt.Errorf("registerCallbacks: failed to register new command %s with error: %w", cmd.Name, err)
 		}
 	}
 
@@ -58,7 +57,7 @@ func (b *MyApp) registerMessages(mod Module) error {
 
 		err := b.registerMessage(cmd)
 		if err != nil {
-			return err
+			return fmt.Errorf("registerMessages: failed to register new message %s with error: %w", cmd.Name, err)
 		}
 	}
 
@@ -83,7 +82,7 @@ func (b *MyApp) registerCallbacks(mod Module) error {
 
 		err := b.registerCallback(cmd)
 		if err != nil {
-			return err
+			return fmt.Errorf("registerCallbacks: failed to register new callback %s with error: %w", cmd.Name, err)
 		}
 	}
 
@@ -93,36 +92,37 @@ func (b *MyApp) registerCallbacks(mod Module) error {
 func (b *MyApp) loadModule(name string, cstr ModuleConstructor) error {
 	mod, err := cstr(b)
 	if err != nil {
-		return err
+		return fmt.Errorf("loadModule: failed to construct new module with error: %w", err)
 	}
 
 	b.Modules[name] = mod
 
 	err = b.registerCommands(mod)
 	if err != nil {
-		return err
+		return fmt.Errorf("loadModule: failed to register new command with error: %w", err)
 	}
 
 	err = b.registerMessages(mod)
 	if err != nil {
-		return err
+		return fmt.Errorf("loadModule: failed to register new message with error: %w", err)
 	}
 
 	err = b.registerCallbacks(mod)
 	if err != nil {
-		return err
+		return fmt.Errorf("loadModule: failed to register new callback with error: %w", err)
 	}
 
 	return nil
 }
 
-func (b *MyApp) loadModules() {
+func (b *MyApp) loadModules() error {
 	for name, cstr := range Modules {
 		err := b.loadModule(name, cstr)
 		if err != nil {
-			log.Fatalf("load module '%s': %v", name, err.Error())
+			return fmt.Errorf("loadModules: failed to load module %s with error: %w", name, err)
 		}
 	}
 
-	log.Println("Loaded All Modules!")
+	b.ErrorLog.Println("Loaded All Modules!")
+	return nil
 }

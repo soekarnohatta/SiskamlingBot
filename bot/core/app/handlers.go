@@ -1,142 +1,136 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/core/telegram/types"
+	"errors"
+	"fmt"
 	"regexp"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 )
 
-/*
- * Group 0: command messages
- */
-
-func (b *MyApp) captionCmdHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
-	ctx.Message.Text = ctx.Message.Caption
-	return ext.ContinueGroups
+func (b *MyApp) registerCommandUsingDispatcher() {
+	for _, cmd := range b.Commands {
+		b.Updater.Dispatcher.AddHandler(newCustomCommandHandler(cmd.Trigger, cmd.InvokeWithDispatcher))
+	}
 }
 
-func (b *MyApp) textCmdHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	text := ctx.EffectiveMessage.Text
-	if ctx.Message.Caption != "" {
-		text = ctx.Message.Caption
-	}
-
-	var cmd string
-	split := strings.Split(strings.ToLower(strings.Fields(text)[0]), "@")
-	if len(split) > 1 && strings.ToLower(bot.User.Username) != split[1] {
+func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
+	defer b.handlePanicSendLog(ctx)
+	if ctx.EffectiveMessage == nil {
 		return ext.ContinueGroups
 	}
 
-	cmd = split[0][1:]
-	if command, ok := b.Commands[cmd]; ok {
-		command.Invoke(bot, ctx, cmd)
+	var orderedGroup []types.Message
+
+	for _, y := range b.Messages {
+		orderedGroup = append(orderedGroup, y)
 	}
 
-	return ext.ContinueGroups
-}
+	sort.SliceStable(orderedGroup, func(i, j int) bool {
+		return orderedGroup[i].Order < orderedGroup[j].Order
+	})
 
-/*
- * Group 1: message listener
- */
-
-func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	if ctx.Message.NewChatMembers != nil || ctx.Message != nil || ctx.Update != nil {
-		var wg sync.WaitGroup
-		var orderedGroup []types.Message
-
-		for _, z := range b.Modules {
-			for _, y := range z.Messages() {
-				orderedGroup = append(orderedGroup, y)
-			}
+	var wg sync.WaitGroup
+	for _, messages := range orderedGroup {
+		if messages.Filter == nil {
+			messages.Filter = message.All
 		}
 
-		sort.SliceStable(orderedGroup, func(i, j int) bool {
-			return orderedGroup[i].Order < orderedGroup[j].Order
-		})
-
-		for _, messages := range orderedGroup {
-			if messages.Filter == nil {
-				messages.Filter = message.All
-			}
-
-			if messages.Filter(ctx.Message) {
-				if messages.Async == true {
-					wg.Add(1)
-					go messages.InvokeAsync(&wg, bot, ctx)
-				} else {
-					messages.Invoke(bot, ctx)
+		if messages.Filter(ctx.EffectiveMessage) {
+			if messages.Async == true {
+				wg.Add(1)
+				go func(wg *sync.WaitGroup, handle types.Message, bot *gotgbot.Bot, ctx *ext.Context) {
+					defer wg.Done()
+					defer b.handlePanicSendLog(ctx)
+					_ = handle.InvokeAsync(bot, ctx)
+				}(&wg, messages, bot, ctx)
+				continue
+			} else {
+				err := messages.Invoke(bot, ctx)
+				if errors.Is(err, telegram.EndOrder) {
+					return nil
+				} else if errors.Is(err, telegram.ContinueOrder) || err.Error() == telegram.ContinueOrder.Error() {
+					continue
+				} else if err != nil {
+					b.SendLogMessage("Error Message Handler", err, ctx)
+					continue
 				}
 			}
 		}
-
-		wg.Wait()
-		return ext.ContinueGroups
 	}
 
+	wg.Wait()
 	return ext.ContinueGroups
 }
 
-/*
- * Group 2: callback listener
- */
-
-func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
+func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
+	defer b.handlePanicSendLog(ctx)
 	if ctx.CallbackQuery != nil || ctx.Update.CallbackQuery != nil {
 		for _, callbacks := range b.Callbacks {
 			pattern, _ := regexp.Compile(callbacks.Callback)
 			if pattern.MatchString(ctx.CallbackQuery.Data) {
-				callbacks.Invoke(bot, ctx)
+				err := callbacks.Invoke(bot, ctx)
+				if errors.Is(err, telegram.EndOrder) {
+					return nil
+				} else if errors.Is(err, telegram.ContinueOrder) ||
+					(err != nil && err.Error() == telegram.ContinueOrder.Error()) {
+					continue
+				} else if err != nil {
+					b.SendLogMessage("Error Callback Handler", err, ctx)
+					continue
+				}
 			}
 		}
-		return ext.ContinueGroups
 	}
 	return ext.ContinueGroups
 }
 
-/*
- * Group -10: bot misc
- */
-
-func (b *MyApp) welcomeHandler(bot *gotgbot.Bot, ctx *ext.Context) (ret error) {
-	if ctx.Message.NewChatMembers != nil {
-		for _, user := range ctx.Message.NewChatMembers {
-			if user.Id == b.Bot.User.Id {
-				dataMap := map[string]string{"1": b.Bot.User.FirstName, "2": b.Config.BotVer, "3": "Unknown", "uname": b.Bot.User.Username}
-				text, keyb := telegram.CreateMenuf("./data/menu/start.json", 2, dataMap)
-				sendOpt := &gotgbot.SendMessageOpts{
-					ParseMode:   "HTML",
-					ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
-				}
-				_, _ = bot.SendMessage(ctx.Message.Chat.Id, text, sendOpt)
-			}
-		}
-		return ext.ContinueGroups
+func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
+	if r := recover(); r != nil {
+		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r), ctx)
 	}
-	return ext.ContinueGroups
 }
 
 func (b *MyApp) registerHandlers() {
 	dsp := b.Updater.Dispatcher
 
 	// Command message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.Caption, b.captionCmdHandler), 0)
-	dsp.AddHandlerToGroup(handlers.NewMessage(telegram.TextCmdPredicate, b.textCmdHandler), 0)
+	b.registerCommandUsingDispatcher()
 
 	// Callback handlers
 	dsp.AddHandlerToGroup(handlers.NewCallback(telegram.AllCallbackFilter, b.callbackHandler), 1)
 
-	// Other handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.welcomeHandler), 2)
-
 	// Message handlers
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 3)
-	dsp.AddHandlerToGroup(handlers.NewMessage(message.All, b.messageHandler), 3)
+	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
+	dsp.AddHandlerToGroup(newCustomMessageHandler(message.All, b.messageHandler), 2)
+
+	b.ErrorLog.Println("All handlers have been registered successfully!")
+}
+
+func newCustomMessageHandler(f filters.Message, r handlers.Response) handlers.Message {
+	return handlers.Message{
+		AllowEdited:  true,
+		AllowChannel: false,
+		Filter:       f,
+		Response:     r,
+	}
+}
+
+func newCustomCommandHandler(cmd string, r handlers.Response) handlers.Command {
+	return handlers.Command{
+		Triggers:     []rune{'/', '!', ','},
+		AllowEdited:  true,
+		AllowChannel: false,
+		Command:      cmd,
+		Response:     r,
+	}
 }

@@ -6,54 +6,58 @@ import (
 	"SiskamlingBot/bot/core/telegram/types"
 )
 
-// Module contains the state for an instance of this module.
 type Module struct {
 	App *app.MyApp
 }
 
-// Info returns basic information about this module.
-func (m Module) Info() app.ModuleInfo {
-	return app.ModuleInfo{
-		Name: "Picture",
+func (*Module) Info() app.ModuleInfo {
+	return app.ModuleInfo{Name: "Picture"}
+}
+
+func (m *Module) Commands() []types.Command {
+	return []types.Command{
+		{
+			Name:    "setpicture",
+			Trigger: "setpicture",
+			Func:    m.pictureSetting,
+		},
 	}
 }
 
-// Commands returns a list of telegram provided by this module.
-func (m Module) Commands() []types.Command {
-	return []types.Command{}
-}
-
-func (m Module) Messages() []types.Message {
+func (m *Module) Messages() []types.Message {
 	return []types.Message{
 		{
-			Name:        "PictureScanner",
-			Description: "Detect user without profile picture",
-			Filter:      telegram.ProfileAndGroupFilter(m.App.Bot),
-			Func:        m.pictureScan,
-			Order:       1,
-			Async:       false,
+			Name:   "PictureScanner",
+			Filter: telegram.ProfileAndGroupFilter(m.App.Bot),
+			Func:   m.pictureScan,
+			Order:  2,
+			Async:  false,
 		},
 	}
 }
 
-func (m Module) Callbacks() []types.Callback {
+func (m *Module) Callbacks() []types.Callback {
 	return []types.Callback{
 		{
-			Name:        "PictureCallback",
-			Description: "",
-			Callback:    `picture\((.+?)\)`,
-			Func:        m.pictureCallback,
+			Name:     "PictureCallbackGroup",
+			Callback: `picture\((.+?)\)\((.+?)\)`,
+			Func:     m.pictureCallbackGroup,
+		},
+		{
+			Name:     "PictureCallbackPrivate",
+			Callback: `picture\((.+?)\)\((.+?)\)`,
+			Func:     m.pictureCallbackPrivate,
 		},
 	}
 }
 
-// NewModule returns a new instance of this module.
 func NewModule(bot *app.MyApp) (app.Module, error) {
-	return &Module{
-		App: bot,
-	}, nil
+	return &Module{App: bot}, nil
 }
 
 func init() {
-	app.RegisterModule("Picture", NewModule)
+	err := app.RegisterModule("Picture", NewModule)
+	if err != nil {
+		panic(err)
+	}
 }

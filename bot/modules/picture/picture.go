@@ -1,104 +1,173 @@
 package picture
 
 import (
-	"fmt"
-	"log"
-	"regexp"
-	"strconv"
-	"sync"
-
 	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/utils"
+	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"regexp"
+	"sync"
 )
 
-const (
-	picLog = `#PICTURE
-<b>User Name:</b> %s
-<b>User ID:</b> <code>%v</code>
-<b>Chat Name:</b> %s
-<b>Chat ID:</b> <code>%v</code>
-<b>Link:</b> %s`
-
-	picMsg = "⚠ <b>%v</b> [<code>%v</code>] telah dibisukan karena belum memasang <b>Foto Profil!</b>"
-)
-
-func (m Module) pictureScan(ctx *telegram.TgContext) {
-	// if core.IsUserRestricted(ctx) {
-	// 	 return
-	// }
-
-	newPicture := models.NewPicture(ctx.User.Id, ctx.Chat.Id, true)
-	models.SavePicture(m.App.DB, newPicture)
-
-	if !ctx.RestrictMember(0, 0) {
-		unavailable := picMsg + "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
-		textToSend := fmt.Sprintf(unavailable, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-		ctx.SendMessage(textToSend, 0)
-		return
+func (m *Module) pictureScan(ctx *telegram.TgContext) error {
+	var getPref, _ = m.App.DB.Pref.GetPreferenceById(ctx.Chat.Id)
+	if getPref != nil && !getPref.EnforcePicture {
+		return telegram.ContinueOrder
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(3)
+	//if core.IsUserRestricted(ctx) {
+	//	return telegram.ContinueOrder
+	//}
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(0) }()
-	go func() {
-		defer wg.Done()
-		textToSend := fmt.Sprintf(picMsg, telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName), ctx.User.Id)
-		ctx.SendMessageKeyboard(textToSend, 0, telegram.BuildKeyboardf("./data/keyboard/picture.json", 1, map[string]string{"1": strconv.Itoa(int(ctx.User.Id))}))
-	}()
-	go func() {
-		defer wg.Done()
-		textToSend := fmt.Sprintf(picLog,
-			telegram.MentionHtml(int(ctx.User.Id), ctx.User.FirstName),
-			ctx.User.Id,
-			ctx.Chat.Title,
-			ctx.Chat.Id,
-			telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
-		)
-		ctx.SendMessage(textToSend, m.App.Config.LogEvent)
-	}()
-	wg.Wait()
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	var rstrChan = make(chan bool, 1)
+	var untilDate = utils.ExtractTime("5m")
+	wg.Add(4)
+
+	go func() { rstrChan <- ctx.RestrictMember(0, 0, untilDate) }()
+	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+
+	var dataButton = map[string]string{
+		"1": utils.Int64ToStr(ctx.User.Id),
+		"2": utils.Int64ToStr(ctx.Chat.Id),
+	}
+
+	var dataGroup = map[string]string{
+		"1": telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
+		"2": utils.Int64ToStr(ctx.User.Id),
+		"3": utils.IntToStr(0),
+	}
+
+	var dataPrivate = map[string]string{
+		"1": telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
+		"2": utils.Int64ToStr(ctx.User.Id),
+		"3": ctx.Chat.Title,
+	}
+
+	var toDelete = ctx.Message.MessageId
+	var txtGroup, keybGroup = telegram.CreateMenuKeyboardf("./data/menu/picture_group.json", 1, dataGroup, dataButton)
+	var txtPrivate, keybPrivate = telegram.CreateMenuKeyboardf("./data/menu/picture_private.json", 1, dataPrivate, dataButton)
+	var txtLog = fmt.Sprintf(
+		"#PICTURE"+
+			"\n<b>User Name:</b> %s"+
+			"\n<b>User ID:</b> <code>%v</code>"+
+			"\n<b>Chat Name:</b> %s"+
+			"\n<b>Chat ID:</b> <code>%v</code>"+
+			"\n<b>Link:</b> %s",
+		telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
+		ctx.User.Id,
+		ctx.Chat.Title,
+		ctx.Chat.Id,
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+	)
+
+	if !<-rstrChan {
+		txtGroup += "\n\n🚫 <b>Tetapi saya tidak bisa membisukannya, mohon periksa kembali perizinan saya!</b>"
+		ctx.SendMessage(txtGroup, 0)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+
+		var err = m.App.DB.Pref.SavePreference(getPref)
+		if err != nil {
+			return err
+		}
+		return telegram.EndOrder
+	}
+
+	ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
+	getPref.LastServiceMessageId = ctx.Message.MessageId
+	var _ = m.App.DB.Pref.SavePreference(getPref)
+
+	go func() { defer wg.Done(); ctx.DeleteMessage(toDelete) }()
+	go func() { defer wg.Done(); ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate) }()
+	go func() { defer wg.Done(); ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil) }()
+	return telegram.EndOrder
 }
 
-func (m Module) pictureCallback(ctx *telegram.TgContext) {
-	pattern, _ := regexp.Compile(`picture\((.+?)\)`)
-	if !(pattern.FindStringSubmatch(ctx.Callback.Data)[1] == strconv.Itoa(int(ctx.Callback.From.Id))) {
-		getPicture := models.GetPictureByID(m.App.DB, ctx.Callback.From.Id)
-		if getPicture != nil && getPicture.ChatID == ctx.Callback.Message.Chat.Id {
-			if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
-				if err != nil {
-					log.Print("failed to get pictures: " + err.Error())
-					return
-				}
+func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
+	if telegram.IsPrivate(ctx.Chat.Type) {
+		return ext.ContinueGroups
+	}
 
-				ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
-				return
+	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
+	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
+	// var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
+
+	if !(userId == ctx.Callback.From.Id) {
+		if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
+			if err != nil {
+				ctx.AnswerCallback("Terjadi Kesalahan, Silahkan Coba Lagi", true)
+				return err
 			}
 
-			models.DeletePictureByID(m.App.DB, ctx.Callback.From.Id)
-
-			ctx.UnRestrictMember(0)
-			ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
-			return
+			ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
+			return nil
 		}
 
-		ctx.AnswerCallback("❌ ANDA BUKAN PENGGUNA YANG DIMAKSUD!", true)
-		return
+		ctx.UnRestrictMember(0, 0)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
+		return nil
 	}
 
 	if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
 		if err != nil {
-			log.Print("failed to get pictures: " + err.Error())
-			return
+			ctx.AnswerCallback("Terjadi Kesalahan, Silahkan Coba Lagi", true)
+			return err
 		}
 
 		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
-		return
+		return nil
+	} else if ctx.User.Username == "" {
+		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
+		return nil
+	} else if ctx.User.Username != "" {
+		ctx.UnRestrictMember(0, 0)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+		ctx.DeleteMessage(0)
+		return nil
 	}
 
-	models.DeletePictureByID(m.App.DB, ctx.Callback.From.Id)
-
-	ctx.UnRestrictMember(0)
+	ctx.UnRestrictMember(0, 0)
 	ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
 	ctx.DeleteMessage(0)
+	return telegram.ContinueOrder
+}
+
+func (m Module) pictureCallbackPrivate(ctx *telegram.TgContext) error {
+	if !telegram.IsPrivate(ctx.Chat.Type) {
+		return ext.ContinueGroups
+	}
+
+	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
+	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
+	var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
+
+	if !(userId == ctx.Callback.From.Id) {
+		ctx.AnswerCallback("Anda dilarang menggunakan tombol ini!", true)
+		return nil
+	}
+
+	if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {
+		if err != nil {
+			ctx.AnswerCallback("Terjadi Kesalahan, Silahkan Coba Lagi", true)
+			return err
+		}
+
+		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG FOTO PROFIL", true)
+		return nil
+	} else if ctx.User.Username == "" {
+		ctx.AnswerCallback("❌ ANDA BELUM MEMASANG USERNAME", true)
+		return nil
+	} else if ctx.User.Username != "" {
+		ctx.UnRestrictMember(userId, chatId)
+		ctx.AnswerCallback("✅ Terimakasih telah memasang Username", true)
+		ctx.DeleteMessage(0)
+		return nil
+	}
+
+	ctx.UnRestrictMember(userId, chatId)
+	ctx.AnswerCallback("✅ Terimakasih telah memasang Foto Profil", true)
+	ctx.DeleteMessage(0)
+	return telegram.ContinueOrder
 }

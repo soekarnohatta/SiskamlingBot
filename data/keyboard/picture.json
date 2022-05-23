@@ -1,10 +1,6 @@
 [
   {
-    "text": "Cara Pasang Foto Profil",
-    "data": "https://t.me/KrangganDevelopment/10"
-  },
-  {
-    "text": "✅ Saya Sdh Pasang Foto ✅ ",
-    "data": "picture({1})"
+    "text": "Verifikasi",
+    "data": "picture({1})({2})"
   }
 ]

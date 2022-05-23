@@ -1,5 +1,5 @@
 {
-    "callback": "spam(",
-    "keyboard": "data/keyboard/spam.json",
-    "text": "🚷 <b>{1}</b> [<code>{2}</code>] telah dikeluarkan karena merupakan <b>Orang Terlarang!</b>"
-  }
+  "callback": "spam(",
+  "keyboard": "data/keyboard/spam.json",
+  "text": "🚷 <b>{1}</b> [<code>{2}</code>] telah dikeluarkan karena merupakan <b>Orang Terlarang!</b>"
+}

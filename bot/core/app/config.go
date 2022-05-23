@@ -2,6 +2,7 @@ package app
 
 import (
 	"SiskamlingBot/bot/utils"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -31,9 +32,8 @@ type Config struct {
 	SWToken       string  `env:"SWTOKEN,required"`
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	conf := new(Config)
-
 	err := godotenv.Load("data/.env")
 	if err != nil {
 		log.Print("Using declared Env vars!")
@@ -68,15 +68,13 @@ func NewConfig() *Config {
 		conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
 		conf.SWToken = os.Getenv("SWTOKEN")
 
-		return conf
+		return conf, nil
 	}
 
 	err = env.Parse(conf)
 	if err != nil {
-		log.Fatal(err.Error())
-		return nil
+		return nil, fmt.Errorf("NewConfig: failed to parse new env config with error: %w", err)
 	}
 
-	log.Print("Configurations have been parsed succesfully!")
-	return conf
+	return conf, nil
 }

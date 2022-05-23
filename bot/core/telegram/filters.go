@@ -1,8 +1,6 @@
 package telegram
 
 import (
-	"regexp"
-
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
@@ -12,6 +10,10 @@ func UsernameFilter(msg *gotgbot.Message) bool {
 
 func UsernameAndGroupFilter(msg *gotgbot.Message) bool {
 	return UsernameFilter(msg) && IsGroup(msg.Chat.Type)
+}
+
+func GroupFilter(msg *gotgbot.Message) bool {
+	return IsGroup(msg.Chat.Type)
 }
 
 func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
@@ -29,17 +31,6 @@ func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
 	}
 }
 
-func TextCmdPredicate(m *gotgbot.Message) bool {
-	return m.Text != "" && m.Text[0] == '/'
-}
-
 func AllCallbackFilter(_ *gotgbot.CallbackQuery) bool {
 	return true
-}
-
-func CallbackRegexFilter(expr string) func(cq *gotgbot.CallbackQuery) bool {
-	return func(cq *gotgbot.CallbackQuery) bool {
-		pattern, _ := regexp.Compile(expr)
-		return pattern.MatchString(cq.Data)
-	}
 }

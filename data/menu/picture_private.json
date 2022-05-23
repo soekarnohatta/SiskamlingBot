@@ -1,0 +1,5 @@
+{
+  "callback": "picture(",
+  "keyboard": "data/keyboard/picture.json",
+  "text": "\uD83D\uDEAB <b>{1}</b> [<code>{2}</code>] telah dibisukan di <b>{3}</b> karena belum memasang foto profil. Silahkan tekan tombol verifikasi jika sudah memasang. <a href=\"https://t.me/SwatzDevelopmentChannel/10\">(?)</a>"
+}

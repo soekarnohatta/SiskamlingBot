@@ -1,33 +1,40 @@
 package app
 
 import (
-	"SiskamlingBot/bot/core/telegram/types"
+	"fmt"
+	"html"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/shirou/gopsutil/host"
+
+	"SiskamlingBot/bot/core/telegram/types"
+	"SiskamlingBot/bot/utils"
 )
 
 type MyApp struct {
 	Bot     *gotgbot.Bot
 	Updater ext.Updater
-	Context *ext.Context
 
 	Modules   map[string]Module
 	Commands  map[string]types.Command
 	Messages  map[string]types.Message
 	Callbacks map[string]types.Callback
 
-	Config *Config
-	DB     *mongo.Database
+	Config    *Config
+	DB        MongoDB
+	ErrorLog  *log.Logger
+	TimeStart time.Time
 }
 
 func NewBot(config *Config) *MyApp {
 	return &MyApp{
-		Context: nil,
-		Config:  config,
+		Config:   config,
+		ErrorLog: log.New(os.Stderr, "[BOT] ", log.LstdFlags),
 
 		Modules:   make(map[string]Module),
 		Commands:  make(map[string]types.Command),
@@ -61,7 +68,7 @@ func (b *MyApp) startWebhook() error {
 		return err
 	}
 
-	log.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
+	b.ErrorLog.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -76,7 +83,7 @@ func (b *MyApp) startPolling() error {
 		return err
 	}
 
-	log.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
+	b.ErrorLog.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -88,26 +95,95 @@ func (b *MyApp) startUpdater() error {
 	}
 }
 
-func (b *MyApp) Run() {
+func (b *MyApp) Run() error {
 	newBotOpt := &gotgbot.BotOpts{
-		Client:      http.Client{},
-		GetTimeout:  gotgbot.DefaultGetTimeout,
-		PostTimeout: gotgbot.DefaultPostTimeout,
+		Client: http.Client{},
+		DefaultRequestOpts: &gotgbot.RequestOpts{
+			Timeout: gotgbot.DefaultTimeout,
+			APIURL:  gotgbot.DefaultAPIURL,
+		},
 	}
 
 	var err error
 	b.Bot, err = gotgbot.NewBot(b.Config.BotAPIKey, newBotOpt)
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
 
-	b.Updater = ext.NewUpdater(nil)
-	b.loadModules()
+	b.Updater = ext.NewUpdater(&ext.UpdaterOpts{
+		ErrorLog: b.ErrorLog,
+		DispatcherOpts: ext.DispatcherOpts{
+			// If an error is returned by a handler, log it and continue going.
+			Error: func(bot *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
+				b.SendLogMessage("Error Middleware", err, ctx)
+				return ext.DispatcherActionContinueGroups
+			},
+			MaxRoutines: ext.DefaultMaxRoutines,
+		},
+	})
+
+	err = b.newMongo()
+	if err != nil {
+		return err
+	}
+
+	err = b.loadModules()
+	if err != nil {
+		return err
+	}
+
 	b.registerHandlers()
 
-	b.newMongo()
 	err = b.startUpdater()
 	if err != nil {
-		return
+		return err
+	}
+
+	b.TimeStart = time.Now()
+	return nil
+}
+
+func (b *MyApp) SendLogMessage(msg string, err error, ctx *ext.Context) {
+	bot := b.Bot
+	info, _ := host.Info()
+	replyTxt := fmt.Sprintf("⚙ <b>EventLog Viewer</b>\n"+
+		"<b>%v</b>\n\n"+
+		"<b>Bot Name :</b> %v\n"+
+		"<b>Bot Username :</b> @%v\n"+
+		"<b>Host OS :</b> %v\n"+
+		"<b>Host Name :</b> %v\n"+
+		"<b>Host Uptime :</b> %v\n"+
+		"<b>Bot Uptime :</b> %v\n"+
+		"<b>Kernel Version :</b> %v\n"+
+		"<b>Platform :</b> %v\n"+
+		"<b>Timestamp :</b> %v\n",
+		msg,
+		bot.FirstName,
+		bot.Username,
+		info.OS,
+		info.Hostname,
+		utils.ConvertSeconds(info.Uptime),
+		time.Since(b.TimeStart).String(),
+		info.KernelVersion,
+		info.Platform,
+		time.Now().Local(),
+	)
+
+	if err != nil {
+		replyTxt += "=====================\n"
+		if ctx != nil {
+			replyTxt += "<b>From ChatId:</b> %v\n"
+			replyTxt += "<b>From ChatTitle:</b> %v\n"
+			replyTxt = fmt.Sprintf(replyTxt, ctx.EffectiveChat.Id, ctx.EffectiveChat.Title)
+		}
+
+		replyTxt += "<b>Message Details:</b> \n%v"
+		replyTxt = fmt.Sprintf(replyTxt, html.EscapeString(err.Error()))
+
+	}
+
+	_, err = b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
+	if err != nil {
+		b.ErrorLog.Println(err)
 	}
 }

@@ -2,8 +2,8 @@ package telegram
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"os"
 	"strings"
@@ -16,18 +16,15 @@ type Button struct {
 	Data string
 }
 
-// BuildKeyboard will handle buttons creation from a json file
-// and defined size.
-func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton) {
+func BuildKeyboard(path string, size int) ([][]gotgbot.InlineKeyboardButton, error) {
 	openFile, err := os.Open(path)
 	if err != nil {
-		log.Print("failed to open file: " + err.Error())
-		return
+		return nil, fmt.Errorf("BuildKeyboard: failed to open file to build new keyboard with error: %w", err)
 	}
+
 	defer func(openFile *os.File) {
 		err := openFile.Close()
 		if err != nil {
-			log.Print("failed to close file: " + err.Error())
 			return
 		}
 	}(openFile)
@@ -36,6 +33,7 @@ func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton)
 	var result []Button
 	_ = json.Unmarshal(readFile, &result)
 	var btnList []gotgbot.InlineKeyboardButton
+	var res [][]gotgbot.InlineKeyboardButton
 
 	for _, data := range result {
 		if isValidUrl(data.Data) {
@@ -49,21 +47,17 @@ func BuildKeyboard(path string, size int) (res [][]gotgbot.InlineKeyboardButton)
 		btnList, res = btnList[size:], append(res, btnList[0:size:size])
 	}
 
-	return append(res, btnList)
+	return append(res, btnList), nil
 }
 
-// BuildKeyboardf will handle buttons creation from a json file
-// and defined size but with extra args to be placed inside the button.
-func BuildKeyboardf(path string, size int, dataMap map[string]string) (res [][]gotgbot.InlineKeyboardButton) {
+func BuildKeyboardf(path string, size int, dataMap map[string]string) ([][]gotgbot.InlineKeyboardButton, error) {
 	openFile, err := os.Open(path)
 	if err != nil {
-		log.Print("failed to open file: " + err.Error())
-		return
+		return nil, fmt.Errorf("BuildKeyboardf: failed to open file to build new keyboard with error: %w", err)
 	}
 	defer func(openFile *os.File) {
 		err := openFile.Close()
 		if err != nil {
-			log.Print("failed to close file: " + err.Error())
 			return
 		}
 	}(openFile)
@@ -73,6 +67,7 @@ func BuildKeyboardf(path string, size int, dataMap map[string]string) (res [][]g
 	_ = json.Unmarshal(readFile, &result)
 
 	var btnList []gotgbot.InlineKeyboardButton
+	var res [][]gotgbot.InlineKeyboardButton
 	for _, data := range result {
 		var replData []string
 		for k, v := range dataMap {
@@ -97,7 +92,7 @@ func BuildKeyboardf(path string, size int, dataMap map[string]string) (res [][]g
 		btnList, res = btnList[size:], append(res, btnList[0:size:size])
 	}
 
-	return append(res, btnList)
+	return append(res, btnList), nil
 }
 
 func isValidUrl(str string) bool {

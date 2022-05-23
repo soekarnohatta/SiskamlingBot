@@ -1,0 +1,5 @@
+{
+  "callback": "help(",
+  "keyboard": "data/keyboard/back.json",
+  "text": "\uD83E\uDD16 <b>{1} Versi</b> <code>{2}</code> by <b>{3}</b>.\n\n<b>Username</b>\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet assumenda cumque ratione voluptatibus. Ab accusamus, commodi doloribus ducimus iste libero, maxime mollitia, nobis nulla pariatur quibusdam recusandae tempora unde. Assumenda."
+}

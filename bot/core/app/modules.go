@@ -2,7 +2,7 @@ package app
 
 import (
 	"SiskamlingBot/bot/core/telegram/types"
-	"log"
+	"fmt"
 )
 
 type ModuleInfo struct {
@@ -20,11 +20,11 @@ type ModuleConstructor func(*MyApp) (Module, error)
 
 var Modules = make(map[string]ModuleConstructor)
 
-func RegisterModule(name string, constructor ModuleConstructor) {
+func RegisterModule(name string, constructor ModuleConstructor) error {
 	if _, ok := Modules[name]; ok {
-		log.Fatalf("Attempted to register module under occupied name '%s'", name)
+		return fmt.Errorf("Attempted to register module under occupied name '%s'", name)
 	}
 
 	Modules[name] = constructor
-	log.Printf("%s module has been loaded succesfully!\n", name)
+	return nil
 }
