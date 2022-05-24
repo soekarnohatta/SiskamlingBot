@@ -12,6 +12,26 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
+const infoTxt = "📁 <b>Bot Info</b>\n" +
+	"<b>Bot Name :</b> <code>%v</code>\n" +
+	"<b>Bot Username :</b> @%v\n" +
+	"<b>Is Debug :</b> <code>%v</code>\n" +
+	"<b>Version :</b> <code>%v</code>\n" +
+	"<b>Bot Uptime :</b> <code>%v</code>\n\n" +
+	"🖥️ <b>Platform Info</b>\n" +
+	"<b>Host OS :</b> <code>%v</code>\n" +
+	"<b>Host Name :</b> <code>%v</code>\n" +
+	"<b>Host Uptime :</b> <code>%v</code>\n" +
+	"<b>Kernel Version :</b> <code>%v</code>\n" +
+	"<b>Platform :</b> <code>%v</code>\n" +
+	"<b>Timestamp :</b> <code>%v</code>\n\n" +
+	"👥 <b>%v</b>\n" +
+	"<b>Chat Id :</b> <code>%v</code>\n" +
+	"<b>Chat Type :</b> <code>%v</code>\n\n" +
+	"👤 <b>%v</b>\n" +
+	"<b>Is Sudo :</b> <code>%v</code>\n" +
+	"<b>User Id :</b> <code>%v</code>"
+
 func (m *Module) about(ctx *telegram.TgContext) error {
 	var dataMap = map[string]string{
 		"1": m.App.Bot.User.FirstName,
@@ -49,19 +69,7 @@ func (m *Module) start(ctx *telegram.TgContext) error {
 func (m *Module) info(ctx *telegram.TgContext) error {
 	var info, _ = host.Info()
 	var replyTxt = fmt.Sprintf(
-		"📁 <b>Bot Info</b>\n"+
-			"<b>Bot Name :</b> <code>%v</code>\n"+
-			"<b>Bot Username :</b> @%v\n"+
-			"<b>Is Debug :</b> <code>%v</code>\n"+
-			"<b>Version :</b> <code>%v</code>\n"+
-			"<b>Bot Uptime :</b> <code>%v</code>\n\n"+
-			"🖥️ <b>Platform Info</b>\n"+
-			"<b>Host OS :</b> <code>%v</code>\n"+
-			"<b>Host Name :</b> <code>%v</code>\n"+
-			"<b>Host Uptime :</b> <code>%v</code>\n"+
-			"<b>Kernel Version :</b> <code>%v</code>\n"+
-			"<b>Platform :</b> <code>%v</code>\n"+
-			"<b>Timestamp :</b> <code>%v</code>",
+		infoTxt,
 		ctx.Bot.FirstName,
 		ctx.Bot.Username,
 		m.App.Config.IsDebug,
@@ -73,6 +81,12 @@ func (m *Module) info(ctx *telegram.TgContext) error {
 		info.KernelVersion,
 		info.Platform,
 		time.Now().Local(),
+		ctx.Chat.Title,
+		ctx.Chat.Id,
+		ctx.Chat.Type,
+		ctx.User.FirstName,
+		telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers),
+		ctx.User.Id,
 	)
 
 	ctx.ReplyMessage(replyTxt)

@@ -45,6 +45,7 @@ func (m *Module) blacklistAdd(ctx *telegram.TgContext) error {
 	var newBlacklist = &models.Blacklist{BlacklistTrigger: ctx.Args()[0]}
 	var err = m.App.DB.Blacklist.SaveBlacklist(newBlacklist)
 	if err != nil {
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return err
 	}
 
@@ -64,6 +65,7 @@ func (m *Module) blacklistRemove(ctx *telegram.TgContext) error {
 
 	var err = m.App.DB.Blacklist.DeleteBlacklistByTrigger(ctx.Args()[0])
 	if err != nil {
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return err
 	}
 

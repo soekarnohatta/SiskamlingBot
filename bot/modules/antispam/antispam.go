@@ -27,7 +27,8 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 		"2": utils.Int64ToStr(user.Id),
 	}
 
-	var toDelete = ctx.Message.MessageId
+	var toDeleteServiceMessage = getPref.LastServiceMessageId
+	var toDeleteAndSave = ctx.Message.MessageId
 	var text, keyb = telegram.CreateMenuf("./data/menu/spam.json", 1, dataMap)
 	var banLog = fmt.Sprintf(
 		"#BAN"+
@@ -46,8 +47,8 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
-	wg.Add(3)
-	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+	wg.Add(1)
+	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteServiceMessage) }()
 
 	if !<-banChan {
 		text += "\n\n🚫 <b>Tetapi saya tidak bisa mengeluarkannya, mohon periksa kembali perizinan saya!</b>"
@@ -61,11 +62,15 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	ctx.SendMessageKeyboard(text, 0, keyb)
-	getPref.LastServiceMessageId = ctx.Message.MessageId
-	_ = m.App.DB.Pref.SavePreference(getPref)
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		ctx.SendMessageKeyboard(text, 0, keyb)
+		getPref.LastServiceMessageId = toDeleteAndSave
+		_ = m.App.DB.Pref.SavePreference(getPref)
+	}()
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDelete) }()
+	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteAndSave) }()
 	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
 	return telegram.EndOrder
 }
