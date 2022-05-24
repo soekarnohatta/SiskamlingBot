@@ -76,7 +76,7 @@ func (m *Module) usernameScan(ctx *telegram.TgContext) error {
 	go func() {
 		defer wg.Done()
 		ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
-		getPref.LastServiceMessageId = toDeleteAndSave
+		getPref.LastServiceMessageId = ctx.Message.MessageId
 		var _ = m.App.DB.Pref.SavePreference(getPref)
 	}()
 

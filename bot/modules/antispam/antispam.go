@@ -66,7 +66,7 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 	go func() {
 		defer wg.Done()
 		ctx.SendMessageKeyboard(text, 0, keyb)
-		getPref.LastServiceMessageId = toDeleteAndSave
+		getPref.LastServiceMessageId = ctx.Message.MessageId
 		_ = m.App.DB.Pref.SavePreference(getPref)
 	}()
 

@@ -55,7 +55,7 @@ func (m *Module) antichinese(ctx *telegram.TgContext) error {
 	go func() {
 		defer wg.Done()
 		ctx.SendMessage(text, 0)
-		getPref.LastServiceMessageId = toDeleteAndSave
+		getPref.LastServiceMessageId = ctx.Message.MessageId
 		_ = m.App.DB.Pref.SavePreference(getPref)
 	}()
 
