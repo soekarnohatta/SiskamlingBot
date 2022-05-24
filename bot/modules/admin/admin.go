@@ -14,10 +14,10 @@ func (m *Module) getUser(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var usr, _ = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	usr, _ := m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
 	if usr != nil {
-		var module = misc.Module{App: m.App}
-		var infoUser = fmt.Sprintf(
+		module := misc.Module{App: m.App}
+		infoUser := fmt.Sprintf(
 			"<b>Info Pengguna</b>"+
 				"\n<b>User ID</b>: <code>%v</code>"+
 				"\n<b>Username</b>: <code>%v</code>"+
@@ -44,9 +44,9 @@ func (m *Module) getChat(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var cht, _ = m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
+	cht, _ := m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
 	if cht != nil {
-		var infoChat = fmt.Sprintf(
+		infoChat := fmt.Sprintf(
 			"<b>Info Obrolan</b>"+
 				"\n<b>Chat ID</b>: <code>%v</code>"+
 				"\n<b>Chat Name</b>: <code>%v</code>"+
@@ -70,12 +70,12 @@ func (m *Module) getChat(ctx *telegram.TgContext) error {
 
 func (*Module) debug(ctx *telegram.TgContext) error {
 	if ctx.Message.ReplyToMessage != nil {
-		var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
+		output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 		ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 		return nil
 	}
 
-	var output, _ = json.MarshalIndent(ctx.Context.Update, "", "  ")
+	output, _ := json.MarshalIndent(ctx.Context.Update, "", "  ")
 	ctx.ReplyMessage(fmt.Sprintf("<code>%s</code>", string(output)))
 	return nil
 }
@@ -91,15 +91,15 @@ func (m *Module) addVip(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var chtId = utils.StrToInt64(ctx.Args()[0])
-	var chat, err = m.App.DB.Chat.GetChatById(chtId)
+	chtId := utils.StrToInt64(ctx.Args()[0])
+	chat, err := m.App.DB.Chat.GetChatById(chtId)
 	if err != nil {
 		ctx.SendMessage("Error: "+err.Error(), 0)
 		return nil
 	}
 
-	var extractArgs = utils.ExtractBool(ctx.Args()[1])
-	var txtToSend = fmt.Sprintf("Pengaturan VIP <code>%v</code> diatur ke <code>%v</code> ", chtId, extractArgs)
+	extractArgs := utils.ExtractBool(ctx.Args()[1])
+	txtToSend := fmt.Sprintf("Pengaturan VIP <code>%v</code> diatur ke <code>%v</code> ", chtId, extractArgs)
 
 	chat.ChatVIP = extractArgs
 	err = m.App.DB.Chat.SaveChat(chat)
