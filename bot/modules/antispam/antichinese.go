@@ -59,9 +59,9 @@ func (m *Module) antichinese(ctx *telegram.TgContext) error {
 		_ = m.App.DB.Pref.SavePreference(getPref)
 	}()
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteServiceMessage) }()
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteAndSave) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
+	go func() { ctx.DeleteMessage(toDeleteServiceMessage); wg.Done() }()
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 

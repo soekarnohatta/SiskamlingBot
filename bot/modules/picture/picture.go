@@ -25,7 +25,7 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 	var toDeleteAndSave = ctx.Message.MessageId
 
 	go func() { rstrChan <- ctx.RestrictMember(0, 0, untilDate) }()
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteServiceMessage) }()
+	go func() { ctx.DeleteMessage(toDeleteServiceMessage); wg.Done() }()
 
 	var dataButton = map[string]string{
 		"1": utils.Int64ToStr(ctx.User.Id),
@@ -74,15 +74,15 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 
 	wg.Add(3)
 	go func() {
-		defer wg.Done()
 		ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
 		var _ = m.App.DB.Pref.SavePreference(getPref)
+		wg.Done()
 	}()
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteAndSave) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil) }()
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate); wg.Done() }()
+	go func() { ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 
@@ -93,7 +93,6 @@ func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
 
 	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
 	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
-	// var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
 
 	if !(userId == ctx.Callback.From.Id) {
 		if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {

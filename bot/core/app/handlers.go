@@ -43,9 +43,9 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 			if messages.Async == true {
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, handle types.Message, bot *gotgbot.Bot, ctx *ext.Context) {
-					defer wg.Done()
 					defer b.handlePanicSendLog(ctx)
 					_ = handle.InvokeAsync(bot, ctx)
+					wg.Done()
 				}(&wg, messages, bot, ctx)
 				continue
 			} else {

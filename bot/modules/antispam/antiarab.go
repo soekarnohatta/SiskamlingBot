@@ -44,7 +44,7 @@ func (m *Module) antiarab(ctx *telegram.TgContext) error {
 		ctx.User.Id,
 		ctx.Chat.Title,
 		ctx.Chat.Id,
-		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, toDeleteAndSave), "Here"),
 	)
 
 	var wg sync.WaitGroup
@@ -52,15 +52,15 @@ func (m *Module) antiarab(ctx *telegram.TgContext) error {
 	wg.Add(4)
 
 	go func() {
-		defer wg.Done()
 		ctx.SendMessage(text, 0)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
 		_ = m.App.DB.Pref.SavePreference(getPref)
+		wg.Done()
 	}()
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteServiceMessage) }()
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteAndSave) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
+	go func() { ctx.DeleteMessage(toDeleteServiceMessage); wg.Done() }()
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 

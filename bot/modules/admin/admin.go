@@ -14,8 +14,8 @@ func (m *Module) getUser(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	var usr, _ = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
-	if usr != nil {
+	var getUser, _ = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	if getUser != nil {
 		var module = misc.Module{App: m.App}
 		var infoUser = fmt.Sprintf(
 			"<b>Info Pengguna</b>"+
@@ -25,9 +25,9 @@ func (m *Module) getUser(ctx *telegram.TgContext) error {
 				"\n<b>Last Name</b>: <code>%v</code>"+
 				"\n<b>Is Banned</b>: <code>%v</code>",
 			ctx.Args()[0],
-			usr.UserName,
-			usr.FirstName,
-			usr.LastName,
+			getUser.UserName,
+			getUser.FirstName,
+			getUser.LastName,
 			module.IsBan(utils.StrToInt64(ctx.Args()[0])))
 
 		ctx.ReplyMessage(infoUser)

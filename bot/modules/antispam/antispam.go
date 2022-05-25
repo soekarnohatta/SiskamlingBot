@@ -37,11 +37,11 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 			"\n<b>Chat Name:</b> %s"+
 			"\n<b>Chat ID:</b> <code>%v</code>"+
 			"\n<b>Link:</b> %s",
-		telegram.MentionHtml(ctx.User.Id, ctx.User.FirstName),
-		ctx.User.Id,
+		telegram.MentionHtml(user.Id, user.FirstName),
+		user.Id,
 		ctx.Chat.Title,
 		ctx.Chat.Id,
-		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, toDeleteAndSave), "Here"),
 	)
 
 	var wg sync.WaitGroup
@@ -64,14 +64,14 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 
 	wg.Add(3)
 	go func() {
-		defer wg.Done()
 		ctx.SendMessageKeyboard(text, 0, keyb)
 		getPref.LastServiceMessageId = ctx.Message.MessageId
 		_ = m.App.DB.Pref.SavePreference(getPref)
+		wg.Done()
 	}()
 
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDeleteAndSave) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 
@@ -100,6 +100,7 @@ func (m *Module) antispamSetting(ctx *telegram.TgContext) error {
 		return err
 	}
 
-	ctx.SendMessage(fmt.Sprintf("Pengaturan antispam diatur ke <code>%v</code> ", extractArgs), 0)
+	var toSend = fmt.Sprintf("Pengaturan antispam diatur ke <code>%v</code> ", extractArgs)
+	ctx.SendMessage(toSend, 0)
 	return nil
 }
