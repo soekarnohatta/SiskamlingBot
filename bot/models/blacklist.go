@@ -18,7 +18,10 @@ type Blacklist struct {
 
 func (m *BlacklistModel) GetBlacklistByTrigger(Trigger string) (*Blacklist, error) {
 	var blacklist *Blacklist
-	dat, err := m.MongoDB.Collection("blacklist").FindOne(context.TODO(), bson.M{"blacklist_trigger": Trigger}).DecodeBytes()
+	dat, err := m.MongoDB.
+		Collection("blacklist").
+		FindOne(context.TODO(), bson.M{"blacklist_trigger": Trigger}).
+		DecodeBytes()
 	if err != nil {
 		return nil, fmt.Errorf("GetBlacklistByTrigger: failed to retrieve data due to: %w", err)
 	}
@@ -32,7 +35,9 @@ func (m *BlacklistModel) GetBlacklistByTrigger(Trigger string) (*Blacklist, erro
 
 func (m *BlacklistModel) GetAllBlacklist() ([]Blacklist, error) {
 	var allBlacklist []Blacklist
-	dat, err := m.MongoDB.Collection("blacklist").Find(context.TODO(), bson.M{})
+	dat, err := m.MongoDB.
+		Collection("blacklist").
+		Find(context.TODO(), bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("GetBlacklistByTrigger: failed to retrieve data due to: %w", err)
 	}
@@ -46,7 +51,14 @@ func (m *BlacklistModel) GetAllBlacklist() ([]Blacklist, error) {
 }
 
 func (m *BlacklistModel) SaveBlacklist(blacklist *Blacklist) error {
-	_, err := m.MongoDB.Collection("blacklist").UpdateOne(context.TODO(), bson.M{"blacklist_trigger": blacklist.BlacklistTrigger}, bson.D{{Key: "$set", Value: blacklist}}, options.Update().SetUpsert(true))
+	_, err := m.MongoDB.
+		Collection("blacklist").
+		UpdateOne(
+			context.TODO(),
+			bson.M{"blacklist_trigger": blacklist.BlacklistTrigger},
+			bson.D{{Key: "$set", Value: blacklist}},
+			options.Update().SetUpsert(true),
+		)
 	if err != nil {
 		return fmt.Errorf("SaveBlacklist: failed to save data due to: %w", err)
 	}
@@ -54,7 +66,9 @@ func (m *BlacklistModel) SaveBlacklist(blacklist *Blacklist) error {
 }
 
 func (m *BlacklistModel) DeleteBlacklistByTrigger(Trigger string) error {
-	_, err := m.MongoDB.Collection("blacklist").DeleteOne(context.TODO(), bson.M{"blacklist_trigger": Trigger})
+	_, err := m.MongoDB.
+		Collection("blacklist").
+		DeleteOne(context.TODO(), bson.M{"blacklist_trigger": Trigger})
 	if err != nil {
 		return fmt.Errorf("DeleteBlacklistByTrigger: failed to save data due to: %w", err)
 	}

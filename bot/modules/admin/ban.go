@@ -24,6 +24,10 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 			continue
 		}
 
+		if len(val) < 9 {
+			continue
+		}
+
 		var text = fmt.Sprintf("Starting global ban of <code>%v</code> ...", val)
 		var getUser, _ = m.App.DB.User.GetUserById(utils.StrToInt64(val))
 

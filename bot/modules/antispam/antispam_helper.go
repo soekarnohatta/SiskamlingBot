@@ -83,7 +83,6 @@ func (m *Module) isSwBan(userId int64) bool {
 		return false
 	}
 
-
 	return swBan.Reason != "" || resp.StatusCode == http.StatusOK
 }
 
@@ -113,7 +112,6 @@ func (m *Module) IsBan(userId int64) bool {
 		close(LocalChan)
 		close(SWChan)
 		close(CASChan)
-		
 		return false
 	}
 }

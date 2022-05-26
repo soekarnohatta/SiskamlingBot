@@ -15,19 +15,17 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	//if core.IsUserRestricted(ctx) {
-	//	return telegram.ContinueOrder
-	//}
-
 	var wg sync.WaitGroup
 	defer wg.Wait()
+	wg.Add(2)
 
 	var rstrChan = make(chan bool, 1)
 	var untilDate = utils.ExtractTime("5m")
-	wg.Add(1)
+	var toDeleteServiceMessage = getPref.LastServiceMessageId
+	var toDeleteAndSave = ctx.Message.MessageId
 
 	go func() { rstrChan <- ctx.RestrictMember(0, 0, untilDate) }()
-	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+	go func() { ctx.DeleteMessage(toDeleteServiceMessage); wg.Done() }()
 
 	var dataButton = map[string]string{
 		"1": utils.Int64ToStr(ctx.User.Id),
@@ -59,7 +57,7 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 		ctx.User.Id,
 		ctx.Chat.Title,
 		ctx.Chat.Id,
-		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, ctx.Message.MessageId), "Here"),
+		telegram.CreateLinkHtml(telegram.CreateMessageLink(ctx.Chat, toDeleteAndSave), "Here"),
 	)
 
 	if !<-rstrChan {
@@ -74,13 +72,17 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	ctx.DeleteMessage(0)
-	ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
-	getPref.LastServiceMessageId = ctx.Message.MessageId
-	var _ = m.App.DB.Pref.SavePreference(getPref)
+	wg.Add(3)
+	go func() {
+		ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		var _ = m.App.DB.Pref.SavePreference(getPref)
+		wg.Done()
+	}()
 
-	ctx.SendMessageKeyboard(txtPrivate, ctx.User.Id, keybPrivate)
-	ctx.SendMessage(txtLog, m.App.Config.LogEvent)
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate); wg.Done() }()
+	go func() { ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 
@@ -91,7 +93,6 @@ func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
 
 	var pattern, _ = regexp.Compile(`picture\((.+?)\)\((.+?)\)`)
 	var userId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[1])
-	// var chatId = utils.StrToInt64(pattern.FindStringSubmatch(ctx.Callback.Data)[2])
 
 	if !(userId == ctx.Callback.From.Id) {
 		if p, err := ctx.Callback.From.GetProfilePhotos(ctx.Bot, nil); p != nil && p.TotalCount == 0 {

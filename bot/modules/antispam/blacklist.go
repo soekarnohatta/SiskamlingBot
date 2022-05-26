@@ -20,12 +20,12 @@ func (m *Module) blacklist(ctx *telegram.TgContext) error {
 	for _, val := range getBlacklist {
 		wg.Add(1)
 		go func(compare string) {
-			defer wg.Done()
 			var text = strings.ToLower(ctx.Message.Text)
 			var comp = strings.ToLower(compare)
 			if strings.Contains(text, comp) {
 				ctx.DeleteMessage(0)
 			}
+			wg.Done()
 		}(val.BlacklistTrigger)
 	}
 
@@ -45,6 +45,7 @@ func (m *Module) blacklistAdd(ctx *telegram.TgContext) error {
 	var newBlacklist = &models.Blacklist{BlacklistTrigger: ctx.Args()[0]}
 	var err = m.App.DB.Blacklist.SaveBlacklist(newBlacklist)
 	if err != nil {
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return err
 	}
 
@@ -64,6 +65,7 @@ func (m *Module) blacklistRemove(ctx *telegram.TgContext) error {
 
 	var err = m.App.DB.Blacklist.DeleteBlacklistByTrigger(ctx.Args()[0])
 	if err != nil {
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return err
 	}
 
