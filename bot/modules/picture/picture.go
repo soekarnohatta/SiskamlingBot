@@ -17,7 +17,7 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
-	wg.Add(2)
+	wg.Add(1)
 
 	var rstrChan = make(chan bool, 1)
 	var untilDate = utils.ExtractTime("5m")
@@ -72,7 +72,7 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 		return telegram.EndOrder
 	}
 
-	wg.Add(3)
+	wg.Add(4)
 	go func() {
 		ctx.SendMessageKeyboard(txtGroup, 0, keybGroup)
 		getPref.LastServiceMessageId = ctx.Message.MessageId

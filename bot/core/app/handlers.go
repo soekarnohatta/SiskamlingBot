@@ -34,6 +34,8 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	})
 
 	var wg sync.WaitGroup
+	defer wg.Wait()
+
 	for _, messages := range orderedGroup {
 		if messages.Filter == nil {
 			messages.Filter = message.All
@@ -42,11 +44,11 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		if messages.Filter(ctx.EffectiveMessage) {
 			if messages.Async == true {
 				wg.Add(1)
-				go func(wg *sync.WaitGroup, handle types.Message, bot *gotgbot.Bot, ctx *ext.Context) {
+				go func(handle types.Message) {
 					defer b.handlePanicSendLog(ctx)
 					_ = handle.InvokeAsync(bot, ctx)
 					wg.Done()
-				}(&wg, messages, bot, ctx)
+				}(messages)
 				continue
 			} else {
 				err := messages.Invoke(bot, ctx)
@@ -62,7 +64,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		}
 	}
 
-	wg.Wait()
+	// wg.Wait()
 	return ext.ContinueGroups
 }
 
