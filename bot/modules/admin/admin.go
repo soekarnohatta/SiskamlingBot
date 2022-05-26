@@ -14,9 +14,8 @@ func (m *Module) getUser(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	// no need to check error
-	var usr, _ = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
-	if usr != nil {
+	var getUser, _ = m.App.DB.User.GetUserById(utils.StrToInt64(ctx.Args()[0]))
+	if getUser != nil {
 		var module = misc.Module{App: m.App}
 		var infoUser = fmt.Sprintf(
 			"<b>Info Pengguna</b>"+
@@ -26,9 +25,9 @@ func (m *Module) getUser(ctx *telegram.TgContext) error {
 				"\n<b>Last Name</b>: <code>%v</code>"+
 				"\n<b>Is Banned</b>: <code>%v</code>",
 			ctx.Args()[0],
-			usr.UserName,
-			usr.FirstName,
-			usr.LastName,
+			getUser.UserName,
+			getUser.FirstName,
+			getUser.LastName,
 			module.IsBan(utils.StrToInt64(ctx.Args()[0])))
 
 		ctx.ReplyMessage(infoUser)
@@ -45,7 +44,6 @@ func (m *Module) getChat(ctx *telegram.TgContext) error {
 		return nil
 	}
 
-	// no need to check error
 	var cht, _ = m.App.DB.Chat.GetChatById(utils.StrToInt64(ctx.Args()[0]))
 	if cht != nil {
 		var infoChat = fmt.Sprintf(
@@ -96,7 +94,7 @@ func (m *Module) addVip(ctx *telegram.TgContext) error {
 	var chtId = utils.StrToInt64(ctx.Args()[0])
 	var chat, err = m.App.DB.Chat.GetChatById(chtId)
 	if err != nil {
-		ctx.SendMessage("Error pas ngambil data/data tidak ditemukan, coba lagi.", 0)
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return nil
 	}
 
@@ -106,7 +104,7 @@ func (m *Module) addVip(ctx *telegram.TgContext) error {
 	chat.ChatVIP = extractArgs
 	err = m.App.DB.Chat.SaveChat(chat)
 	if err != nil {
-		ctx.SendMessage("Error pas masukin data, coba lagi.", 0)
+		ctx.SendMessage("Error: "+err.Error(), 0)
 		return err
 	}
 

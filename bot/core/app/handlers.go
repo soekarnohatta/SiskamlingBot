@@ -17,12 +17,6 @@ import (
 	"SiskamlingBot/bot/core/telegram/types"
 )
 
-func (b *MyApp) registerCommandUsingDispatcher() {
-	for _, cmd := range b.Commands {
-		b.Updater.Dispatcher.AddHandler(newCustomCommandHandler(cmd.Trigger, cmd.InvokeWithDispatcher))
-	}
-}
-
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	defer b.handlePanicSendLog(ctx)
 	if ctx.EffectiveMessage == nil {
@@ -40,6 +34,8 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	})
 
 	var wg sync.WaitGroup
+	defer wg.Wait()
+
 	for _, messages := range orderedGroup {
 		if messages.Filter == nil {
 			messages.Filter = message.All
@@ -48,11 +44,11 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		if messages.Filter(ctx.EffectiveMessage) {
 			if messages.Async == true {
 				wg.Add(1)
-				go func(wg *sync.WaitGroup, handle types.Message, bot *gotgbot.Bot, ctx *ext.Context) {
-					defer wg.Done()
+				go func(handle types.Message) {
 					defer b.handlePanicSendLog(ctx)
 					_ = handle.InvokeAsync(bot, ctx)
-				}(&wg, messages, bot, ctx)
+					wg.Done()
+				}(messages)
 				continue
 			} else {
 				err := messages.Invoke(bot, ctx)
@@ -68,7 +64,7 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		}
 	}
 
-	wg.Wait()
+	// wg.Wait()
 	return ext.ContinueGroups
 }
 
@@ -94,9 +90,9 @@ func (b *MyApp) callbackHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	return ext.ContinueGroups
 }
 
-func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
-	if r := recover(); r != nil {
-		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r), ctx)
+func (b *MyApp) registerCommandUsingDispatcher() {
+	for _, cmd := range b.Commands {
+		b.Updater.Dispatcher.AddHandler(newCustomCommandHandler(cmd.Trigger, cmd.InvokeWithDispatcher))
 	}
 }
 
@@ -116,6 +112,14 @@ func (b *MyApp) registerHandlers() {
 	b.ErrorLog.Println("All handlers have been registered successfully!")
 }
 
+// Closure for handling panic in handlers
+func (b *MyApp) handlePanicSendLog(ctx *ext.Context) {
+	if r := recover(); r != nil {
+		b.SendLogMessage("Recover Panic Error", fmt.Errorf("%v", r), ctx)
+	}
+}
+
+// Closure for creating custom message handler that we can modify accordingly
 func newCustomMessageHandler(f filters.Message, r handlers.Response) handlers.Message {
 	return handlers.Message{
 		AllowEdited:  true,
@@ -125,6 +129,7 @@ func newCustomMessageHandler(f filters.Message, r handlers.Response) handlers.Me
 	}
 }
 
+// Closure for creating custom command handler that we can modify accordingly
 func newCustomCommandHandler(cmd string, r handlers.Response) handlers.Command {
 	return handlers.Command{
 		Triggers:     []rune{'/', '!', ','},

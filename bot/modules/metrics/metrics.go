@@ -20,7 +20,7 @@ func (m *Module) usernameMetric(ctx *telegram.TgContext) error {
 	}
 
 	var newUser = &models.User{
-		UserID:    ctx.Message.From.Id,
+		UserId:    ctx.Message.From.Id,
 		Gban:      false,
 		FirstName: ctx.Message.From.FirstName,
 		LastName:  ctx.Message.From.LastName,

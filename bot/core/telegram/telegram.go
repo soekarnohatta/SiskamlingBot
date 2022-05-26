@@ -26,7 +26,7 @@ var (
  * Message
  */
 
-func (c *TgContext) SendMessage(text string, chatID int64) {
+func (c *TgContext) SendMessage(text string, chatId int64) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -34,11 +34,11 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
 
-	if chatID != 0 {
+	if chatId != 0 {
 		c.Lock()
 		defer c.Unlock()
 
-		msg, err := c.Bot.SendMessage(chatID, text, defaultParseMode)
+		msg, err := c.Bot.SendMessage(chatId, text, defaultParseMode)
 		if err != nil {
 			return
 		}
@@ -57,7 +57,7 @@ func (c *TgContext) SendMessage(text string, chatID int64) {
 	c.Message = msg
 }
 
-func (c *TgContext) SendMessageAsync(text string, chatID int64, keyb [][]gotgbot.InlineKeyboardButton) {
+func (c *TgContext) SendMessageAsync(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -70,8 +70,8 @@ func (c *TgContext) SendMessageAsync(text string, chatID int64, keyb [][]gotgbot
 		DisableWebPagePreview: true,
 	}
 
-	if chatID != 0 {
-		_, err := c.Bot.SendMessage(chatID, text, msgOpt)
+	if chatId != 0 {
+		_, err := c.Bot.SendMessage(chatId, text, msgOpt)
 		if err != nil {
 			return
 		}

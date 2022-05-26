@@ -25,7 +25,8 @@ func (m *Module) antichinese(ctx *telegram.TgContext) error {
 		return telegram.ContinueOrder
 	}
 
-	var toDelete = ctx.Message.MessageId
+	var toDeleteServiceMessage = getPref.LastServiceMessageId
+	var toDeleteAndSave = ctx.Message.MessageId
 	var text = fmt.Sprintf(
 		"⚠ <b>%v</b> [<code>%v</code>] telah dihapus pesannya karena mengirim/menggunakan "+
 			"karakter <b>Chinese</b>. Silahkan gunakan karakter lain.",
@@ -49,16 +50,18 @@ func (m *Module) antichinese(ctx *telegram.TgContext) error {
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
+	wg.Add(4)
 
-	wg.Add(3)
-	go func() { defer wg.Done(); ctx.DeleteMessage(getPref.LastServiceMessageId) }()
+	go func() {
+		ctx.SendMessage(text, 0)
+		getPref.LastServiceMessageId = ctx.Message.MessageId
+		_ = m.App.DB.Pref.SavePreference(getPref)
+		wg.Done()
+	}()
 
-	ctx.SendMessage(text, 0)
-	getPref.LastServiceMessageId = ctx.Message.MessageId
-	_ = m.App.DB.Pref.SavePreference(getPref)
-
-	go func() { defer wg.Done(); ctx.DeleteMessage(toDelete) }()
-	go func() { defer wg.Done(); ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil) }()
+	go func() { ctx.DeleteMessage(toDeleteServiceMessage); wg.Done() }()
+	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
+	go func() { ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 

@@ -14,7 +14,7 @@ type UserModel struct {
 }
 
 type User struct {
-	UserID    int64  `json:"user_id" bson:"user_id" `
+	UserId    int64  `json:"user_id" bson:"user_id" `
 	Gban      bool   `json:"user_gban" bson:"user_gban" `
 	FirstName string `json:"user_first_name" bson:"user_first_name" `
 	LastName  string `json:"user_last_name" bson:"user_last_name" `
@@ -43,7 +43,7 @@ func (u *UserModel) SaveUser(user *User) error {
 		Collection("user").
 		UpdateOne(
 			context.TODO(),
-			bson.M{"user_id": user.UserID},
+			bson.M{"user_id": user.UserId},
 			bson.D{{Key: "$set", Value: user}},
 			options.Update().SetUpsert(true),
 		)
