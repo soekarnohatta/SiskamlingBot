@@ -136,13 +136,7 @@ func (m *Module) helpCallback(ctx *telegram.TgContext) error {
 			return err
 		}
 	default:
-		var dataMap = map[string]string{
-			"1": m.App.Bot.User.FirstName,
-			"2": m.App.Config.BotVer,
-			"3": "Devz",
-		}
-
-		var text, keyb = telegram.CreateMenuf("./data/menu/help/"+match+".json", 2, dataMap)
+		var text, keyb = telegram.CreateMenu("./data/menu/help/"+match+".json", 2)
 		if text == "" {
 			ctx.AnswerCallback("FITUR BELUM SIAP!", true)
 		}
@@ -153,7 +147,8 @@ func (m *Module) helpCallback(ctx *telegram.TgContext) error {
 			&gotgbot.EditMessageTextOpts{
 				ParseMode:   "HTML",
 				ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
-			})
+			},
+		)
 
 		if err != nil {
 			return err

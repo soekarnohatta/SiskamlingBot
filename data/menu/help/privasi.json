@@ -1,5 +1,5 @@
 {
   "callback": "help(",
   "keyboard": "data/keyboard/back.json",
-  "text": "\uD83E\uDD16 <b>{1} Versi</b> <code>{2}</code> by <b>{3}</b>.\n\n<b>Privasi</b>\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet assumenda cumque ratione voluptatibus. Ab accusamus, commodi doloribus ducimus iste libero, maxime mollitia, nobis nulla pariatur quibusdam recusandae tempora unde. Assumenda."
+  "text": "<b>Kebijakan</b> <b>Privasi\n</b>Dengan menggunakan bot dan/atau layanan bot ini berarti Anda telah menyetujui secara otomatis untuk penggunaan data telemetri Anda untuk disimpan secara aman di dalam server kami. Data telemetri yang digunakan tidak lain digunakan untuk kepentingan bot pribadi dan bukan komersil (diperjual belikan). Kami hanya mengumpulkan data - data penting seperi User ID, Chat ID, Nama Pengguna, Username, dlsb. Kami berusaha sebisa mungkin untuk menjaga keamanan data Anda menggunakan enkripsi militer. Apabila anda tidak ingin data Anda disimpan, Anda bisa menghubungi kami melalui grub kami di @SwatzDevelopmentGroup untuk kemudian di proses oleh admin kami. Terimakasih"
 }

@@ -1,5 +1,5 @@
 {
   "callback": "help(",
   "keyboard": "data/keyboard/back.json",
-  "text": "\uD83E\uDD16 <b>{1} Versi</b> <code>{2}</code> by <b>{3}</b>.\n\n<b>Username</b>\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet assumenda cumque ratione voluptatibus. Ab accusamus, commodi doloribus ducimus iste libero, maxime mollitia, nobis nulla pariatur quibusdam recusandae tempora unde. Assumenda."
+  "text": "<b>Username Scanner\n</b>Fitur ini digunakan untuk mendeteksi pengguna yang tidak menggunakan username. Pengguna akan dibisukan selama 5 menit dan dikirimi pesan pemberitahuan melalui grub dan japri untuk mengingatkan pengguna terkait untuk segera memasang username. Tutorial menggunakan username dapat dilihat di sini atau dengan mengklik ikon tanda tanya di pesan pemberitahuan. Pengguna <b>HARUS</b> menekan tombol verifikasi jika ingin dilepasbisu selama rentang 5 menit tersebut. Fitur ini tersedia untuk pengguna <b>Pro</b> dan <b>Gratis\n\nPerintah yang dapat digunakan:\n</b>- /setusername <code>true/false</code> -&gt; Perintah digunakan untuk mengatur apakah fitur ini dihidupkan (true) atau dimatikan (false)"
 }

@@ -1,5 +1,5 @@
 {
   "callback": "admin(",
   "keyboard": "data/keyboard/back.json",
-  "text": "\uD83E\uDD16 <b>{1} Versi</b> <code>{2}</code> by <b>{3}</b>.\n\n<b>Misc</b>\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet assumenda cumque ratione voluptatibus. Ab accusamus, commodi doloribus ducimus iste libero, maxime mollitia, nobis nulla pariatur quibusdam recusandae tempora unde. Assumenda."
+  "text": "<b>Misc\n</b>Fitur ini digunakan untuk senang senang dan hanya berupa memberikan beberapa informasi kepada Anda. Kedepannya kami akan menambahkan fitur tambahan bila memang diperlukan dan untuk kemaslahatan bersama.\n\n<b>Perintah yang dapat digunakan:\n</b>- /start -&gt; Perintah untuk memulai bot\n- /about -&gt; Perintah tentang bot\n- /ping -&gt; Perintah digunakan untuk mengecek kecepatan bot\n- /info -&gt; Perintah digunakan untuk mengecek kesehatan dan data bot\n- /getuser {userId} -&gt; Perintah digunakan untuk mengecek seorang pengguna yang sudah pernah menggunakan bot\n- /getchat {chatId} -&gt; Perintah digunakan untuk mengecek obrolan"
 }
