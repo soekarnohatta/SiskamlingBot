@@ -18,7 +18,7 @@ import (
 
 type MyApp struct {
 	Bot     *gotgbot.Bot
-	Updater ext.Updater
+	Updater *ext.Updater
 
 	Modules   map[string]Module
 	Commands  map[string]types.Command
@@ -43,35 +43,36 @@ func NewBot(config *Config) *MyApp {
 	}
 }
 
-func (b *MyApp) startWebhook() error {
-	webhook := ext.WebhookOpts{
-		Listen:  b.Config.WebhookListen,
-		Port:    b.Config.WebhookPort,
-		URLPath: b.Config.WebhookPath + b.Config.BotAPIKey,
+/*
+	func (b *MyApp) startWebhook() error {
+		webhook := ext.WebhookOpts{
+			Listen:  b.Config.WebhookListen,
+			Port:    b.Config.WebhookPort,
+			URLPath: b.Config.WebhookPath + b.Config.BotAPIKey,
+		}
+
+		_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
+		if err != nil {
+			return err
+		}
+
+		err = b.Updater.StartWebhook(b.Bot, webhook)
+		if err != nil {
+			return err
+		}
+
+		_, err = b.Bot.SetWebhook(b.Config.WebhookURL+b.Config.WebhookPath+b.Config.BotAPIKey, &gotgbot.SetWebhookOpts{
+			MaxConnections:     40,
+			DropPendingUpdates: b.Config.CleanPolling,
+		})
+		if err != nil {
+			return err
+		}
+
+		b.ErrorLog.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
+		return nil
 	}
-
-	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
-	if err != nil {
-		return err
-	}
-
-	err = b.Updater.StartWebhook(b.Bot, webhook)
-	if err != nil {
-		return err
-	}
-
-	_, err = b.Bot.SetWebhook(b.Config.WebhookURL+b.Config.WebhookPath+b.Config.BotAPIKey, &gotgbot.SetWebhookOpts{
-		MaxConnections:     40,
-		DropPendingUpdates: b.Config.CleanPolling,
-	})
-	if err != nil {
-		return err
-	}
-
-	b.ErrorLog.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
-	return nil
-}
-
+*/
 func (b *MyApp) startPolling() error {
 	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
 	if err != nil {
@@ -89,7 +90,7 @@ func (b *MyApp) startPolling() error {
 
 func (b *MyApp) startUpdater() error {
 	if b.Config.WebhookURL != "" {
-		return b.startWebhook()
+		return /* b.startWebhook() */ nil
 	} else {
 		return b.startPolling()
 	}
@@ -112,14 +113,14 @@ func (b *MyApp) Run() error {
 
 	b.Updater = ext.NewUpdater(&ext.UpdaterOpts{
 		ErrorLog: b.ErrorLog,
-		DispatcherOpts: ext.DispatcherOpts{
+		Dispatcher: ext.NewDispatcher(&ext.DispatcherOpts{
 			// If an error is returned by a handler, log it and continue going.
-			Error: func(bot *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
-				b.SendLogMessage("Error Middleware", err, ctx)
+			Error: func(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
+				log.Println("an error occurred while handling update:", err.Error())
 				return ext.DispatcherActionContinueGroups
 			},
 			MaxRoutines: ext.DefaultMaxRoutines,
-		},
+		}),
 	})
 
 	err = b.newMongo()

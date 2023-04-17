@@ -134,7 +134,7 @@ func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
 	return telegram.ContinueOrder
 }
 
-func (m Module) pictureCallbackPrivate(ctx *telegram.TgContext) error {
+func (m *Module) pictureCallbackPrivate(ctx *telegram.TgContext) error {
 	if !telegram.IsPrivate(ctx.Chat.Type) {
 		return ext.ContinueGroups
 	}

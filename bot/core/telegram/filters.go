@@ -22,7 +22,7 @@ func ProfileFilter(bot *gotgbot.Bot, msg *gotgbot.Message) bool {
 		return false
 	}
 
-	return p.TotalCount == 0
+	return len(p.Photos) < 1 || p.TotalCount < 1
 }
 
 func ProfileAndGroupFilter(bot *gotgbot.Bot) func(msg *gotgbot.Message) bool {
