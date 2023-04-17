@@ -38,7 +38,13 @@ func (c *TgContext) SendMessage(text string, chatId int64) {
 		c.Lock()
 		defer c.Unlock()
 
-		msg, err := c.Bot.SendMessage(chatId, text, defaultParseMode)
+		msg, err := c.Bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{
+			ParseMode:                "HTML",
+			AllowSendingWithoutReply: true,
+			DisableWebPagePreview:    true,
+			ReplyToMessageId:         -1,
+			MessageThreadId:          c.Message.MessageThreadId,
+		})
 		if err != nil {
 			return
 		}
@@ -68,6 +74,7 @@ func (c *TgContext) SendMessageAsync(text string, chatId int64, keyb [][]gotgbot
 		ParseMode:             "HTML",
 		ReplyMarkup:           gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
 		DisableWebPagePreview: true,
+		MessageThreadId:       c.Message.MessageThreadId,
 	}
 
 	if chatId != 0 {
@@ -96,6 +103,7 @@ func (c *TgContext) SendMessageKeyboard(text string, chatId int64, keyb [][]gotg
 		ParseMode:             "HTML",
 		ReplyMarkup:           gotgbot.InlineKeyboardMarkup{InlineKeyboard: keyb},
 		DisableWebPagePreview: true,
+		MessageThreadId:       c.Message.MessageThreadId,
 	}
 
 	if chatId != 0 {
@@ -239,7 +247,6 @@ func (c *TgContext) RestrictMember(userId, chatId, untilDate int64) bool {
 	newOpt := &gotgbot.RestrictChatMemberOpts{UntilDate: untilDate}
 	newChatPermission := gotgbot.ChatPermissions{
 		CanSendMessages:      false,
-		CanSendMediaMessages: false,
 		CanSendPolls:         false,
 		CanSendOtherMessages: false,
 	}
@@ -260,7 +267,6 @@ func (c *TgContext) UnRestrictMember(userId, chatId int64) bool {
 	newOpt := &gotgbot.RestrictChatMemberOpts{UntilDate: -1}
 	newChatPermission := gotgbot.ChatPermissions{
 		CanSendMessages:      true,
-		CanSendMediaMessages: true,
 		CanSendPolls:         true,
 		CanSendOtherMessages: true,
 	}
