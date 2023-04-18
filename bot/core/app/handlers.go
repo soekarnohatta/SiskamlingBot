@@ -1,6 +1,8 @@
 package app
 
 import (
+	"SiskamlingBot/bot/core/telegram"
+	"SiskamlingBot/bot/core/telegram/types"
 	"SiskamlingBot/bot/utils"
 	"errors"
 	"fmt"
@@ -14,9 +16,6 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
-
-	"SiskamlingBot/bot/core/telegram"
-	"SiskamlingBot/bot/core/telegram/types"
 )
 
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
