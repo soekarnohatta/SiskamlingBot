@@ -81,7 +81,7 @@ func (*Module) debug(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) addVip(ctx *telegram.TgContext) error {
-	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
+	if !utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		ctx.DeleteMessage(0)
 		return nil
 	}

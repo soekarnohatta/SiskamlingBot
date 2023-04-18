@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,15 +22,15 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		if err := bot.Run(); err != nil {
-			bot.ErrorLog.Fatal(err)
+			log.Fatal(err)
 		}
 	}()
 
 	<-done
-	bot.ErrorLog.Println("OS Interrupt Detected, Exiting ... ")
+	log.Println("OS Interrupt Detected, Exiting ... ")
 
 	err = bot.Updater.Stop()
 	if err != nil {
-		bot.ErrorLog.Fatal(err)
+		log.Fatal(err)
 	}
 }

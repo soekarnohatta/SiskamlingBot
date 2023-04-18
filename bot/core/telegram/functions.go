@@ -7,21 +7,6 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
-var (
-	defaultParseMode = &gotgbot.SendMessageOpts{
-		ParseMode:                "HTML",
-		AllowSendingWithoutReply: true,
-		DisableWebPagePreview:    true,
-		ReplyToMessageId:         -1,
-	}
-
-	replyDefaultParseMode = &gotgbot.SendMessageOpts{
-		ParseMode:                "HTML",
-		AllowSendingWithoutReply: true,
-		DisableWebPagePreview:    true,
-	}
-)
-
 /*
  * Message
  */
@@ -33,18 +18,19 @@ func (c *TgContext) SendMessage(text string, chatId int64) {
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
+	msgOpt := &gotgbot.SendMessageOpts{
+		ParseMode:                "HTML",
+		AllowSendingWithoutReply: true,
+		DisableWebPagePreview:    true,
+		ReplyToMessageId:         -1,
+		MessageThreadId:          c.Message.MessageThreadId,
+	}
 
 	if chatId != 0 {
 		c.Lock()
 		defer c.Unlock()
 
-		msg, err := c.Bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{
-			ParseMode:                "HTML",
-			AllowSendingWithoutReply: true,
-			DisableWebPagePreview:    true,
-			ReplyToMessageId:         -1,
-			MessageThreadId:          c.Message.MessageThreadId,
-		})
+		msg, err := c.Bot.SendMessage(chatId, text, msgOpt)
 		if err != nil {
 			return
 		}
@@ -55,7 +41,7 @@ func (c *TgContext) SendMessage(text string, chatId int64) {
 
 	c.Lock()
 	defer c.Unlock()
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, defaultParseMode)
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		return
 	}
@@ -63,7 +49,7 @@ func (c *TgContext) SendMessage(text string, chatId int64) {
 	c.Message = msg
 }
 
-func (c *TgContext) SendMessageAsync(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
+func (c *TgContext) SendMessageKeyboardAsync(text string, chatId int64, keyb [][]gotgbot.InlineKeyboardButton) {
 	if text == "" {
 		text = "Bad Request: No text supplied!"
 	}
@@ -136,12 +122,18 @@ func (c *TgContext) ReplyMessage(text string) {
 
 	timeProc := strconv.FormatFloat(time.Since(time.Unix(c.Date, 0)).Seconds(), 'f', 3, 64)
 	text += "\n\n⏱ <code>" + c.TimeInit + " s</code> | ⌛ <code>" + timeProc + " s</code>"
-	replyDefaultParseMode.ReplyToMessageId = c.Message.MessageId
+	msgOpt := &gotgbot.SendMessageOpts{
+		ParseMode:                "HTML",
+		AllowSendingWithoutReply: true,
+		DisableWebPagePreview:    true,
+		ReplyToMessageId:         c.Message.MessageId,
+		MessageThreadId:          c.Message.MessageThreadId,
+	}
 
 	c.Lock()
 	defer c.Unlock()
 
-	msg, err := c.Bot.SendMessage(c.Chat.Id, text, replyDefaultParseMode)
+	msg, err := c.Bot.SendMessage(c.Chat.Id, text, msgOpt)
 	if err != nil {
 		c.SendMessage(text, 0)
 		return

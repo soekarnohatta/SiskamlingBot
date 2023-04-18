@@ -1,4 +1,4 @@
-package telegram
+package utils
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -42,4 +42,13 @@ func RequirePrivate(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 	return nil
+}
+
+func IsUserAdmin(b *gotgbot.Bot, chatId, userId int64) bool {
+	member, err := b.GetChatMember(chatId, userId, nil)
+	if err != nil {
+		return false
+	}
+
+	return member.MergeChatMember().Status == "administrator" || member.MergeChatMember().Status == "creator"
 }

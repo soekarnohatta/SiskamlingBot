@@ -85,7 +85,7 @@ func (m *Module) info(ctx *telegram.TgContext) error {
 		ctx.Chat.Id,
 		ctx.Chat.Type,
 		ctx.User.FirstName,
-		telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers),
+		utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers),
 		ctx.User.Id,
 	)
 

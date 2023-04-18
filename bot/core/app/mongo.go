@@ -4,6 +4,7 @@ import (
 	"SiskamlingBot/bot/models"
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +19,7 @@ type MongoDB struct {
 }
 
 func (b *MyApp) newMongo() error {
-	b.ErrorLog.Println("Connecting to MongoDB instance...")
+	log.Println("Connecting to MongoDB instance...")
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
@@ -36,7 +37,7 @@ func (b *MyApp) newMongo() error {
 	err = newMongo.Ping(ctx, nil)
 	if err != nil {
 		if b.Config.IsDebug {
-			b.ErrorLog.Printf("Mongo URL is: %s\n", b.Config.DatabaseURL)
+			log.Printf("Mongo URL is: %s\n", b.Config.DatabaseURL)
 		}
 		return fmt.Errorf("newMongo: failed to ping new client with error: %w", err)
 	}
@@ -46,6 +47,6 @@ func (b *MyApp) newMongo() error {
 	b.DB.Pref.MongoDB = mongoDB
 	b.DB.Blacklist.MongoDB = mongoDB
 
-	b.ErrorLog.Println("Successfully connected to MongoDB instance!")
+	log.Println("Successfully connected to MongoDB instance!")
 	return nil
 }

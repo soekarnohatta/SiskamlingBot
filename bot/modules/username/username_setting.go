@@ -1,14 +1,13 @@
 package username
 
 import (
-	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
 	"fmt"
 )
 
 func (m *Module) usernameSetting(ctx *telegram.TgContext) error {
-	if !core.IsUserAdmin(ctx) {
+	if !utils.IsUserAdmin(ctx.Bot, ctx.Chat.Id, ctx.User.Id) {
 		ctx.SendMessage("Anda bukan admin!", 0)
 		return nil
 	}

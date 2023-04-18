@@ -81,13 +81,13 @@ func (m *Module) pictureScan(ctx *telegram.TgContext) error {
 	}()
 
 	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
-	go func() { ctx.SendMessageAsync(txtPrivate, ctx.User.Id, keybPrivate); wg.Done() }()
-	go func() { ctx.SendMessageAsync(txtLog, m.App.Config.LogEvent, nil); wg.Done() }()
+	go func() { ctx.SendMessageKeyboardAsync(txtPrivate, ctx.User.Id, keybPrivate); wg.Done() }()
+	go func() { ctx.SendMessageKeyboardAsync(txtLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 
 func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
-	if telegram.IsPrivate(ctx.Chat.Type) {
+	if utils.IsPrivate(ctx.Chat.Type) {
 		return ext.ContinueGroups
 	}
 
@@ -135,7 +135,7 @@ func (m *Module) pictureCallbackGroup(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) pictureCallbackPrivate(ctx *telegram.TgContext) error {
-	if !telegram.IsPrivate(ctx.Chat.Type) {
+	if !utils.IsPrivate(ctx.Chat.Type) {
 		return ext.ContinueGroups
 	}
 

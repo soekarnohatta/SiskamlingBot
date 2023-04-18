@@ -3,6 +3,7 @@ package user
 import (
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/models"
+	"SiskamlingBot/bot/utils"
 	"fmt"
 	"strings"
 	"sync"
@@ -33,7 +34,7 @@ func (m *Module) blacklist(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) blacklistAdd(ctx *telegram.TgContext) error {
-	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
+	if !utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}
 
@@ -54,7 +55,7 @@ func (m *Module) blacklistAdd(ctx *telegram.TgContext) error {
 }
 
 func (m *Module) blacklistRemove(ctx *telegram.TgContext) error {
-	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
+	if !utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}
 

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"SiskamlingBot/bot/core"
 	"SiskamlingBot/bot/core/telegram"
 	"SiskamlingBot/bot/utils"
 	"fmt"
@@ -71,12 +70,12 @@ func (m *Module) antispam(ctx *telegram.TgContext) error {
 	}()
 
 	go func() { ctx.DeleteMessage(toDeleteAndSave); wg.Done() }()
-	go func() { ctx.SendMessageAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
+	go func() { ctx.SendMessageKeyboardAsync(banLog, m.App.Config.LogEvent, nil); wg.Done() }()
 	return telegram.EndOrder
 }
 
 func (m *Module) antispamSetting(ctx *telegram.TgContext) error {
-	if !core.IsUserAdmin(ctx) {
+	if !utils.IsUserAdmin(ctx.Bot, ctx.Chat.Id, ctx.User.Id) {
 		ctx.SendMessage("Anda bukan admin!", 0)
 		return nil
 	}

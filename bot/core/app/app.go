@@ -27,14 +27,12 @@ type MyApp struct {
 
 	Config    *Config
 	DB        MongoDB
-	ErrorLog  *log.Logger
 	TimeStart time.Time
 }
 
 func NewBot(config *Config) *MyApp {
 	return &MyApp{
-		Config:   config,
-		ErrorLog: log.New(os.Stderr, "[BOT] ", log.LstdFlags),
+		Config: config,
 
 		Modules:   make(map[string]Module),
 		Commands:  make(map[string]types.Command),
@@ -69,10 +67,11 @@ func NewBot(config *Config) *MyApp {
 			return err
 		}
 
-		b.ErrorLog.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
+		log.Printf("%s is now running using webhook!\n", b.Bot.User.Username)
 		return nil
 	}
 */
+
 func (b *MyApp) startPolling() error {
 	_, err := b.Bot.DeleteWebhook(&gotgbot.DeleteWebhookOpts{DropPendingUpdates: b.Config.CleanPolling})
 	if err != nil {
@@ -84,7 +83,7 @@ func (b *MyApp) startPolling() error {
 		return err
 	}
 
-	b.ErrorLog.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
+	log.Printf("%s is now running using long-polling!\n", b.Bot.User.Username)
 	return nil
 }
 
@@ -112,7 +111,7 @@ func (b *MyApp) Run() error {
 	}
 
 	b.Updater = ext.NewUpdater(&ext.UpdaterOpts{
-		ErrorLog: b.ErrorLog,
+		ErrorLog: log.New(os.Stderr, "[BOT] ", log.LstdFlags),
 		Dispatcher: ext.NewDispatcher(&ext.DispatcherOpts{
 			// If an error is returned by a handler, log it and continue going.
 			Error: func(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
@@ -185,6 +184,6 @@ func (b *MyApp) SendLogMessage(msg string, err error, ctx *ext.Context) {
 
 	_, err = b.Bot.SendMessage(b.Config.LogEvent, replyTxt, &gotgbot.SendMessageOpts{ParseMode: "HTML"})
 	if err != nil {
-		b.ErrorLog.Println(err)
+		log.Println(err)
 	}
 }

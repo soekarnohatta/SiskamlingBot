@@ -3,6 +3,7 @@ package app
 import (
 	"SiskamlingBot/bot/core/telegram/types"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -123,6 +124,6 @@ func (b *MyApp) loadModules() error {
 		}
 	}
 
-	b.ErrorLog.Println("Loaded All Modules!")
+	log.Println("Loaded All Modules!")
 	return nil
 }

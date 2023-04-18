@@ -1,8 +1,10 @@
 package app
 
 import (
+	"SiskamlingBot/bot/utils"
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"sort"
 	"sync"
@@ -20,6 +22,10 @@ import (
 func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 	defer b.handlePanicSendLog(ctx)
 	if ctx.EffectiveMessage == nil {
+		return ext.ContinueGroups
+	}
+
+	if utils.IsSudo(ctx.EffectiveMessage.From.Id, b.Config.SudoUsers) {
 		return ext.ContinueGroups
 	}
 
@@ -64,7 +70,6 @@ func (b *MyApp) messageHandler(bot *gotgbot.Bot, ctx *ext.Context) error {
 		}
 	}
 
-	// wg.Wait()
 	return ext.ContinueGroups
 }
 
@@ -109,7 +114,7 @@ func (b *MyApp) registerHandlers() {
 	dsp.AddHandlerToGroup(handlers.NewMessage(message.NewChatMembers, b.messageHandler), 2)
 	dsp.AddHandlerToGroup(newCustomMessageHandler(message.All, b.messageHandler), 2)
 
-	b.ErrorLog.Println("All handlers have been registered successfully!")
+	log.Println("All handlers have been registered successfully!")
 }
 
 // Closure for handling panic in handlers

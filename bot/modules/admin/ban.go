@@ -8,7 +8,7 @@ import (
 )
 
 func (m Module) globalBan(ctx *telegram.TgContext) error {
-	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
+	if !utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}
 
@@ -64,7 +64,7 @@ func (m Module) globalBan(ctx *telegram.TgContext) error {
 }
 
 func (m Module) removeGlobalBan(ctx *telegram.TgContext) error {
-	if !telegram.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
+	if !utils.IsSudo(ctx.User.Id, m.App.Config.SudoUsers) {
 		return nil
 	}
 
