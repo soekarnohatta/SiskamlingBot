@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"SiskamlingBot/bot/utils"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
