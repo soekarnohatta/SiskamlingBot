@@ -1,22 +1,22 @@
 package main
 
 import (
+	"SiskamlingBot/bot/core/app"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"SiskamlingBot/bot/core/app"
 	_ "SiskamlingBot/bot/modules"
 )
 
 func main() {
-	var config, err = app.NewConfig()
+	config, err := app.NewConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	var bot = app.NewBot(config)
-	var done = make(chan os.Signal, 1)
+	bot := app.NewBot(config)
+	done := make(chan os.Signal, 1)
 
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {

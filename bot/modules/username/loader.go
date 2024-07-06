@@ -57,7 +57,7 @@ func NewModule(bot *app.MyApp) (app.Module, error) {
 }
 
 func init() {
-	var err = app.RegisterModule("Username", NewModule)
+	err := app.RegisterModule("Username", NewModule)
 	if err != nil {
 		panic(err)
 	}
