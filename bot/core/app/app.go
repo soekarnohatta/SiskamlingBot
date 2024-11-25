@@ -1,6 +1,8 @@
 package app
 
 import (
+	"SiskamlingBot/bot/core/telegram/types"
+	"SiskamlingBot/bot/utils"
 	"fmt"
 	"html"
 	"log"
@@ -11,9 +13,6 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/shirou/gopsutil/host"
-
-	"SiskamlingBot/bot/core/telegram/types"
-	"SiskamlingBot/bot/utils"
 )
 
 type MyApp struct {
